@@ -1,0 +1,1710 @@
+// ===== USE COMMAND SYSTEM =====
+
+// Maps command aliases to their action types
+// null = generic "use" (we'll infer intent based on context)
+const aliasToAction = {
+  'use': null,              // Generic - can mean apply, attack, or craft
+  'apply': 'apply',         // Explicitly using an item on something
+  'attack': 'attack',       // Combat actions
+  'kill': 'attack',
+  'strike': 'attack',
+  'stab': 'attack',
+  'hit': 'attack',
+  'combine': 'craft',       // Crafting/combining items
+  'craft': 'craft',
+  'make': 'craft',
+  'create': 'craft',
+  'operate': 'operate',
+  'equip': 'operate',
+  'wear': 'operate',
+  'light': 'operate',
+  'activate': 'operate',
+  'unequip': 'operate',
+  'remove': 'operate',
+  'extinguish': 'operate',
+  'deactivate': 'operate',
+  'open': 'operate',
+  'lift': 'operate',
+  'shut': 'operate',
+  'close': 'operate'
+};
+
+// Common prepositions we recognize as separators
+const PREPOSITIONS = ['on', 'with', 'to', 'at', 'and', 'using', 'in', 'into'];
+
+// Parse command into items and targets based on preposition
+// For attack: "attack troll with sword" → target: [troll], items: [sword]
+// For use/apply: "use sword on troll" → items: [sword], target: [troll]
+// For craft: "combine hammer and nails" → items: [hammer, nails], target: []
+function parseActionCommand(actionType, things) {
+  // Find any preposition in the command
+  const prepIndex = things.findIndex(word => PREPOSITIONS.includes(word));
+
+  if (actionType === 'attack') {
+    // Attack format: target comes first, then item
+    // "attack troll with sword" → target: [troll], items: [sword]
+    if (prepIndex === -1) {
+      // No preposition: everything is target (unarmed attack)
+      return { target: things, items: [] };
+    }
+    return {
+      target: things.slice(0, prepIndex),
+      items: things.slice(prepIndex + 1)
+    };
+  }
+  else if (actionType === 'use' || actionType === 'apply') {
+    // Use/apply format: item comes first, then target
+    // "use sword on troll" → items: [sword], target: [troll]
+    if (prepIndex === -1) {
+      // No preposition: everything is items (need to ask for target)
+      return { items: things, target: [] };
+    }
+    return {
+      items: things.slice(0, prepIndex),
+      target: things.slice(prepIndex + 1)
+    };
+  }
+  else if (actionType === 'craft') {
+    // Craft format: all items, preposition doesn't matter
+    // "combine hammer and nails" → items: [hammer, nails]
+    // Filter out the preposition itself
+    return { items: things.filter(word => !PREPOSITIONS.includes(word)), target: [] };
+  }
+  else if (actionType === 'operate') {
+    // Operate format: just the item, no target
+    // "equip helmet" → items: [helmet], target: []
+    return { items: things, target: [] };
+  }
+}
+
+// Build a list of all things the player can currently interact with
+// Includes: room objects, room items, inventory items, generic disallowed items
+function buildInteractablesList() {
+  const currentRoom = rooms[gameState.currentRoom];
+  const interactables = [];
+
+  // Add objects in the room (like troll, door, etc.)
+  if (currentRoom.objects) {
+    currentRoom.objects.forEach(objId => {
+      if (objects[objId]) {
+        interactables.push({
+          ...objects[objId],  // Copy all object properties
+          id: objId,          // Add the ID for reference
+          type: 'object'      // Mark as object
+        });
+      }
+    });
+  }
+
+  // Add items in the room (not picked up yet)
+  if (currentRoom.items) {
+    currentRoom.items.forEach(itemId => {
+      if (items[itemId]) {
+        interactables.push({
+          ...items[itemId],
+          id: itemId,
+          type: 'item',
+          location: 'room'
+        });
+      }
+    });
+  }
+
+  // Add items in inventory
+  gameState.inventory.forEach(itemId => {
+    if (items[itemId]) {
+      interactables.push({
+        ...items[itemId],
+        id: itemId,
+        type: 'item',
+        location: 'inventory'
+      });
+    }
+  });
+
+  // Add room-specific disallowed items (things that exist but can't be taken)
+  if (currentRoom.disallowedTakes) {
+    Object.keys(currentRoom.disallowedTakes).forEach(itemId => {
+      interactables.push({
+        id: itemId,
+        type: 'generic',
+        name: itemId
+      });
+    });
+  }
+
+  // Add global generic items (wall, air, etc.)
+  Object.keys(genericDisallowedItems).forEach(itemId => {
+    interactables.push({
+      id: itemId,
+      type: 'generic',
+      name: itemId
+    });
+  });
+
+  return interactables;
+}
+
+// Find an interactable thing by name or alias
+// Checks: exact ID match, then aliases (items), then names (objects)
+function findInteractable(searchName, interactables) {
+  // First: exact ID match
+  const exactMatch = interactables.find(i => i.id === searchName);
+  if (exactMatch) return exactMatch;
+
+  // Second: check aliases (for items: "sword", "blade", "weapon")
+  const aliasMatch = interactables.find(i =>
+    i.aliases && i.aliases.includes(searchName)
+  );
+  if (aliasMatch) return aliasMatch;
+
+  // Third: check names (for objects: "troll", "creature", "beast")
+  const namesMatch = interactables.find(i =>
+    i.names && i.names.includes(searchName)
+  );
+  if (namesMatch) return namesMatch;
+
+  // Not found
+  return null;
+}
+
+// Clear multi-step command state (call after command completes)
+function clearUseState() {
+  gameState.partCommand = "";
+  gameState.pendingAlias = "";
+  gameState.partApplyItems = [];
+  gameState.partAttackTarget = [];
+  gameState.partCraftItems = [];
+}
+
+function setGameState(field, data, adding = true) {
+
+  if (adding === true) {
+    gameState[field].push(data);
+    return true;
+  } else {
+    const index = gameState[field].indexOf(data);
+    if (index > -1) {
+      gameState[field].splice(index, 1);
+      return true;
+    } else {
+      return false;
+    }
+  }
+}
+
+function setRoomState(field, data, adding = true) {
+  const currentRoom = rooms[gameState.currentRoom];
+
+  if (adding === true) {
+    currentRoom[field].push(data);
+    return true;
+  } else {
+    const index = currentRoom[field].indexOf(data);
+    if (index > -1) {
+      currentRoom[field].splice(index, 1);
+      return true;
+    } else {
+      return false;
+    }
+  }
+}
+
+function initializeCombat() {
+  const currentRoom = rooms[gameState.currentRoom];
+  if (currentRoom.objects) {
+    currentRoom.objects.forEach(objectId => {
+      const object = objects[objectId];
+
+      if (object && object.combat && !gameState.combatState[objectId]) {
+        gameState.combatState[object] = {
+          firstEngagement: true,
+          turnCount: 0,
+          enemyTurn: false
+        };
+      }
+    });
+  }
+}
+
+// Get appropriate error message for a failed action
+// Later you can add custom errorMessages to items/objects
+function getErrorMessage(item, actionType, target) {
+  if (!item) {
+    return "I can't find that.";
+  }
+
+  // Check if item has custom error messages (future feature)
+  const actionMsgs = item.errorMessages?.[actionType];
+
+  // Try target-specific message
+  if (target && actionMsgs?.[target.id]) {
+    return actionMsgs[target.id];
+  }
+
+  // Fall back to action default
+  if (actionMsgs?.default) {
+    return actionMsgs.default;
+  }
+
+  // Global fallback
+  return `You can't ${actionType} that.`;
+}
+
+// Main resolver: validates action and dispatches to execution
+// This is where we check if the action makes sense before doing it
+function resolveAction(actionType, parsed, verb) {
+  // Default null (generic "use") becomes "use" action
+  if (actionType === null) {
+    actionType = 'use';
+  }
+
+  const interactables = buildInteractablesList();
+
+  // Find the item (tool/weapon being used)
+  const item = parsed.items.length > 0
+    ? findInteractable(parsed.items[0], interactables)
+    : null;
+
+  // Find the target (thing being acted upon)
+  const target = parsed.target.length > 0
+    ? findInteractable(parsed.target[0], interactables)
+    : null;
+
+  // Validation: Check if item exists
+  if (!item && parsed.items.length > 0) {
+    displayText("I can't find that.");
+    return false;
+  }
+
+  // Validation: For use/apply/craft, item must be in inventory (not just in room)
+  if (item && (actionType === 'use' || actionType === 'apply' || actionType === 'craft')) {
+    if (item.type === 'object') {
+      displayText("You can't take that to use it on something else.");
+      return false;
+    }
+    if (item.type === 'generic') {
+      displayText("You can't use that.");
+      return false;
+    }
+    // Check if item is actually IN inventory (positive check, not negative)
+    if (item.type === 'item' && !gameState.inventory.includes(item.id)) {
+      displayText(`You don't have the ${parsed.items[0]}.`);
+      return false;
+    }
+  }
+
+  // Validation: Check if target exists
+  if (!target && parsed.target.length > 0) {
+    displayText("I can't find that.");
+    return false;
+  }
+
+  // Optional: Check targetCompat if item defines it (future feature)
+  // This lets you restrict what actions work with what targets
+  // For now, items don't have this, so everything is allowed
+  if (item?.targetCompat) {
+    const allowed = item.targetCompat[target?.id]
+      || item.targetCompat.default;
+
+    if (!allowed?.includes(actionType)) {
+      displayText(getErrorMessage(item, actionType, target));
+      return false;
+    }
+  }
+
+  // Action is valid - execute it!
+  return executeAction(actionType, item, target, parsed, verb);
+}
+
+// ===== EXECUTION HANDLERS (YOU'LL CUSTOMIZE THESE) =====
+
+// Main dispatcher - routes to specific handler based on action type
+function executeAction(actionType, item, target, parsed, verb) {
+  switch (actionType) {
+    case 'attack':
+      return handleAttack(item, target);
+    case 'use':
+    case 'apply':
+      return handleApply(item, target);
+    case 'craft':
+      return handleCraft(parsed.items);
+    case 'operate':
+      return handleOperate(verb, item)
+    default:
+      displayText("Action not implemented yet.");
+      return false;
+  }
+}
+
+// TODO: Customize this for your combat system
+function handleAttack(item, target) {
+
+  // If there is no combat for the target
+  if (!target.combat) {
+    if (target.attackMessage) {
+      displayText(target.attackMessage)
+    } else {
+      displayText(`You can't attack the ${target.id} with the ${item.id}.`);
+    }
+    return false;
+  }
+
+  const combat = gameState.combatState[target.id];
+
+  // If you are using the right item
+  if (!target.combat.successfulWeapons.includes(item.id)) {
+    if (target.combat.wrongWeaponMessage && target.combat.wrongWeaponMessage[item.id]) {
+      displayText(target.combat.wrongWeaponMessage[item.id]);
+    } else {
+      displayText(`It would be silly to try to attack the ${target.id} with the ${item.name}.`);
+    }
+    return false;
+  }
+
+
+  // If there are no restrictive flags
+  let allowCombat = true;
+
+  if (target.combat.requiredFlags) {
+    for (const flag of target.combat.requiredFlags) {
+      if (!gameState.flags.includes(flag)) {
+        allowCombat = false;
+      }
+    }
+  }
+
+  if (!allowCombat) {
+    if (target.combat.requiredFlagsFailMessage) {
+      displayText(target.combat.requiredFlagsFailMessage);
+    } else {
+      displayText(`You can't attack the ${target}`);
+    }
+    return false;
+  }
+
+  // If this is the first turn to attack on
+  if (combat.turnCount === 1) {
+    if (target.combat.removeOnKill) {
+      setRoomState("objects", target.id, false);
+    }
+    if (target.combat.setFlags) {
+      for (const flag of target.combat.setFlags) {
+        setGameState("flags", flag);
+      }
+    }
+    if (target.combat.unsetFlags) {
+      for (const flag of target.combat.unsetFlags) {
+        setGameState("flags", flag, false);
+      }
+    }
+    if (target.combat.dropItems) {
+      for (const item of target.combat.dropItems) {
+        setRoomState("items", item);
+      }
+    }
+    if (target.combat.giveItems) {
+      for (const item of target.combat.giveItems) {
+        setGameState("inventory", item);
+      }
+    }
+    if (target.combat.addObjects) {
+      for (const object of target.combat.addObjects) {
+        setRoomState("objects", object);
+      }
+    }
+
+
+    const randomMessage = target.combat.instakillMessage[Math.floor(Math.random() * target.combat.instakillMessage.length)];
+    displayText(randomMessage);
+    delete gameState.combatState[target.id];
+    return true;
+  }
+
+  // You attack the enemy on the second (or later) turn with the right weapon and all required flags
+  let hitEnemy = false;
+  const randomNumber = Math.random();
+  if (target.combat.dodgeChanceDamaged && (gameState.healthState <= target.combat.damagedPlayerThreshold)) {
+    if (randomNumber >= target.combat.dodgeChanceDamaged) {
+      hitEnemy = true;
+    } else {
+      if (target.combat.missMessage) {
+        const randomMessage = target.combat.missMessage[Math.floor(Math.random() * target.combat.missMessage.length)];
+        displayText(randomMessage)
+      } else {
+        displayText(`The ${target.id} dodges.`);
+      }
+    }
+  } else if (target.combat.dodgeChance) {
+    if (randomNumber >= target.combat.dodgeChance) {
+      hitEnemy = true;
+    } else {
+      if (target.combat.dodgeMessage) {
+        const randomMessage = target.combat.dodgeMessage[Math.floor(Math.random() * target.combat.dodgeMessage.length)];
+        displayText(randomMessage)
+      } else {
+        displayText(`The ${target.id} dodges.`);
+      }
+    }
+  }
+
+  if (hitEnemy) {
+    if (target.combat.removeOnKill) {
+      setRoomState("objects", target.id, false);
+    }
+    if (target.combat.setFlags) {
+      for (const flag of target.combat.setFlags) {
+        setGameState("flags", flag);
+      }
+    }
+    if (target.combat.unsetFlags) {
+      for (const flag of target.combat.unsetFlags) {
+        setGameState("flags", flag, false);
+      }
+    }
+    if (target.combat.dropItems) {
+      for (const item of target.combat.dropItems) {
+        setRoomState("items", item);
+      }
+    }
+    if (target.combat.giveItems) {
+      for (const item of target.combat.giveItems) {
+        setGameState("inventory", item);
+      }
+    }
+    if (target.combat.addObjects) {
+      for (const object of target.combat.addObjects) {
+        setRoomState("objects", object);
+      }
+    }
+
+
+    const randomMessage = target.combat.killMessage[Math.floor(Math.random() * target.combat.killMessage.length)]; //make this random
+    delete gameState.combatState[target.id];
+    displayText(randomMessage);
+  }
+
+  return true;
+}
+
+function handleOperate(verb, item) {
+  if (!item.operate) {
+    displayText(`You can't ${verb} that.`);
+    return false;
+  }
+
+  let matchedAction = null;
+  for (const [actionName, action] of Object.entries(item.operate)) {
+    if (action.allowedVerbs && action.allowedVerbs.includes(verb)) {
+      matchedAction = action;
+      break;
+    }
+  }
+
+  if (!matchedAction) {
+    displayText(`You can't ${verb} the ${item.name}`);
+    return false;
+  }
+
+  // Do you have all flags required for the operation of the item?
+  if (matchedAction.requireFlags) {
+    let allowed = true;
+    for (const flag of matchedAction.requireFlags) {
+      if (!gameState.flags.includes(flag)) {
+        allowed = false;
+      }
+    }
+
+    if (allowed === false) {
+      // Don't have required flags
+      if (matchedAction.failMessage) {
+        displayText(matchedAction.failMessage);
+      } else {
+        displayText("Not allowed.");
+      }
+      return false;
+    }
+  }
+
+  // Do you have any flags restricting the operation of the item?
+  if (matchedAction.requireNotFlags) {
+    let allowed = true;
+    for (const flag of matchedAction.requireNotFlags) {
+      if (gameState.flags.includes(flag)) {
+        allowed = false;
+      }
+    }
+
+    if (allowed === false) {
+      // Have flags restricting use.
+      if (matchedAction.failMessage) {
+        displayText(matchedAction.failMessage);
+      } else {
+        displayText("Not allowed.");
+      }
+      return false;
+    }
+  }
+
+  // Set flags for using the item
+  if (matchedAction.setFlags) {
+    for (const flag of matchedAction.setFlags) {
+      setGameState("flags", flag);
+    }
+  }
+
+  // Remove flags for using the item
+  if (matchedAction.unsetFlags) {
+    for (const flag of matchedAction.unsetFlags) {
+      setGameState("flags", flag, false);
+    }
+  }
+
+  // Drop any items in the room for using the item
+  if (matchedAction.dropItems) {
+    for (const item of matchedAction.dropItems) {
+      setRoomState("items", item);
+    }
+  }
+
+  // Give the player any items for using the item
+  if (matchedAction.giveItems) {
+    for (const item of matchedAction.giveItems) {
+      setGameState("inventory", item);
+    }
+  }
+
+  // Remove object from room
+  if (matchedAction.removeObject) {
+    setRoomState("objects", item.id, false);
+  }
+
+  //Display message for successfully using the item in the intended manner
+  if (matchedAction.message) {
+    displayText(matchedAction.message);
+  } else {
+    displayText("You successfully used the item");
+  }
+}
+
+// Handle applying items to objects/targets
+function handleApply(item, target) {
+  console.log("DEBUG handleApply:");
+  console.log("  item:", item);
+  console.log("  target:", target);
+  console.log("  target.type:", target?.type);
+  console.log("  target.applyWith:", target?.applyWith);
+  // Special case: ladder placement on floor/ground
+  if ((item.id === 'stepladder' || item.id === 'ladder') && (target.id === 'floor' || target.id === 'ground')) {
+    setRoomState("items", item.id);
+    setGameState("inventory", item.id, false);
+    displayText(`You place the ${item.name} on the ${target.name}.`);
+    return true;
+  }
+
+  // Special case: using equippable items on self (use helmet on me)
+  if ((target.id === 'me' || target.id === 'myself' || target.id === 'self') && item.operate) {
+    // Route to operate handler with "equip" or "use" verb
+    return handleOperate('use', item);
+  }
+
+  // Check if target is an object with applyWith interactions
+  if (target.type === 'object' && target.applyWith) {
+    // Check for specific item interaction
+    const interaction = target.applyWith[item.id] || target.applyWith._default;
+
+    if (!interaction) {
+      displayText(`You can't use the ${item.name} on the ${target.name}.`);
+      return false;
+    }
+
+    // Check requirements
+    if (interaction.requireFlags && !interaction.requireFlags.every(f => gameState.flags.includes(f))) {
+      displayText(interaction.failMessage || `You can't use that yet.`);
+      return false;
+    }
+
+    if (interaction.requireNotFlags && interaction.requireNotFlags.some(f => gameState.flags.includes(f))) {
+      displayText(interaction.failMessage || `You've already done that.`);
+      return false;
+    }
+
+    // Execute the interaction
+    displayText(interaction.message);
+
+    // Set flags
+    if (interaction.setFlags) {
+      interaction.setFlags.forEach(flag => {
+        if (!gameState.flags.includes(flag)) {
+          setGameState("flags", flag);
+        }
+      });
+    }
+
+    // Unset flags
+    if (interaction.unsetFlags) {
+      interaction.unsetFlags.forEach(flag => {
+        setGameState("flags", flag, false)
+      });
+    }
+
+    // Consume item
+    if (interaction.consumeItem) {
+      setGameState("inventory", item.id, false)
+    }
+
+    // Give items to inventory
+    if (interaction.giveItems) {
+      interaction.giveItems.forEach(itemId => {
+        setGameState("inventory", itemId);
+      });
+    }
+
+    // Drop items in room
+    const currentRoom = rooms[gameState.currentRoom];
+    if (interaction.dropItems) {
+      if (!currentRoom.items) currentRoom.items = [];
+      interaction.dropItems.forEach(itemId => {
+        setRoomState("items", itemId);
+      });
+    }
+
+    // Remove object from room
+    if (interaction.removeObject && currentRoom.objects) {
+      setRoomState("objects", target.id, false);
+    }
+
+    // Conditional removal (removeObjectIfAllFlags)
+    if (interaction.removeObjectIfAllFlags && interaction.removeObjectIfAllFlags.every(f => gameState.flags.includes(f))) {
+      if (currentRoom.objects) {
+        setRoomState("objects", target.id, false);
+        if (objects[target] && objects[target].clearedMessage) {
+          displayText(objects[target].clearedMessage)
+        }
+      }
+    }
+
+    // Trigger effects on other objects
+    if (interaction.triggerEffects) {
+      interaction.triggerEffects.forEach(effect => {
+        const affectedObj = objects[effect.objectId];
+        if (affectedObj) {
+          if (effect.setFlags) {
+            effect.setFlags.forEach(flag => {
+              if (!gameState.flags.includes(flag)) {
+                setGameState("flags", flag);
+              }
+            });
+          }
+          if (effect.dropItems && currentRoom.items) {
+            effect.dropItems.forEach(itemId => {
+              setRoomState("items", itemId);
+            });
+          }
+        }
+      });
+    }
+
+    return true;
+  }
+
+  // Default: no interaction defined
+  displayText(`You can't use the ${item.name} on the ${target.name}.`);
+  return false;
+}
+
+// Crafting handler - checks recipes and creates items
+function handleCraft(itemNames) {
+  // Convert item names to IDs
+  const interactables = buildInteractablesList();
+  const itemIds = itemNames.map(name => {
+    const found = findInteractable(name, interactables);
+    return found?.id;
+  }).filter(id => id !== undefined); // Remove any not found
+
+  // Check if we have all the items (should already be validated, but double-check)
+  if (itemIds.length !== itemNames.length) {
+    displayText("I don't have all of those items.");
+    return false;
+  }
+
+  // Try to find a matching recipe
+  for (const [resultId, recipe] of Object.entries(recipes)) {
+    // Check if itemIds matches recipe.requires (order doesn't matter)
+    if (arraysMatchUnordered(itemIds, recipe.requires)) {
+      // Found a match! Execute the recipe
+
+      // Remove items from inventory (except retained ones)
+      recipe.requires.forEach(itemId => {
+        if (!recipe.retains || !recipe.retains.includes(itemId)) {
+          // Remove from inventory
+          setGameState("inventory", itemId, false);
+        }
+      });
+
+      // Add result item to inventory
+      setGameState("inventory", resultId);
+
+      // Set flags if specified
+      if (recipe.setFlags) {
+        recipe.setFlags.forEach(flag => {
+          if (!gameState.flags.includes(flag)) {
+            setGameState("flags", flag);
+          }
+        });
+      }
+
+      // Display message
+      displayText(recipe.message);
+      return true;
+    }
+  }
+
+  // No matching recipe found
+  displayText("I can't make anything with those items.");
+  return false;
+}
+
+// Helper: Check if two arrays contain the same elements (order doesn't matter)
+function arraysMatchUnordered(arr1, arr2) {
+  if (arr1.length !== arr2.length) return false;
+
+  const sorted1 = [...arr1].sort();
+  const sorted2 = [...arr2].sort();
+
+  return sorted1.every((val, index) => val === sorted2[index]);
+}
+
+// Handle use commands with multi-step support
+// Supports: "use" → "sword" → "troll" (3 steps)
+// Or: "use sword on troll" (1 step)
+function handleUseCommand(alias, things) {
+  const actionType = aliasToAction[alias] || 'use';
+
+  // No parameters: start multi-step sequence
+  if (!things || things.length === 0) {
+    gameState.partCommand = actionType;
+    gameState.pendingAlias = alias;
+    displayText(`What would you like me to ${alias}?`);
+    return;
+  }
+
+  // Parse the command
+  const parsed = parseActionCommand(actionType, things);
+
+  // Check if we need more information for apply/use
+  if (actionType === 'use' || actionType === 'apply') {
+    if (parsed.items.length > 0 && parsed.target.length === 0) {
+      // Have item but no target - validate item first
+      const itemName = parsed.items[0];
+      const interactables = buildInteractablesList();
+      const item = findInteractable(itemName, interactables);
+
+      // Check if item exists
+      if (!item) {
+        displayText("I can't find that.");
+        clearUseState();
+        return;
+      }
+
+      // Check if it's an object (can't use objects as tools)
+      if (item.type === 'object') {
+        displayText("You can't take that to use it on something else.");
+        clearUseState();
+        return;
+      }
+
+      // Check if it's a generic disallowed item (wall, air, etc.)
+      if (item.type === 'generic') {
+        displayText("You can't use that.");
+        clearUseState();
+        return;
+      }
+
+      // Check if item is actually IN inventory (positive check, not negative)
+      if (item.type === 'item' && !gameState.inventory.includes(item.id)) {
+        displayText(`You don't have the ${itemName}.`);
+        clearUseState();
+        return;
+      }
+
+      // Valid item - ask for target
+      gameState.partCommand = actionType;
+      gameState.pendingAlias = alias;
+      gameState.partApplyItems = parsed.items;
+      displayText(`What would you like me to ${alias} the ${itemName} on?`);
+      return;
+    }
+  }
+
+  // Check if we need more information for attack
+  if (actionType === 'attack') {
+    if (parsed.target.length > 0 && parsed.items.length === 0) {
+      // Have target but no weapon - validate target first
+      const targetName = parsed.target[0];
+      const interactables = buildInteractablesList();
+      const target = findInteractable(targetName, interactables);
+
+      // Check if target exists
+      if (!target) {
+        displayText("I can't find that.");
+        clearUseState();
+        return;
+      }
+
+      // Valid target - ask for weapon
+      gameState.partCommand = actionType;
+      gameState.pendingAlias = alias;
+      gameState.partAttackTarget = parsed.target;
+      displayText(`What would you like me to ${alias} the ${targetName} with?`);
+      return;
+    }
+  }
+
+  if (actionType === 'operate') {
+    if (parsed.items.length > 0 && parsed.target.length === 0) {
+      resolveAction('operate', parsed, alias);
+      clearUseState();
+      return;
+    }
+  }
+
+  // We have everything needed - execute the action
+  // Clear state regardless of success/failure so user isn't stuck
+  const result = resolveAction(actionType, parsed, alias);
+  clearUseState();
+  return result;
+}
+
+// Define command data with aliases and failure messages
+function help() {
+  displayText("=== KROZ ===\n" +
+    "Goal: Escape the underground maze, find your way to the forest\n\n" +
+    "MOVEMENT:\n" +
+    "  north (n), south (s), east (e), west (w)\n" +
+    "  northeast (ne), northwest (nw), southeast (se), southwest (sw)\n" +
+    "  up (u), down (d)\n\n" +
+    "ACTIONS:\n" +
+    "  look (l) - Examine your surroundings\n" +
+    "  inventory (i, inv) - Check what you're carrying\n" +
+    "  take <item> - Pick up an item\n" +
+    "  drop <item> - Drop an item from inventory\n" +
+    "  use <object> - Interact with objects in the room\n" +
+    "  examine <item> - Look closely at something\n\n" +
+    "OTHER:\n" +
+    "  help (h, ?) - Display this message")
+}
+
+function inventory() {
+  if (gameState.inventory.length === 0) {
+    displayText("I don't have anything");
+  } else {
+    const counts = {};
+
+    for (const item of gameState.inventory) {
+      const itemName = items[item].name;
+      counts[itemName] = (counts[itemName] || 0) + 1;
+    }
+
+    const itemList = [];
+    for (const [item, count] of Object.entries(counts)) {
+      if (count === 1) {
+        itemList.push(item);
+      } else {
+        itemList.push(item + ` x ${count}`);
+      }
+    }
+
+    displayText(`I've got:\n${itemList.join(", ")}`);
+  }
+}
+
+function look() {
+  displayRoomTitle(rooms[gameState.currentRoom].name);
+
+  let look = "";
+  const room = rooms[gameState.currentRoom];
+
+  if (typeof room.look === "object") {
+    if (room.look.base) {
+      look += room.look.base + "\n";
+
+    }
+    for (const part of room.look.parts) {
+      if (part.if) {
+        if (gameState.flags.includes(part.if)) {
+          if (look) look += " ";
+          look += part.text;
+        }
+      } else if (part.unless) {
+        if (!gameState.flags.includes(part.unless)) {
+          if (look) look += " ";
+          look += part.text;
+        }
+      } else {
+        look = "This room has an error...";
+      }
+    }
+  } else if (typeof room.look === "string") {
+    look = room.look;
+  } else if (typeof room.look === "function") {
+    look = room.look();
+  } else {
+    look = "This room has an error...";
+  }
+
+  look += "\n";
+
+  if (room.passages) {
+    const directions = Object.keys(room.passages);
+
+    if (directions.length === 1) {
+      const dir = directions[0];
+      if (dir === "up" || dir === "down") {
+        look += `There is a passage ${dir}.`;
+      } else {
+        look += `There is a passage to the ${dir}.`;
+      }
+    } else if (directions.length > 1) {
+      const firstDir = directions[0];
+
+      // Start the sentence based on first direction
+      if (firstDir === "up" || firstDir === "down") {
+        look += "There are passages ";
+      } else {
+        look += "There are passages to the ";
+      }
+
+      // Build passage list
+      for (let i = 0; i < directions.length; i++) {
+        const dir = directions[i];
+        const isLast = (i === directions.length - 1);
+
+        if (isLast) {
+          // Last item: "and [direction]."
+          if (dir === "up" || dir === "down") {
+            look += `and ${dir}.`;
+          } else {
+            look += `and to the ${dir}.`;
+          }
+        } else {
+          // Middle items
+          if (dir === "up" || dir === "down") {
+            look += `${dir}, `;
+          } else {
+            look += `to the ${dir}, `;
+          }
+        }
+      }
+    }
+  }
+
+  if (room.restrictedPassages) {
+    const directions = Object.keys(room.restrictedPassages);
+    for (const direction of directions) {
+      const passage = room.restrictedPassages[direction];
+
+      if (passage.hidden !== true) {
+        let allRequirementsMet = true;
+        let firstUnmetRequirement = null;
+
+        // Check all requirements
+        if (passage.requirements) {
+          for (const requirement of passage.requirements) {
+            const flagMet = !requirement.flag || gameState.flags.includes(requirement.flag);
+            const itemMet = !requirement.item || gameState.inventory.includes(requirement.item);
+
+            // Check roomItem requirement
+            let roomItemMet = true;
+            if (requirement.roomItems) {
+              const allowedItems = Array.isArray(requirement.roomItems)
+                ? requirement.roomItems
+                : [requirement.roomItems];
+              roomItemMet = allowedItems.some(item => room.items?.includes(item));
+            }
+
+            if (!flagMet || !itemMet || !roomItemMet) {
+              allRequirementsMet = false;
+              if (!firstUnmetRequirement) {
+                firstUnmetRequirement = requirement;
+              }
+            }
+          }
+        }
+
+        // Show appropriate description
+        if (allRequirementsMet && passage.metDescription) {
+          look += `\n${passage.metDescription}`;
+        } else if (!allRequirementsMet && firstUnmetRequirement?.unmetDescription) {
+          look += `\n${firstUnmetRequirement.unmetDescription}`;
+        }
+      }
+    }
+  }
+
+  // Add item descriptions
+  if (room.items && room.items.length > 0) {
+    let itemTexts = [];
+
+    for (const itemId of room.items) {
+      // Skip items that this room wants to handle manually
+      if (room.hideItemDescriptions && room.hideItemDescriptions.includes(itemId)) {
+        continue;
+      }
+
+      // Skip nails in sand room if not taken yet
+      if (gameState.currentRoom === "sand" && itemId === "nails" && !gameState.flags.includes("nailsTaken")) {
+        continue;
+      }
+
+      const item = items[itemId];
+      if (item && item.description) {
+        itemTexts.push(item.description);
+      }
+    }
+
+    if (itemTexts.length > 0) {
+      look += "\n" + itemTexts.join(" ");
+    }
+  }
+
+  displayText("\n" + look)
+}
+
+function move(direction) {
+  const currentRoom = rooms[gameState.currentRoom];
+
+  if (direction !== "back") {
+    if (currentRoom.passages && currentRoom.passages[direction]) {
+      gameState.previousRoom = gameState.currentRoom;
+      gameState.currentRoom = currentRoom.passages[direction];
+      if (!gameState.visitedRooms.includes(gameState.currentRoom)) {
+        gameState.visitedRooms.push(gameState.currentRoom);
+        initializeCombat();
+        look();
+      } else {
+        displayRoomTitle(rooms[gameState.currentRoom].name);
+      }
+      return;
+    }
+
+    if (currentRoom.restrictedPassages && currentRoom.restrictedPassages[direction]) {
+      const restrictedPassage = currentRoom.restrictedPassages[direction];
+
+      // Check requirements in order, show fail message for first unmet requirement
+      if (restrictedPassage.requirements) {
+        for (const requirement of restrictedPassage.requirements) {
+          if (requirement.flag && !gameState.flags.includes(requirement.flag)) {
+            displayText(requirement.failMessage);
+            return;
+          }
+          if (requirement.item && !gameState.inventory.includes(requirement.item)) {
+            displayText(requirement.failMessage);
+            return;
+          }
+          if (requirement.roomItems) {
+            let foundLadder = false;
+            for (const ladder of requirement.roomItems) {
+              if (currentRoom.items && currentRoom.items.includes(ladder)) {
+                foundLadder = true;
+              }
+            }
+            if (foundLadder === false) {
+              displayText(requirement.failMessage);
+              return;
+            }
+          }
+        }
+      }
+
+      // All requirements met
+      gameState.previousRoom = gameState.currentRoom;
+      gameState.currentRoom = restrictedPassage.room;
+      if (!gameState.visitedRooms.includes(gameState.currentRoom)) {
+        gameState.visitedRooms.push(gameState.currentRoom);
+        initializeCombat();
+        look();
+      } else {
+        displayRoomTitle(rooms[gameState.currentRoom].name);
+      }
+      return;
+    }
+
+    if (currentRoom.fail) {
+      displayText(currentRoom.fail);
+    } else {
+      if (direction === "up") {
+        displayText("There's nothing above me.");
+      } else if (direction === "down") {
+        displayText("There's solid ground beneath me.");
+      } else {
+        displayText("There's a wall there.");
+      }
+    }
+  } else {
+    if (currentRoom.backOff === true) {
+      if (currentRoom.backOffText) {
+        displayText(currentRoom.backOffText);
+      } else {
+        displayText("I can't go back");
+      }
+    } else {
+      let foundDirection = false;
+
+      // Check normal passages first
+      if (currentRoom.passages) {
+        const directions = Object.keys(currentRoom.passages);
+
+        for (const direction of directions) {
+          if (currentRoom.passages[direction] === gameState.previousRoom) {
+            gameState.previousRoom = gameState.currentRoom;
+            gameState.currentRoom = currentRoom.passages[direction];
+            if (!gameState.visitedRooms.includes(gameState.currentRoom)) {
+              gameState.visitedRooms.push(gameState.currentRoom);
+              initializeCombat();
+              look();
+            } else {
+              displayRoomTitle(rooms[gameState.currentRoom].name);
+            }
+            foundDirection = true;
+            return;
+          }
+        }
+      }
+
+      // If not found, check restricted passages
+      if (!foundDirection && currentRoom.restrictedPassages) {
+        const directions = Object.keys(currentRoom.restrictedPassages);
+
+        for (const direction of directions) {
+          if (currentRoom.restrictedPassages[direction].room === gameState.previousRoom) {
+            // Check if requirements are met
+            if (currentRoom.restrictedPassages[direction].requirements) {
+              for (const requirement of currentRoom.restrictedPassages[direction].requirements) {
+                if (requirement.flag && !gameState.flags.includes(requirement.flag)) {
+                  if (requirement.backFailMessage) {
+                    displayText(requirement.backFailMessage);
+                  } else {
+                    displayText("You can't go back that way.");
+                  }
+                  return;
+                }
+                if (requirement.item && !gameState.inventory.includes(requirement.item)) {
+                  if (requirement.backFailMessage) {
+                    displayText(requirement.backFailMessage);
+                  } else {
+                    displayText("You can't go back that way.");
+                  }
+                  return;
+                }
+                if (requirement.roomItems) {
+                  let foundLadder = false;
+                  for (const ladder of requirement.roomItems) {
+                    if (currentRoom.items && currentRoom.items.includes(ladder)) {
+                      foundLadder = true;
+                    }
+                  }
+                  if (foundLadder === false) {
+                    if (requirement.backFailMessage) {
+                      displayText(requirement.backFailMessage);
+                    } else {
+                      displayText("You can't go back that way.");
+                    }
+                    return;
+                  }
+                }
+              }
+            }
+
+
+            // All requirements met
+            gameState.previousRoom = gameState.currentRoom;
+            gameState.currentRoom = currentRoom.restrictedPassages[direction].room;
+            if (!gameState.visitedRooms.includes(gameState.currentRoom)) {
+              gameState.visitedRooms.push(gameState.currentRoom);
+              initializeCombat();
+              look();
+            } else {
+              displayRoomTitle(rooms[gameState.currentRoom].name);
+            }
+            foundDirection = true;
+            return;
+          }
+        }
+      }
+
+      // No matching direction found
+      if (!foundDirection) {
+        if (currentRoom.failedBackText) {
+          displayText(currentRoom.failedBackText);
+        } else {
+          displayText("Going back in this room isn't allowed");
+        }
+      }
+    }
+
+  }
+}
+
+//Complicated commands
+
+function takeSingle(alias) {
+  gameState.partCommand = "take";
+  displayText(`What would you like me to ${alias}?`);
+}
+
+function take(things) {
+  if (!things || things.length === 0) {
+    displayText("That's not something I can take");
+    return;
+  } else {
+    let feedback = "";
+    const currentRoom = rooms[gameState.currentRoom];
+
+    // Check if trying to take an object with operate (like dungeonLamp)
+    if (currentRoom.objects) {
+      for (const objId of currentRoom.objects) {
+        const obj = objects[objId];
+        if (obj && obj.names && obj.operate) {
+          // Check if any of the things match this object's names
+          for (const thing of things) {
+            if (obj.names.includes(thing)) {
+              // Route to operate handler
+              const objectWithId = {...obj, id: objId, type: 'object'};
+              return handleOperate('take', objectWithId);
+            }
+          }
+        }
+      }
+    }
+
+    // Build alias-to-itemId map for items in this room
+    const aliasToItemId = {};
+    if (currentRoom.items) {
+      for (const itemId of currentRoom.items) {
+        const item = items[itemId];
+        // Add all aliases for this item
+        if (item.aliases) {
+          for (const alias of item.aliases) {
+            aliasToItemId[alias.toLowerCase()] = itemId;
+          }
+        }
+      }
+    }
+
+    const nonTakeableItems = currentRoom.disallowedTakes ? Object.keys(currentRoom.disallowedTakes) : [];
+
+    if (things.length !== 1) {
+      for (const thing of things) {
+        const itemId = aliasToItemId[thing];
+
+        if (itemId) {
+          // Item found in room
+          setGameState("inventory", itemId);
+          if (items[itemId].setFlag) {
+            setGameState("flags", items[itemId].setFlag)
+          }
+
+          // Remove item from room
+          setRoomState("items", itemId, false);
+
+          feedback += `${thing}: Taken.\n`;
+        } else if (currentRoom.disallowedTakes && nonTakeableItems.includes(thing)) {
+          feedback += `${thing}: ${currentRoom.disallowedTakes[thing]}.\n`;
+        } else if (genericDisallowedItems[thing]) {
+          feedback += `${thing}: ${genericDisallowedItems[thing]}.\n`;
+        } else {
+          feedback += `${thing}: I can't find it.\n`;
+        }
+      }
+    } else {
+      const itemId = aliasToItemId[things[0]];
+
+      if (itemId) {
+        // Item found in room
+        setGameState("inventory", itemId);
+        if (items[itemId].setFlag) {
+          setGameState("flags", items[itemId].setFlag)
+        }
+        // Remove item from room
+        setRoomState("items", itemId, false);
+
+        feedback += "Taken.";
+      } else if (currentRoom.disallowedTakes && nonTakeableItems.includes(things[0])) {
+        feedback += currentRoom.disallowedTakes[things[0]];
+      } else if (genericDisallowedItems[things[0]]) {
+        feedback += genericDisallowedItems[things[0]];
+      } else {
+        feedback += "I can't find that.";
+      }
+    }
+    displayText(feedback);
+  }
+}
+
+function dropSingle(alias) {
+  gameState.partCommand = "drop";
+  displayText(`What would you like me to ${alias}?`);
+}
+
+function drop(things) {
+  if (!things || things.length === 0) {
+    displayText("I don't think I could drop that");
+    return;
+  } else {
+    let feedback = "";
+    const currentRoom = rooms[gameState.currentRoom];
+
+    // Build alias-to-itemId map for items in the inventory
+    const aliasToItemId = {};
+    if (gameState.inventory.length !== 0) {
+      for (const itemId of gameState.inventory) {
+        const item = items[itemId];
+        // Add all aliases for this item
+        if (item.aliases) {
+          for (const alias of item.aliases) {
+            aliasToItemId[alias.toLowerCase()] = itemId;
+          }
+        }
+      }
+    }
+
+    if (things.length !== 1) {
+      for (const thing of things) {
+        const itemId = aliasToItemId[thing];
+
+        if (setGameState("inventory", itemId, false)){
+
+          setRoomState("items", itemId);
+          feedback += `${thing}: Dropped.\n`;
+
+        } else {
+          feedback += `${thing}: I don't have that.\n`;
+        }
+      }
+    } else {
+      const itemId = aliasToItemId[things[0]];
+
+      if (setGameState("inventory", itemId, false)) {
+
+        setRoomState("items", itemId);
+        feedback += "Dropped.";
+
+      } else {
+        feedback += "I don't have that.";
+      }
+    }
+    displayText(feedback);
+  }
+}
+
+function examineSingle(alias) {
+  gameState.partCommand = "examine";
+  displayText(`What would you like to ${alias}?`);
+}
+
+function examine(things) {
+  if (!things || things.length === 0) {
+    displayText("I can't examine that");
+    return;
+  } else {
+    let feedback = "";
+    const currentRoom = rooms[gameState.currentRoom];
+
+    // I need to check what type of thing is being examined, item, object, or something else
+    if (things.length === 1) {
+      let found = false;
+
+      // Check objects
+      if (currentRoom.objects && currentRoom.objects.length !== 0) {
+        for (const object of currentRoom.objects) {
+          if (objects[object].names && objects[object].names.includes(things[0])) {
+            if (objects[object].examine) {
+              feedback += objects[object].examine;
+              found = true;
+              break;
+            }
+          }
+        }
+      }
+
+      // Check room items
+      if (!found && currentRoom.items && currentRoom.items.length !== 0) {
+        const aliasToItemId = {};
+
+        for (const itemId of currentRoom.items) {
+          const item = items[itemId];
+
+          if (item.aliases) {
+            for (const alias of item.aliases) {
+              aliasToItemId[alias.toLowerCase()] = itemId;
+            }
+          }
+        }
+
+        if (aliasToItemId[things[0]]) {
+          const item = items[aliasToItemId[things[0]]];
+          if (item && item.examine) {
+            feedback += item.examine;
+            found = true;
+          }
+        }
+      }
+
+      // Check inventory items
+      if (!found && gameState.inventory && gameState.inventory.length !== 0) {
+        const aliasToItemId = {};
+
+        for (const itemId of gameState.inventory) {
+          const item = items[itemId];
+
+          if (item.aliases) {
+            for (const alias of item.aliases) {
+              aliasToItemId[alias.toLowerCase()] = itemId;
+            }
+          }
+        }
+
+        if (aliasToItemId[things[0]]) {
+          const item = items[aliasToItemId[things[0]]];
+          if (item && item.examine) {
+            feedback += item.examine;
+            found = true;
+          }
+        }
+      }
+
+      // Check generic examines
+      if (!found && genericExamines[things[0]]) {
+        feedback += genericExamines[things[0]];
+        found = true;
+      }
+
+      // Not found
+      if (!found) {
+        feedback += "I can't find that";
+      }
+    } else {
+      // Build alias maps once, outside the loop
+      const roomItemAliases = {};
+      if (currentRoom.items && currentRoom.items.length !== 0) {
+        for (const itemId of currentRoom.items) {
+          const item = items[itemId];
+          if (item.aliases) {
+            for (const alias of item.aliases) {
+              roomItemAliases[alias.toLowerCase()] = itemId;
+            }
+          }
+        }
+      }
+
+      const inventoryAliases = {};
+      if (gameState.inventory && gameState.inventory.length !== 0) {
+        for (const itemId of gameState.inventory) {
+          const item = items[itemId];
+          if (item.aliases) {
+            for (const alias of item.aliases) {
+              inventoryAliases[alias.toLowerCase()] = itemId;
+            }
+          }
+        }
+      }
+
+      // Check each thing against all categories
+      for (const thing of things) {
+        let found = false;
+
+        // Check objects
+        if (currentRoom.objects && currentRoom.objects.length !== 0) {
+          for (const object of currentRoom.objects) {
+            if (objects[object].names && objects[object].names.includes(thing)) {
+              if (objects[object].examine) {
+                feedback += `${thing}: ${objects[object].examine}\n`;
+                found = true;
+                break;
+              }
+            }
+          }
+        }
+
+        // Check room items
+        if (!found && roomItemAliases[thing]) {
+          const item = items[roomItemAliases[thing]];
+          if (item && item.examine) {
+            feedback += `${thing}: ${item.examine}\n`;
+            found = true;
+          }
+        }
+
+        // Check inventory items
+        if (!found && inventoryAliases[thing]) {
+          const item = items[inventoryAliases[thing]];
+          if (item && item.examine) {
+            feedback += `${thing}: ${item.examine}\n`;
+            found = true;
+          }
+        }
+
+        // Check generic examines
+        if (!found && genericExamines[thing]) {
+          feedback += `${thing}: ${genericExamines[thing]}\n`;
+          found = true;
+        }
+
+        // Not found
+        if (!found) {
+          feedback += `${thing}: I can't find that\n`;
+        }
+      }
+    }
+
+    displayText(feedback);
+
+  }
+}
+
+const commandData = {
+  help: {
+    command: help,
+    failedCommand: (subject) => `I can't help you with ${subject}`,
+    aliases: ["h", "?"]
+  },
+  inventory: {
+    command: inventory,
+    failedCommand: (subject) => `I can't put ${subject} in my inventory like that`,
+    aliases: ["inv", "i"]
+  },
+  look: {
+    command: look,
+    failedCommand: (subject) => `I don't see ${subject} here`,
+    aliases: ["l"]
+  },
+  north: {
+    command: () => move("north"),
+    failedCommand: (subject) => `I can't go north to ${subject}`,
+    aliases: ["n"]
+  },
+  northeast: {
+    command: () => move("northeast"),
+    failedCommand: (subject) => `I can't go northeast to ${subject}`,
+    aliases: ["ne"]
+  },
+  east: {
+    command: () => move("east"),
+    failedCommand: (subject) => `I can't go east to ${subject}`,
+    aliases: ["e"]
+  },
+  southeast: {
+    command: () => move("southeast"),
+    failedCommand: (subject) => `I can't go southeast to ${subject}`,
+    aliases: ["se"]
+  },
+  south: {
+    command: () => move("south"),
+    failedCommand: (subject) => `I can't go south to ${subject}`,
+    aliases: ["s"]
+  },
+  southwest: {
+    command: () => move("southwest"),
+    failedCommand: (subject) => `I can't go southwest to ${subject}`,
+    aliases: ["sw"]
+  },
+  west: {
+    command: () => move("west"),
+    failedCommand: (subject) => `I can't go west to ${subject}`,
+    aliases: ["w"]
+  },
+  northwest: {
+    command: () => move("northwest"),
+    failedCommand: (subject) => `I can't go northwest to ${subject}`,
+    aliases: ["nw"]
+  },
+  up: {
+    command: () => move("up"),
+    failedCommand: (subject) => `I can't go up to ${subject}`,
+    aliases: ["u"]
+  },
+  down: {
+    command: () => move("down"),
+    failedCommand: (subject) => `I can't go down to ${subject}`,
+    aliases: ["d"]
+  },
+  back: {
+    command: () => move("back"),
+    failedCommand: (subject) => `I can't go back to ${subject}`,
+    aliases: ["b"]
+  }
+};
+
+// Build simpleCommands object with aliases pre-populated
+const simpleCommands = {};
+for (const [key, data] of Object.entries(commandData)) {
+  simpleCommands[key] = data;
+  // Add aliases pointing to same object
+  for (const alias of data.aliases) {
+    simpleCommands[alias] = data;
+  }
+}
+
+// Complicated commands for future implementation
+const complicatedCommands = {
+  take: {
+    command: (things) => take(things),
+    singleCommand: (alias) => takeSingle(alias),
+    failedCommand: "I can't take that.",
+    aliases: ["grab", "get", "obtain", "collect", "pick", "acquire"]
+  },
+  drop: {
+    command: (things) => drop(things),
+    singleCommand: (alias) => dropSingle(alias),
+    failedCommand: "I can't drop that.",
+    aliases: []
+  },
+  examine: {
+    command: (things) => examine(things),
+    singleCommand: (alias) => examineSingle(alias),
+    failedCommand: "I can't examine that.",
+    aliases: ["x", "inspect", "check", "view"]
+  }
+};
+
+// Build complicatedCommands with aliases
+for (const [key, data] of Object.entries(complicatedCommands)) {
+  if (data.aliases) {
+    for (const alias of data.aliases) {
+      complicatedCommands[alias] = data;
+    }
+  }
+}
+
+// Words that have funny responses when used as a main command
+
+const knownWords = {
+  scream: "AaaaRrgHh!",
+  yell: "AaaaRrgHh!",
+  shout: "Hey! ...the echoes fade into silence.",
+  run: "There's nowhere to run to.",
+  jump: "I jump up and down. Nothing happens.",
+  leap: "I leap into the air and land back where I started.",
+  dance: "I'm not in the mood for dancing.",
+  sing: "La la laaaa... I should focus on escaping.",
+  sleep: "I can't sleep here.",
+  rest: "There's no time for rest.",
+  sit: "I sit down briefly, then get back up.",
+  wait: "Time passes. Nothing changes.",
+  think: "I need to find a way out of here.",
+  pray: "I hope someone is listening.",
+  cry: "I hold back the tears.",
+  laugh: "Ha ha... ha...",
+  whistle: "I whistle nervously.",
+  clap: "*clap clap*",
+  kick: "I kick at nothing in particular.",
+  punch: "I throw a punch at the air.",
+  swim: "There's no water here.",
+  fly: "I can't fly.",
+  climb: "There's nothing to climb right now.",
+  dig: "I'd need proper tools for that.",
+  smell: "The air smells stale.",
+  listen: "I listen carefully. Just silence and distant echoes.",
+  hide: "There's nowhere to hide."
+}

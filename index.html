@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kroz - Text Adventure</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="game-wrapper">
+        <main class="game-container">
+            <header>
+                <h1>Kroz</h1>
+            </header>
+
+            <section class="game-display">
+                <div id="output" class="output"></div>
+            </section>
+
+            <section class="game-controls">
+                <input
+                    type="text"
+                    id="input"
+                    class="command-input"
+                    placeholder="Enter command..."
+                    autocomplete="off"
+                >
+            </section>
+        </main>
+
+        <aside class="debug-panel">
+            <div class="debug-section">
+                <h3>Game State</h3>
+                <pre id="game-state-display"></pre>
+            </div>
+            <div class="debug-section">
+                <h3>Room State</h3>
+                <pre id="room-state-display"></pre>
+            </div>
+        </aside>
+    </div>
+
+    <script src="js/map.js"></script>
+    <script src="js/items.js"></script>
+    <script src="js/objects.js"></script>
+    <script src="js/commands/helpers.js"></script>
+    <script src="js/commands/use/attack.js"></script>
+    <script src="js/commands/use/operate.js"></script>
+    <script src="js/commands/use/apply.js"></script>
+    <script src="js/commands/use/craft.js"></script>
+    <script src="js/commands/use/resolution.js"></script>
+    <script src="js/commands/use/use.js"></script>
+    <script src="js/commands/actions.js"></script>
+    <script src="js/commands/movement.js"></script>
+    <script src="js/commands/information.js"></script>
+    <script src="js/commands/registry.js"></script>
+    <script src="js/game.js"></script>
+    <script src="js/storage.js"></script>
+
+</body>
+</html>

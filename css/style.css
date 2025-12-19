@@ -1,0 +1,176 @@
+/* Reset and base styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: monospace;
+    background-color: #1a1a1a;
+    color: #00ff00;
+    line-height: 1.6;
+    padding: 20px;
+}
+
+/* Wrapper for game and debug panels */
+.game-wrapper {
+    display: flex;
+    gap: 20px;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+/* Game container */
+.game-container {
+    flex: 1;
+    max-width: 800px;
+}
+
+header h1 {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 2em;
+}
+
+/* Game display area */
+.game-display {
+    background-color: #000;
+    border: 2px solid #00ff00;
+    padding: 20px;
+    min-height: 400px;
+    max-height: 500px;
+    overflow-y: auto;
+    margin-bottom: 20px;
+}
+
+.output {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+.user-command {
+    color: #888888;
+    margin-top: 10px;
+}
+
+.room-title {
+    font-size: 1.5em;
+    font-weight: bold;
+    margin-bottom: 0;
+    color: #00ff00;
+}
+
+/* Game controls */
+.game-controls {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.command-input {
+    flex: 1;
+    background-color: #000;
+    color: #00ff00;
+    border: 2px solid #00ff00;
+    padding: 10px;
+    font-family: monospace;
+    font-size: 1em;
+}
+
+.command-input:focus {
+    outline: none;
+    border-color: #00ff00;
+    box-shadow: 0 0 5px #00ff00;
+}
+
+.submit-btn {
+    background-color: #00ff00;
+    color: #000;
+    border: none;
+    padding: 10px 20px;
+    font-family: monospace;
+    font-size: 1em;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.submit-btn:hover {
+    background-color: #00cc00;
+}
+
+.submit-btn:active {
+    background-color: #009900;
+}
+
+/* Game info section */
+.game-info {
+    background-color: #000;
+    border: 2px solid #00ff00;
+    padding: 15px;
+}
+
+.inventory {
+    font-size: 0.9em;
+}
+
+/* Scrollbar styling */
+.game-display::-webkit-scrollbar {
+    width: 10px;
+}
+
+.game-display::-webkit-scrollbar-track {
+    background: #000;
+}
+
+.game-display::-webkit-scrollbar-thumb {
+    background: #00ff00;
+}
+
+.game-display::-webkit-scrollbar-thumb:hover {
+    background: #00cc00;
+}
+
+/* Debug panel */
+.debug-panel {
+    width: 400px;
+    flex-shrink: 0;
+}
+
+.debug-section {
+    background-color: #000;
+    border: 2px solid #00ff00;
+    padding: 15px;
+    margin-bottom: 20px;
+}
+
+.debug-section h3 {
+    color: #00ff00;
+    margin-bottom: 10px;
+    font-size: 1.2em;
+}
+
+.debug-section pre {
+    color: #00ff00;
+    font-size: 0.85em;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.debug-section pre::-webkit-scrollbar {
+    width: 8px;
+}
+
+.debug-section pre::-webkit-scrollbar-track {
+    background: #000;
+}
+
+.debug-section pre::-webkit-scrollbar-thumb {
+    background: #00ff00;
+}
+
+.debug-section pre::-webkit-scrollbar-thumb:hover {
+    background: #00cc00;
+}
