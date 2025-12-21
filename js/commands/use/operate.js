@@ -32,7 +32,7 @@ function handleOperate(verb, item) {
 
 
   if (!matchedAction) {
-    displayText(`You can't ${verb} the ${item.names ? item.names[0] : item.name ? item.name : "that"}`);
+    displayText(`You can't ${verb} the ${item.names[0]}`);
     return false;
   }
 

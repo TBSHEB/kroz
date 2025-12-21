@@ -3,24 +3,21 @@
 
 const items = {
   dungeonKey: {
-    name: "key",
-    aliases: ["key", "keys"],
+    names: ["key", "keys"],
     examine: "A simple key made from chain loops",
     initialDescription: "Among the shattered remains of the hanging lantern lies a key made from chain loops.",
     description: "A key made from twisted chain loops lies here.",
     setFlag: "dungeonKeyTaken",
   },
   dungeonWood: {
-    name: "wood",
-    aliases: ["wood", "planks", "boards", "floorboards"],
+    names: ["wood", "planks", "boards", "floorboards"],
     examine: "Wooden planks, quite strong",
     initialDescription: "The floor is made out of loose wooden boards.",
     description: "Wooden planks lie scattered on the floor.",
     setFlag: "dungeonWoodTaken",
   },
   stepladder: {
-    name: "stepladder",
-    aliases: ["stepladder", "step-ladder", "steps", "ladder", "step ladder"],
+    names: ["stepladder", "step-ladder", "steps", "ladder", "step ladder"],
     examine: "A short stepladder. Not useful for much, but could give you a bit of extra height",
     initialDescription: "There's a short stepladder propped against the wall.",
     description: "A stepladder stands against the wall.",
@@ -28,8 +25,7 @@ const items = {
     vital: true,
   },
   lantern: {
-    name: "brass lantern",
-    aliases: ["lantern", "lamp", "brass", "light"],
+    names: ["brass lantern", "lantern", "lamp", "brass", "light"],
     primaryType: "operate",
     examine: "It is currently off",
     initialDescription: "An old brass lantern rests here.",
@@ -55,8 +51,7 @@ const items = {
     }
   },
   compass: {
-    name: "compass",
-    aliases: [],
+    names: ["compass"],
     examine: "I know which way north is",
     initialDescription: "A compass lies in the dust.",
     description: "A compass lies on the ground.",
@@ -64,54 +59,47 @@ const items = {
     vital: true,
   },
   nails: {
-    name: "nails",
-    aliases: ["nails", "nail"],
+    names: ["nails", "nail"],
     examine: "Shiny!",
     description: "Nails lie on the ground.",
     setFlag: "nailsTaken",
   },
   hammer: {
-    name: "hammer",
-    aliases: [],
+    names: ["hammer"],
     examine: "It appears to be fairly weak, better use it wisely...",
     initialDescription: "A hammer rests on a bench.",
     description: "A hammer lies on the ground.",
     setFlag: "hammerTaken",
   },
   skull: {
-    name: "skull",
-    aliases: ["skull", "head"],
+    names: ["skull", "head"],
     examine: "A very nice specimen, although it appears to be human",
     initialDescription: "A human skull sits ominously in the centre of the room.",
     description: "A skull rests on the floor.",
     setFlag: "skullTaken",
   },
   pick1: {
-    name: "pickaxe",
-    aliases: ["pickaxe", "pick", "axe"],
+    names: ["pickaxe", "pick", "axe"],
     examine: "Frail looking, can't be good for more than one or two uses",
     initialDescription: "There's a weathered pickaxe propped in the corner.",
     description: "A pickaxe leans against the wall.",
     setFlag: "pick1Taken",
   },
   ladder: {
-    name: "ladder",
-    aliases: [],
+    names: ["ladder"],
     examine: "A tall, sturdy ladder made out of floorboards",
     initialDescription: "",
     description: "A tall ladder rests against the wall.",
     vital: true
   },
   map: {
-    name: "purple map",
-    aliases: ["map", "purple"],
+    names: ["purple map", "map", "purple"],
     examine: "It's faintly glowing, and appears to be of a great underground empire",
     initialDescription: "",
     description: "A glowing purple map has been left here.",
   },
   sword: {
-    name: "sword",
-    aliases: ["blade", "weapon"],
+    names: ["sword", "blade", "weapon"],
     primaryType: "combat",
     examine: "Sharp, deadly, slightly sentient",
     initialDescription: "A gleaming sword leans against the wall.",
@@ -119,16 +107,14 @@ const items = {
     setFlag: "swordTaken",
   },
   pick2: {
-    name: "pickaxe",
-    aliases: ["pickaxe", "pick", "axe"],
+    names: ["pickaxe", "pick", "axe"],
     examine: "Frail looking, can't be good for more than one or two uses",
     initialDescription: "A pickaxe lies among the debris.",
     description: "A pickaxe lies on the ground.",
     setFlag: "pick2Taken",
   },
   helmet: {
-    name: "helmet",
-    aliases: ["helm"],
+    names: ["helmet", "helm"],
     primaryType: "operate",
     examine: "How is it glowing blue?",
     initialDescription: "A glowing blue helmet sits on a rack.",
@@ -152,8 +138,7 @@ const items = {
     }
   },
   parachute: {
-    name: "parachute",
-    aliases: ["chute", "backpack"],
+    names: ["parachute", "chute", "backpack"],
     primaryType: "operate",
     examine: "A backpack parachute, should help me survive an otherwise deadly drop",
     initialDescription: "A parachute rests on a pedestal.",
@@ -177,8 +162,7 @@ const items = {
     }
   },
   redCake: {
-    name: "red cake",
-    aliases: ["cake", "dessert"],
+    names: ["red cake", "cake", "dessert"],
     primaryType: "operate",
     examine: "A large cake covered in deep red frosting.",
     initialDescription: "A large, red cake sits centred on the table here.",
@@ -193,8 +177,7 @@ const items = {
     }
   },
   greenCake: {
-    name: "green cake",
-    aliases: ["cake", "dessert"],
+    names: ["green cake", "cake", "dessert"],
     primaryType: "operate",
     examine: "A large cake decorated with bright green icing.",
     initialDescription: "A large, green cake is sitting on the bench.",
@@ -206,16 +189,15 @@ const items = {
         message: "You eat the green cake. It tastes amazing, and you feel a warm, soothing sensation spread through your body. Your wounds begin to heal, and you feel completely refreshed.",
         action: "setCheckpoint",
         consumeOnOperate: true,
-        sethealth: 4
+        setHealth: 4
       }
     }
   },
   blueCake: {
-    name: "blue cake",
-    aliases: ["cake", "dessert"],
+    names: ["blue cake", "cake", "dessert"],
     primaryType: "operate",
     examine: "A massive blue wedding cake, intricately decorated. Far too much for one person.",
-    initialDescription: "A large, blue, wedding cake sits on the floor. Despite it's colour, it looks out of place.",
+    initialDescription: "A large, blue, wedding cake sits on the floor. Despite its colour, it looks out of place.",
     description: "A large, blue wedding cake sits on the ground.",
     setFlag: "blueCakeTaken",
     operate: {
@@ -228,8 +210,7 @@ const items = {
     }
   },
   shovel: {
-    name: "shovel",
-    aliases: ["spade", "digging thing"],
+    names: ["shovel", "spade", "digging thing"],
     examine: "A sturdy metal shovel with a wooden handle. Good for digging.",
     initialDescription: "There's a sturdy looking shovel, leaning in the corner.",
     description: "A sturdy shovel has been left here.",
@@ -237,317 +218,275 @@ const items = {
     vital: true
   },
   wire: {
-    name: "silver wire",
-    aliases: ["wire", "silver"],
+    names: ["silver wire", "wire", "silver"],
     examine: "A small coil of thin silver wire, very fine and delicate.",
     initialDescription: "Lying on the floor, randomly, in the middle of the maze is a small coil of silver wire.",
     description: "A coil of silver wire lies here.",
     setFlag: "wireTaken"
   },
   brick1: {
-    name: "brick",
-    aliases: ["stone"],
+    names: ["brick", "stone"],
     examine: "A solid, undamaged brick. Heavy and well-made.",
     initialDescription: "Buried within the rubble, seems to be a solid, non-chipped brick.",
     description: "A solid brick lies on the ground.",
     setFlag: "brick1Taken"
   },
   brick2: {
-    name: "brick",
-    aliases: ["stone"],
+    names: ["brick", "stone"],
     examine: "A solid, undamaged brick. Heavy and well-made.",
     initialDescription: "Underneath the first brick lies a second, clean brick.",
     description: "A clean brick lies on the ground.",
     setFlag: "brick2Taken"
   },
   greenKey1: {
-    name: "glowing green key",
-    aliases: ["green key"],
+    names: ["glowing green key", "green key"],
     examine: "A simple key. It's glowing green, and looks fragile.",
     initialDescription: "Centred on the floor here lies a glowing green key.",
     description: "A glowing green key lies on the ground.",
     setFlag: "greenKey1Taken"
   },
   greenKey2: {
-    name: "glowing green key",
-    aliases: ["green key"],
+    names: ["glowing green key", "green key"],
     examine: "A simple key. It's glowing green, and looks fragile.",
     initialDescription: "Someone left a glowing green key lying on the floor.",
     description: "A glowing green key has been dropped here.",
     setFlag: "greenKey2Taken"
   },
   greenKey3: {
-    name: "glowing green key",
-    aliases: ["green key"],
+    names: ["glowing green key", "green key"],
     examine: "A simple key. It's glowing green, and looks fragile.",
     initialDescription: "A glowing green key sits atop a marble pedestal.",
     description: "A glowing green key rests here.",
     setFlag: "greenKey3Taken"
   },
   greenKey4: {
-    name: "glowing green key",
-    aliases: ["green key"],
+    names: ["glowing green key", "green key"],
     examine: "A simple key. It's glowing green, and looks fragile.",
     initialDescription: "Wedged in a corner is a glowing green key.",
     description: "A glowing green key lies here.",
     setFlag: "greenKey4Taken"
   },
   greenKey5: {
-    name: "glowing green key",
-    aliases: ["green key"],
+    names: ["glowing green key", "green key"],
     examine: "A simple key. It's glowing green, and looks fragile.",
     initialDescription: "A glowing green key lies peacefully on the sanctuary floor.",
     description: "A glowing green key rests on the ground.",
     setFlag: "greenKey5Taken"
   },
   greenKey6: {
-    name: "glowing green key",
-    aliases: ["green key"],
+    names: ["glowing green key", "green key"],
     examine: "A simple key. It's glowing green, and looks fragile.",
     initialDescription: "Lying in the shattered remains of the glass case, is a glowing green key.",
     description: "A glowing green key has been left here.",
     setFlag: "greenKey6Taken"
   },
   greenKey7: {
-    name: "glowing green key",
-    aliases: ["green key"],
+    names: ["glowing green key", "green key"],
     examine: "A simple key. It's glowing green, and looks fragile.",
     initialDescription: "On the floor, underneath the ball rests a glowing green key.",
     description: "A glowing green key sits on the floor.",
     setFlag: "greenKey7Taken"
   },
   greenKey8: {
-    name: "glowing green key",
-    aliases: ["green key"],
+    names: ["glowing green key", "green key"],
     examine: "A simple key. It's glowing green, and looks fragile.",
     initialDescription: "A glowing green key sits in the corner of the room.",
     description: "A glowing green key lies here.",
     setFlag: "greenKey8Taken"
   },
   gum: {
-    name: "old chewing gum",
-    aliases: ["gum", "chewing gum", "old gum", "chewing-gum", "old-gum"],
+    names: ["old chewing gum", "gum", "chewing gum", "old gum", "chewing-gum", "old-gum"],
     primaryType: "operate",
     examine: "Old chewing gum, hardened and discolored. Utterly repulsive.",
     initialDescription: "Someone's discarded chewing gum is stuck here. Gross.",
     description: "A wad of old chewing gum has been left here.",
-    setFlag: "", //likewise
     operate: {
       eat: {
         allowedVerbs: ["eat", "consume", "bite", "taste", "lick", "swallow"],
         message: "For some incomprehensible reason, you put the old chewing gum in your mouth and start chewing. It tastes absolutely awful. So bad, in fact, you start retching, and accidentally swallow the gum. It gets caught in your throat, and you're forced to taste that awful flavor while contemplating your poor life choices as you asphyxiate.",
-        sethealth: 0,
+        setHealth: 0,
       }
     }
   },
   purpleKey: {
-    name: "glowing purple key",
-    aliases: ["purple key"],
+    names: ["glowing purple key", "purple key"],
     examine: "A simple key. It's glowing purple, and looks fragile.",
     initialDescription: "Lying on the church floor is a glowing purple key.",
     description: "A glowing purple key rests here.",
     setFlag: "purpleKeyTaken"
   },
   wood: {
-    name: "wood",
-    aliases: ["planks", "boards"],
+    names: ["wood", "planks", "boards"],
     examine: "A stack of wooden boards, surprisingly lightweight for their size.",
     initialDescription: "The wooden paneling here is loose and could be removed.",
     description: "Wooden planks lie on the ground.",
     setFlag: "woodTaken"
   },
   sawdust: {
-    name: "sawdust",
-    aliases: ["dust", "wood dust"],
+    names: ["sawdust", "dust", "wood dust"],
     examine: "A massive pile of sawdust. It smells faintly of old wood.",
     description: "A pile of sawdust sits on the ground."
   },
   dynamite: {
-    name: "dynamite",
-    aliases: ["explosive"],
+    names: ["dynamite", "explosive"],
     examine: "A single stick of dynamite with a long fuse. Handle with care.",
     initialDescription: "One of the crates has been pulled out, and is sitting open on the floor. A lone stick of dynamite is inside.",
     description: "A stick of dynamite rests here.",
     setFlag: "dynamiteTaken"
   },
   litDynamite: {
-    name: "lit dynamite",
-    aliases: ["dynamite", "explosive", "lit explosive"],
+    names: ["lit dynamite", "dynamite", "explosive", "lit explosive"],
     examine: "A stick of dynamite with its fuse burning rapidly. This is bad.",
     description: "A stick of lit dynamite lies on the ground, its fuse burning down rapidly.",
     vital: true
   },
   pick3: {
-    name: "pickaxe",
-    aliases: ["pickaxe", "pick", "axe"],
+    names: ["pickaxe", "pick", "axe"],
     examine: "This one is much stronger, not a mar on the head. It looks quite new.",
     initialDescription: "A well-kept pickaxe has been left here, barely used.",
     description: "There's a shiny pickaxe, someone left it leaning on the wall.",
     setFlag: "pick3Taken",
   },
   screwdriver: {
-    name: "screwdriver",
-    aliases: ["driver"],
+    names: ["screwdriver", "driver"],
     examine: "A long flathead screwdriver. The tip is worn and rounded, barely functional anymore.",
     initialDescription: "A screwdriver rests among other tools on one of the benches.",
     description: "A screwdriver has been left here.",
     setFlag: "screwdriverTaken"
   },
   wrench: {
-    name: "wrench",
-    aliases: ["spanner"],
+    names: ["wrench", "spanner"],
     examine: "A heavy adjustable wrench, well-used but still sturdy.",
     initialDescription: "There's a wrench lying on the floor under one of the shelves.",
     description: "A wrench lies here.",
     setFlag: "wrenchTaken"
   },
   battery: {
-    name: "battery",
-    aliases: ["cell", "power cell"],
+    names: ["battery", "cell", "power cell"],
     examine: "A cylindrical battery, still has some charge left.",
     initialDescription: "Stuck to one of the racks by goop is a battery.",
     description: "A battery rests on the floor.",
     setFlag: "batteryTaken"
   },
   tongs: {
-    name: "tongs",
-    aliases: [],
+    names: ["tongs"],
     examine: "A pair of metal tongs, designed for handling hot objects.",
     initialDescription: "Lying against the forge is a pair of tongs.",
     description: "A pair of tongs lies here.",
     setFlag: "tongsTaken"
   },
   coal: {
-    name: "coal",
-    aliases: ["charcoal"],
+    names: ["coal", "charcoal"],
     examine: "A pile of black coal. Very good fuel for a hot fire.",
     initialDescription: "A pile of coal sits in the corner.",
     description: "A pile of coal sits on the ground.",
     setFlag: "coalTaken"
   },
   crucible: {
-    name: "crucible",
-    aliases: ["pot"],
+    names: ["crucible", "pot"],
     examine: "A small metal vessel designed for melting and pouring molten metal.",
     initialDescription: "An empty crucible sits on the anvil.",
     description: "An empty crucible lies on the ground.",
     setFlag: "crucibleTaken"
   },
   crucibleSilver: {
-    name: "crucible with silver wire",
-    aliases: ["crucible", "silver", "wire", "silver wire", "silver-wire"],
+    names: ["crucible with silver wire", "crucible", "silver", "wire", "silver wire", "silver-wire"],
     examine: "A small crucible containing coiled silver wire.",
     description: "A crucible containing silver wire lies here."
   },
   crucibleTongs: {
-    name: "tongs holding crucible of molten silver",
-    aliases: ["tongs", "crucible", "silver"], // add more
+    names: ["tongs holding crucible of molten silver", "tongs", "crucible", "silver"],
     examine: "The tongs grip a crucible filled with molten silver, glowing with heat.",
     description: "A pair of tongs holding a crucible of molten silver rests here."
   },
   silverMold: {
-    name: "mold with silver",
-    aliases: ["mold", "silver", "silver mold"],
+    names: ["mold with silver", "mold", "silver", "silver mold"],
     examine: "A small key-shaped mold filled with molten silver, cooling slowly.",
     description: "A mold filled with molten silver rests here."
   },
   silverKey: {
-    name: "silver key",
-    aliases: ["silver key", "silver-key"],
+    names: ["silver key", "silver-key"],
     examine: "A simple key crafted from solid silver.",
     description: "A silver key lies on the ground."
   },
   brush: {
-    name: "hairbrush",
-    aliases: ["brush", "hair brush", "comb"],
+    names: ["hairbrush", "brush", "hair brush", "comb"],
     examine: "A silver-backed hairbrush with fine bristles.",
     initialDescription: "Someone left their hairbrush here.",
     description: "A hairbrush lies on the ground.",
     setFlag: "brushTaken"
   },
   extinguisher: {
-    name: "fire extinguisher",
-    aliases: ["extinguisher", "fire-extinguisher"],
+    names: ["fire extinguisher", "extinguisher", "fire-extinguisher"],
     examine: "A fire extinguisher, the pressure gauge indicating it's ready for use.",
     initialDescription: "Mounted on the wall is a red fire extinguisher.",
     description: "A fire extinguisher sits on the ground.",
     setFlag: "extinguisherTaken"
   },
   brassHammer: {
-    name: "brass hammer",
-    aliases: ["hammer", "brass", "mallet"],
+    names: ["brass hammer", "hammer", "brass", "mallet"],
     examine: "A hammer, cast entirely from brass. Tapping it gives a nice ring",
     initialDescription: "A brass hammer lies on a workbench.",
     description: "A brass hammer rests here.",
     setFlag: "brassHammerTaken"
   },
   redKey: {
-    name: "glowing red key",
-    aliases: ["red key", "key"],
+    names: ["glowing red key", "red key", "key"],
     examine: "A simple key. It's glowing red, and looks fragile.",
     initialDescription: "A glowing red key sits prominently on a stand mounted to the wall.",
     description: "A glowing red key rests here.",
     setFlag: "redKeyTaken"
   },
   blueKey: {
-    name: "glowing blue key",
-    aliases: ["blue key", "key"],
+    names: ["glowing blue key", "blue key", "key"],
     examine: "A simple key. It's glowing blue, and looks fragile.",
     initialDescription: "A glowing blue key is sitting on a windowsill.",
     description: "A glowing blue key rests here.",
     setFlag: "blueKeyTaken"
   },
   coin: {
-    name: "gold coin",
-    aliases: ["coin", "gold", "money"],
+    names: ["gold coin", "coin", "gold", "money"],
     examine: "A solid gold coin with unfamiliar markings stamped on both sides.",
     initialDescription: "Half-buried in the dust is a single gold coin.",
     description: "A shiny gold coin glints on the floor.",
     setFlag: "coinTaken"
   },
   hamburger: {
-    name: "hamburger",
-    aliases: ["burger", "food"],
+    names: ["hamburger", "burger", "food"],
     examine: "A hamburger kept warm in the vending machine. Still looks edible.",
     initialDescription: "Sitting in the vending machine's tray is a fresh hamburger.",
     description: "A hamburger sits on the ground."
   },
-  poisonedHamburger: {
-    name: "hamburger",
-    aliases: ["burger", "food"],
+  hamburgerPoisoned: {
+    names: ["hamburger", "burger", "food"],
     examine: "A hamburger kept warm in the vending machine. Still looks edible.",
     initialDescription: "Sitting in the vending machine's tray is a fresh hamburger.",
     description: "A hamburger lies on the ground."
   },
   concrete: {
-    name: "concrete chunk",
-    aliases: ["concrete", "chunk"],
+    names: ["concrete chunk", "concrete", "chunk"],
     examine: "A chunk of concrete. Touching it sends odd tingles through your fingers.",
     description: "A chunk of concrete rests here."
   },
   concretePowder: {
-    name: "concrete powder",
-    aliases: ["powder", "concrete", "dust"],
+    names: ["concrete powder", "powder", "concrete", "dust"],
     examine: "Finely ground concrete powder. Touching it sends tingles through your fingers.",
     description: "A pile of fine concrete powder sits here."
   },
   cup: {
-    name: "cup of water",
-    aliases: ["water", "glass of water", "cup"],
+    names: ["cup of water", "water", "glass of water", "cup"],
     examine: "A cup of remarkably clear water. It doesn't look like it came from here.",
     initialDescription: "A cup of water sits in the perfect middle of the table. The dust forms a ring, ~10 cm back from the glass, suggesting it is repelled by the water.",
     description: "A cup of water has been placed here.",
     setFlag: "cupTaken"
   },
   mineralWater: {
-    name: "mineral water",
-    aliases: ["water", "mineral", "drink"],
+    names: ["mineral water", "water", "mineral", "drink"],
     examine: "A cup of water filled with concrete powder. I don't have the best feeling about this.",
     description: "A cup of mineral water rests here, the liquid perfectly clear."
   },
   spentExtinguisher: {
-    name: "fire extinguisher",
-    aliases: ["extinguisher", "fire-extinguisher", "empty extinguisher"],
+    names: ["fire extinguisher", "extinguisher", "fire-extinguisher", "empty extinguisher"],
     examine: "An empty fire extinguisher. The pressure gauge reads zero.",
     description: "A fire extinguisher sits on the ground.",
     setFlag: "spentExtinguisherTaken"

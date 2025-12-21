@@ -71,9 +71,9 @@ function take(things, all = false) {
     if (currentRoom.items) {
       for (const itemId of currentRoom.items) {
         const item = items[itemId];
-        // Add all aliases for this item
-        if (item.aliases) {
-          for (const alias of item.aliases) {
+        // Add all names for this item
+        if (item.names) {
+          for (const alias of item.names) {
             aliasToItemId[alias.toLowerCase()] = itemId;
           }
         }
@@ -164,9 +164,9 @@ function drop(things) {
     if (gameState.inventory.length !== 0) {
       for (const itemId of gameState.inventory) {
         const item = items[itemId];
-        // Add all aliases for this item
-        if (item.aliases) {
-          for (const alias of item.aliases) {
+        // Add all names for this item
+        if (item.names) {
+          for (const alias of item.names) {
             aliasToItemId[alias.toLowerCase()] = itemId;
           }
         }
@@ -245,8 +245,8 @@ function examine(things) {
         for (const itemId of currentRoom.items) {
           const item = items[itemId];
 
-          if (item.aliases) {
-            for (const alias of item.aliases) {
+          if (item.names) {
+            for (const alias of item.names) {
               aliasToItemId[alias.toLowerCase()] = itemId;
             }
           }
@@ -268,8 +268,8 @@ function examine(things) {
         for (const itemId of gameState.inventory) {
           const item = items[itemId];
 
-          if (item.aliases) {
-            for (const alias of item.aliases) {
+          if (item.names) {
+            for (const alias of item.names) {
               aliasToItemId[alias.toLowerCase()] = itemId;
             }
           }
@@ -300,8 +300,8 @@ function examine(things) {
       if (currentRoom.items && currentRoom.items.length !== 0) {
         for (const itemId of currentRoom.items) {
           const item = items[itemId];
-          if (item.aliases) {
-            for (const alias of item.aliases) {
+          if (item.names) {
+            for (const alias of item.names) {
               roomItemAliases[alias.toLowerCase()] = itemId;
             }
           }
@@ -312,8 +312,8 @@ function examine(things) {
       if (gameState.inventory && gameState.inventory.length !== 0) {
         for (const itemId of gameState.inventory) {
           const item = items[itemId];
-          if (item.aliases) {
-            for (const alias of item.aliases) {
+          if (item.names) {
+            for (const alias of item.names) {
               inventoryAliases[alias.toLowerCase()] = itemId;
             }
           }
@@ -386,8 +386,8 @@ function takeAll() {
   }
 
   const takesIds = takes.map(t => {
-    if (t.type === "item" && t.aliases) {
-      return t.aliases[0];
+    if (t.type === "item" && t.names) {
+      return t.names[0];
     } else if (t.type === "object" && t.names) {
       return t.names[0];
     } else if (t.type === "generic") {

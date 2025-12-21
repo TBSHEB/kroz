@@ -66,7 +66,7 @@ const objects = {
         dropItems: ["concrete"]
       },
       _default: {
-        message: (item) => `You can't use the ${item.name} on the wall.`
+        message: (item) => `You can't use the ${item.names[0]} on the wall.`
       }
     }
   },
@@ -236,7 +236,7 @@ const objects = {
     },
     applyWith: {
       _default: {
-        message: "Giving that to the troll is a bad idea."
+        message: "Giving that to the ogre is a bad idea."
       }
     }
   },

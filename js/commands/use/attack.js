@@ -7,11 +7,7 @@ function handleAttack(item, target) {
     if (target.attackMessage) {
       displayText(target.attackMessage)
     } else {
-      if (target.type === "object") {
-        displayText(`You can't attack the ${target.names[0]} with the ${item.name}.`);
-      } else {
-        displayText(`You can't attack the ${target.name} with the ${item.name}.`)
-      }
+      displayText(`You can't attack the ${target.names[0]} with the ${item.names[0]}.`);
     }
     return false;
   }
@@ -28,7 +24,7 @@ function handleAttack(item, target) {
     if (target.combat.wrongWeaponMessage && target.combat.wrongWeaponMessage[item.id]) {
       displayText(target.combat.wrongWeaponMessage[item.id]);
     } else {
-      displayText(`It would be silly to try to attack the ${target.id} with the ${item.name}.`);
+      displayText(`It would be silly to try to attack the ${target.id} with the ${item.names[0]}.`);
     }
     return false;
   }

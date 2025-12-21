@@ -52,7 +52,7 @@ function buildInteractablesList() {
       interactables.push({
         id: itemId,
         type: 'generic',
-        name: itemId,
+        names: [itemId],
         location: 'room'
       });
     });
@@ -63,7 +63,7 @@ function buildInteractablesList() {
     interactables.push({
       id: itemId,
       type: 'generic',
-      name: itemId
+      names: [itemId]
     });
   });
 
@@ -77,13 +77,7 @@ function findInteractable(searchName, interactables) {
   const exactMatch = interactables.find(i => i.id === searchName);
   if (exactMatch) return exactMatch;
 
-  // Second: check aliases (for items: "sword", "blade", "weapon")
-  const aliasMatch = interactables.find(i =>
-    i.aliases && i.aliases.includes(searchName)
-  );
-  if (aliasMatch) return aliasMatch;
-
-  // Third: check names (for objects: "troll", "creature", "beast")
+  // Second: check names (for items, objects, and generic items)
   const namesMatch = interactables.find(i =>
     i.names && i.names.includes(searchName)
   );
@@ -335,8 +329,7 @@ function findRecipeMatch(itemIds) {
 
 function findAllMatching(searchName, interactables) {
   let matches = interactables.filter(i =>
-    i.id === searchName || i.aliases?.includes(searchName) ||
-    i.names?.includes(searchName)
+    i.id === searchName || i.names?.includes(searchName)
   );
 
   if (matches.length > 0) return matches;
@@ -345,7 +338,6 @@ function findAllMatching(searchName, interactables) {
     const singular = searchName.slice(0, -3) + "y";
     matches = interactables.filter(i =>
       i.id === singular ||
-      i.aliases?.includes(singular) ||
       i.names?.includes(singular)
     );
 
@@ -356,7 +348,6 @@ function findAllMatching(searchName, interactables) {
     const singular = searchName.slice(0, -2);
     matches = interactables.filter(i =>
       i.id === singular ||
-      i.aliases?.includes(singular) ||
       i.names?.includes(singular)
     );
 
@@ -367,7 +358,6 @@ function findAllMatching(searchName, interactables) {
     const singular = searchName.slice(0, -1);
     matches = interactables.filter(i =>
       i.id === singular ||
-      i.aliases?.includes(singular) ||
       i.names?.includes(singular)
     );
 
@@ -467,9 +457,9 @@ function replaceSplitWordsWithFullName(words) {
   const interactables = buildInteractablesList();
   if (interactables) {
     interactables.forEach(int => {
-      if (int.type === "item" && items[int.id].aliases) {
-        for (const alias of items[int.id].aliases) {
-          aliasToInteractableId[alias.toLowerCase()] = int.id;
+      if (int.type === "item" && items[int.id].names) {
+        for (const name of items[int.id].names) {
+          aliasToInteractableId[name.toLowerCase()] = int.id;
         }
       } else if (int.type === "object" && objects[int.id].names) {
         for (const name of objects[int.id].names) {

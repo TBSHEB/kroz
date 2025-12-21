@@ -11,7 +11,7 @@ function handleApply(item, target) {
   if ((item.id === 'stepladder' || item.id === 'ladder') && (target.id === 'floor' || target.id === 'ground')) {
     setRoomState("items", item.id);
     setGameState("inventory", item.id, false);
-    displayText(`You place the ${item.name} on the ${target.name}.`);
+    displayText(`You place the ${item.names[0]} on the ${target.names[0]}.`);
     return true;
   }
 
@@ -75,7 +75,7 @@ function handleApply(item, target) {
     const interaction = target.applyWith[item.id] || target.applyWith._default;
 
     if (!interaction) {
-      displayText(`You can't use the ${item.name} on the ${target.name}.`);
+      displayText(`You can't use the ${item.names[0]} on the ${target.names[0]}.`);
       return false;
     }
 
@@ -211,7 +211,7 @@ function handleApply(item, target) {
   }
 
   // Default: no interaction defined
-  displayText(`You can't use the ${item.name} on the ${target.name}.`);
+  displayText(`You can't use the ${item.names[0]} on the ${target.names[0]}.`);
   return false;
 }
 
@@ -434,6 +434,6 @@ function handleCombination(items, target) {
   }
 
   // Default: no interaction defined
-  displayText(`You can't use the ${item.name} on the ${target.name}.`);
+  displayText(`You can't use the ${item.names[0]} on the ${target.names[0]}.`);
   return false;
 }
