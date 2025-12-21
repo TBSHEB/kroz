@@ -765,6 +765,7 @@ const objects = {
       extinguisher: {
         message: "You spray the fire extinguisher. The flames die down and extinguish.",
         consumeItem: true,
+        giveItems: ["spentExtinguisher"],
         setFlags: ["fireExtinguished"],
         removeObject: true
       },
@@ -928,11 +929,15 @@ const objects = {
       coin: {
         message: "You insert the coin into the machine. A hamburger drops into the dispenser tray.",
         consumeItem: true,
-        dropItems: ["hamburger"]
+        dropItems: ["hamburger"],
+        requireNotFlags: ["vendingMachineUsed"],
+        setFlags: ["vendingMachineUsed"]
       },
       pick3: {
         message: "You jam the pickaxe into the machine's mechanism. Something falls out, but it looks... questionable.",
-        dropItems: ["hamburgerPoisoned"]
+        dropItems: ["hamburgerPoisoned"],
+        requireNotFlags: ["vendingMachineUsed"],
+        setFlags: ["vendingMachineUsed"]
       },
       sword: {
         message: "Stabbing the vending machine won't get you a free snack."

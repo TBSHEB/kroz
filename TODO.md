@@ -53,6 +53,7 @@
 - [ ] Expand names arrays for each object with additional relevant aliases
 - [x] Populate genericExamines object with descriptions for common room elements
 - [ ] Fix dungeonLamp examine text (contradictory: "very heavy and rather flimsy")
+- [ ] Add primaryType and operate/consume logic for hamburger, poisonedHamburger, and mineralWater items
 
 ## Special Handling
 - [ ] Sand room special handling: determine approach for nails display when dropped/picked up (consider similar pattern to dungeonWood)
