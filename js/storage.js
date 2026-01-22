@@ -15,6 +15,7 @@ function saveGame(gameState, saveName = null) {
             visitedRooms: gameState.visitedRooms,
             combatState: gameState.combatState,
             healthState: gameState.healthState,
+            poison: gameState.poison,
             roomItemChanges: gameState.roomItemChanges,
             lastCheckpoint: gameState.lastCheckpoint,
             timestamp: new Date().toISOString()

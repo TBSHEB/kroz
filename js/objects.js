@@ -17,7 +17,7 @@ const objects = {
     },
     applyWith: {
       _default: {
-        message: "You're not sure how using the wood on the chandelier would help."
+        message: "I'm not sure how using the wood on the chandelier would help."
       }
     }
   },
@@ -59,14 +59,14 @@ const objects = {
 
   wall: {
     names: ["wall", "walls"],
-    examine: "",
+    examine: "Solid stone. Not going through that.",
     applyWith: {
       pick3: {
         message: "You chip away at the wall. A chunk of concrete falls to the ground.",
         dropItems: ["concrete"]
       },
       _default: {
-        message: (item) => `You can't use the ${item.names[0]} on the wall.`
+        message: (item) => `You can't use the ${item.name} on the wall.`
       }
     }
   },
@@ -253,8 +253,8 @@ const objects = {
   },
 
   toilet: {
-    names: ["toilet", "bowl"],
-    examine: "",
+    names: ["toilet", "bowl", "lavatory", "loo"],
+    examine: "An ordinary toilet, stained with age. Functional, if needed.",
     operate: {
       useToilet: {
         allowedVerbs: ["use", "sit", "flush"],
@@ -267,7 +267,7 @@ const objects = {
 
   sink: {
     names: ["sink", "basin", "tap", "faucet"],
-    examine: "",
+    examine: "A small porcelain sink with a tarnished tap. Still functional.",
     operate: {
       wash: {
         allowedVerbs: ["use", "wash"],
@@ -278,7 +278,7 @@ const objects = {
 
   glass: {
     names: ["glass", "window", "barrier", "pane"],
-    examine: "",
+    examine: "A thick glass wall. Rather glassy looking glass if you ask me.",
     applyWith: {
       brick1: {
         message: "You throw the brick at the glass. It shatters.",
@@ -315,7 +315,7 @@ const objects = {
 
   dirt: {
     names: ["dirt", "ground", "earth", "soil", "floor"],
-    examine: "",
+    examine: "It's dirt. A nice change of pace to the stone floors found in every other room.",
     applyWith: {
       shovel: {
         message: "You dig through the dirt, revealing a passage down.",
@@ -336,7 +336,7 @@ const objects = {
 
   mirror: {
     names: ["mirror", "glass", "reflection", "surface"],
-    examine: "",
+    examine: "An enormous mirror spans the entire wall. Your reflection stares back at you.",
     operate: {
       touch: {
         allowedVerbs: ["touch", "use", "enter", "step"],
@@ -350,9 +350,9 @@ const objects = {
   },
 
   grinder: {
-    names: ["grinder", "machine", "mill"],
-    description: "",
-    examine: "",
+    names: ["grinder", "machine", "mill", "grindstone"],
+    description: "A heavy stone grinder dominates the center of the room.",
+    examine: "A large grinder with heavy stone wheels. Worn but still functional.",
     applyWith: {
       concrete: {
         message: "You put the concrete into the grinder. It grinds it into fine powder.",
@@ -367,8 +367,8 @@ const objects = {
 
   machine: {
     names: ["machine", "pipe", "button", "device"],
-    description: "",
-    examine: "",
+    description: "A pipe-covered machine stands here. A button can be seen deep within one of the pipes.",
+    examine: "A complex mechanical device covered in pipes. Deep inside a long, narrow pipe, you can see a button.",
     applyWith: {
       screwdriver: {
         message: "You use the screwdriver to push the button through the long pipe. The machine whirs to life.",
@@ -394,7 +394,7 @@ const objects = {
 
   code: {
     names: ["code", "floor", "shadows", "glass", "skylight", "pattern"],
-    description: "",
+    description: "Light filters through the coloured glass skylight, casting patterns on the floor.",
     examine: function() {
       // Generate random color code if it doesn't exist
       if (!gameState.colorCode) {
@@ -421,8 +421,8 @@ const objects = {
 
   candle: {
     names: ["candle", "flame", "light", "wick"],
-    description: "",
-    examine: "",
+    description: "A thick candle burns steadily in a candlestick.",
+    examine: "A thick candle burning with a steady, bright flame.",
     operate: {
       blow: {
         allowedVerbs: ["blow", "extinguish", "put-out"],
@@ -443,8 +443,14 @@ const objects = {
 
   bolt: {
     names: ["bolt", "nut"],
-    description: "",
-    examine: "",
+    description: "A large bolt protrudes from a panel on the wall.",
+    examine: "A metal bolt protruding from a panel. It appears to be rotatable.",
+    operate: {
+      turn: {
+        allowedVerbs: ["turn", "rotate", "move", "spin"],
+        message: "It's too stiff."
+      }
+    },
     applyWith: {
       wrench: {
         message: "You use the wrench to loosen the bolt. You hear a clanking sound from the south.",
@@ -493,9 +499,9 @@ const objects = {
   },
 
   chipper: {
-    names: ["chipper", "woodchipper", "machine"],
-    description: "",
-    examine: "",
+    names: ["chipper", "woodchipper", "wood-chipper", "wood chipper", "machine"],
+    description: "An industrial wood chipper sits heavily in the room.",
+    examine: "A wood chipper with a wide mouth and sharp blades inside. Looks hungry for timber.",
     applyWith: {
       wood: {
         message: "You feed the wood into the chipper. It grinds it into sawdust.",
@@ -526,8 +532,8 @@ const objects = {
   },
 
   redButton: {
-    names: ["red-button", "red", "button"],
-    examine: "",
+    names: ["red button", "red-button", "red"],
+    examine: "A round red button on a panel mounted to the wall.",
     operate: {
       push: {
         allowedVerbs: ["push", "press", "use"],
@@ -542,8 +548,8 @@ const objects = {
   },
 
   blueButton: {
-    names: ["blue-button", "blue", "button"],
-    examine: "",
+    names: ["blue button", "blue-button", "blue"],
+    examine: "A round blue button on a panel mounted to the wall.",
     operate: {
       push: {
         allowedVerbs: ["push", "press", "use"],
@@ -558,8 +564,8 @@ const objects = {
   },
 
   yellowButton: {
-    names: ["yellow-button", "yellow", "button"],
-    examine: "",
+    names: ["yellow button", "yellow-button", "yellow"],
+    examine: "A round yellow button on a panel mounted to the wall.",
     operate: {
       push: {
         allowedVerbs: ["push", "press", "use"],
@@ -574,8 +580,8 @@ const objects = {
   },
 
   greenButton: {
-    names: ["green-button", "green", "button"],
-    examine: "",
+    names: ["green button", "green-button", "green"],
+    examine: "A round green button on a panel mounted to the wall.",
     operate: {
       push: {
         allowedVerbs: ["push", "press", "use"],
@@ -590,9 +596,9 @@ const objects = {
   },
 
   purpleDoor: {
-    names: ["purple-door", "door", "glowing-door"],
+    names: ["purple door", "purple-door", "door", "glowing door", "glowing-door"],
     description: "",
-    examine: "",
+    examine: "A heavy iron door, solid and imposing, shimmering with purple energy. A keyhole glows faintly on the right side.",
     applyWith: {
       purpleKey: {
         message: "You unlock the purple door with the glowing purple key. It swings open.",
@@ -606,9 +612,41 @@ const objects = {
     }
   },
 
+  silverDoor: {
+    names: ["silver door", "silver-door", "door"],
+    examine: "A door made from silver, tarnished over time.",
+    applyWith: {
+      silverKey: {
+        message: "You unlock the silver door with the silver key. It swings open.",
+        consumeItem: true,
+        setFlags: ["silverDoorUnlocked"],
+        removeObject: true
+      },
+      _default: {
+        message: "That won't do much on the silver door."
+      }
+    }
+  },
+
+  redDoor: {
+    names: ["red door", "red-door", "door", "glowing door", "glowing-door", "glowing red door"],
+    examine: "A heavy door shimmering with red energy. There is a keyhole at the side.",
+    applyWith: {
+      redKey: {
+        message: "You unlock the glowing red door with the red key. It swings open.",
+        consumeItem: true,
+        setFlags: ["redDoorOpened"],
+        removeObject: true
+      },
+      _default: {
+        message: "That won't do much on the red door."
+      }
+    }
+  },
+
   marshmallow: {
     names: ["marshmallow", "enemy", "creature", "monster"],
-    examine: "",
+    examine: "A massive mutant marshmallow monster. It doesn't look happy that I'm in its lair.",
     operate: {
       eat: {
         allowedVerbs: ["eat", "bite", "consume"],
@@ -671,33 +709,32 @@ const objects = {
     }
   },
 
-  furnace: {
-    names: ["furnace", "forge", "fire", "hearth"],
+  forge: {
+    names: ["forge", "furnace", "fire", "hearth"],
     description: "",
-    examine: "",
+    examine: "A large stone forge, currently cold. It needs fuel and heat to be useful.",
     applyWith: {
       coal: {
-        message: "You place the coal in the furnace.",
+        message: "You place the coal in the forge.",
         consumeItem: true,
         setFlags: ["coalInFurnace"]
       },
       crucibleSilver: {
         requireFlags: ["furnaceHeated"],
-        message: "You place the crucible on the heated furnace. The silver wire begins to melt.",
+        message: "You place the crucible on the heated forge. The silver wire begins to melt.",
         consumeItem: true,
         addObjects: ["crucibleMelt"],
-        failMessage: "The furnace needs to be heated first."
+        failMessage: "The forge needs to be heated first."
       },
       _default: {
-        message: "That doesn't belong in the furnace."
+        message: "That doesn't belong in the forge."
       }
     }
   },
 
   bellows: {
-    names: ["bellows"],
-    description: "",
-    examine: "",
+    names: ["bellows", "bellow", "pump", "air-pump", "air pump", "blower"],
+    examine: "Heavy leather bellows attached to the forge. Used for stoking flames to extreme heat.",
     operate: {
       pump: {
         allowedVerbs: ["use", "pump", "operate"],
@@ -710,9 +747,9 @@ const objects = {
   },
 
   crucibleMelt: {
-    names: ["crucible", "molten-silver", "hot-crucible", "melting-crucible"],
-    description: "",
-    examine: "",
+    names: ["crucible", "molten silver", "molten-silver", "hot crucible", "hot-crucible", "melting crucible", "melting-crucible"],
+    description: "A hot crucible sits on the forge, filled with molten silver.",
+    examine: "The crucible sits on the furnace, silver bubbling and glowing white-hot inside. Too hot to touch.",
     applyWith: {
       tongs: {
         message: "You carefully pick up the hot crucible with the tongs.",
@@ -727,9 +764,8 @@ const objects = {
   },
 
   mold: {
-    names: ["mold", "key-mold", "cast"],
-    description: "",
-    examine: "",
+    names: ["mold", "mould", "key mold", "key-mold", "key mould", "key-mould", "cast"],
+    examine: "A metal casting mold in the shape of a key.",
     applyWith: {
       crucibleTongs: {
         message: "You pour the molten silver into the mold. It begins to cool and take shape.",
@@ -743,9 +779,8 @@ const objects = {
   },
 
   slackTub: {
-    names: ["slack-tub", "slacktub", "tub", "water", "bucket"],
-    description: "",
-    examine: "",
+    names: ["slack tub", "slack-tub", "slacktub", "tub", "water", "bucket"],
+    examine: "A deep tub filled with cool water. Used for rapidly cooling hot metal.",
     applyWith: {
       silverMold: {
         message: "You plunge the mold into the slack tub. The water hisses as the silver cools rapidly. A silver key falls out of the mold.",
@@ -760,7 +795,7 @@ const objects = {
 
   fire: {
     names: ["fire", "flames", "blaze", "inferno"],
-    examine: "",
+    examine: "Intense flames roar here, making the entire room swelteringly hot. There's no way I can get through this.",
     applyWith: {
       extinguisher: {
         message: "You spray the fire extinguisher. The flames die down and extinguish.",
@@ -782,11 +817,11 @@ const objects = {
   },
 
   lake: {
-    names: ["lake", "water", "pool"],
-    examine: "",
+    names: ["lake", "water"],
+    examine: "A vast underground lake of dark, still water. Far too deep and cold to cross safely.",
     applyWith: {
       sawdust: {
-        message: "You drop the sawdust into the lake. There's so much, it completely fills and starts to float, creating a safe passage north.", // dontl ike fix
+        message: "You drop the sawdust into the lake. There's so much, it completely fills and starts to float, creating a safe passage north.", // dont like fix
         consumeItem: true,
         setFlags: ["lakeFilled"]
       },
@@ -797,9 +832,9 @@ const objects = {
   },
 
   hatbox: {
-    names: ["hatbox", "hat-box", "box"],
-    examine: "",
-    description: "",
+    names: ["hatbox", "hat box", "hat-box", "box"],
+    description: "A decorative hatbox sits in the corner.",
+    examine: "A hatbox. Wonder what's inside.",
     operate: {
       open: {
         allowedVerbs: ["open", "use"],
@@ -811,7 +846,7 @@ const objects = {
 
   cyclops: {
     names: ["cyclops", "giant", "monster", "enemy", "creature"],
-    examine: "",
+    examine: "From here, I can see a pretty standard looking cyclops, and I'm not going any closer to further examine it.",
     sayTrigger: {
       word: "ulysses",
       message: "Upon hearing the name 'Ulysses', the cyclops panics and flees from the room!",
@@ -878,7 +913,8 @@ const objects = {
 
   bell: {
     names: ["bell", "church-bell", "tower-bell"],
-    examine: "",
+    description: "A large brass bell is suspended overhead. It's missing its clapper.",
+    examine: "A massive brass bell hanging from the ceiling. Tarnished with age.",
     applyWith: {
       brassHammer: {
         message: "You ring the bell with the brass hammer. The sound echoes loudly through the building. You hear the sound of shattering glass from elsewhere.",
@@ -895,8 +931,8 @@ const objects = {
 
   case: {
     names: ["case", "glass-case", "display-case", "display"],
-    examine: "",
-    description: "",
+    description: "A glass display case shows off its treasure, a glowing green key.",
+    examine: "A glass trophy case. Contained inside is a glowing green key.",
     triggerEffects: {
       setFlags: ["caseShattered"],
       dropItems: ["greenKey6"],
@@ -906,8 +942,8 @@ const objects = {
   },
 
   blueDoor: {
-    names: ["blue-door", "door", "stone-door"],
-    examine: "",
+    names: ["blue door", "blue-door", "door", "stone door", "stone-door"],
+    examine: "The shimmering blue wall has a keyhole visible at its centre.",
     applyWith: {
       blueKey: {
         message: "You unlock the blue door with the blue key. It swings open.",
@@ -922,9 +958,9 @@ const objects = {
   },
 
   vendingMachine: {
-    names: ["vending-machine", "machine", "vendor"],
-    examine: "",
-    description: "",
+    names: ["vending machine", "vending-machine", "machine", "vendor"],
+    description: "An old vending machine hums quietly in the corner.",
+    examine: "An old vending machine humming quietly. Inside is a singular hamburger, kept warm for whoever knows how long.",
     applyWith: {
       coin: {
         message: "You insert the coin into the machine. A hamburger drops into the dispenser tray.",
@@ -961,9 +997,8 @@ const objects = {
   },
 
   door: {
-    names: ["door", "final-door", "eight-door", "green-door"],
-    examine: "",
-    description: "",
+    names: ["door", "final door", "final-door", "eight door", "eight-door", "green door", "green-door"],
+    examine: "A massive door adorned with intricate glowing green metalwork. Eight glowing keyholes are stacked vertically down the right hand side.",
     removeMessage: "\nHowever, the door is now open.",
     applyWith: {
       _progressiveCombination: {

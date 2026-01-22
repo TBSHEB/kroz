@@ -25,7 +25,7 @@ function inventory() {
     const counts = {};
 
     for (const item of gameState.inventory) {
-      const itemName = items[item].name;
+      const itemName = items[item].names[0];
       counts[itemName] = (counts[itemName] || 0) + 1;
     }
 

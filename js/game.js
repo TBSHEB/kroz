@@ -13,6 +13,7 @@ const gameState = {
     partCraftItems: [],
     combatState: {},
     healthState: 4,
+    poison: 0,
     roomItemChanges: {},
     lastCheckpoint: "start"
 }
@@ -57,6 +58,7 @@ function initGame() {
         gameState.visitedRooms = autoSave.visitedRooms;
         gameState.combatState = autoSave.combatState;
         gameState.healthState = autoSave.healthState;
+        gameState.poison = autoSave.poison || 0;
         gameState.roomItemChanges = autoSave.roomItemChanges;
         gameState.lastCheckpoint = autoSave.lastCheckpoint;
 
@@ -318,7 +320,8 @@ function updateDebugDisplays() {
         partAttackTarget: gameState.partAttackTarget,
         partCraftItems: gameState.partCraftItems,
         combatState: gameState.combatState,
-        healthState: gameState.healthState
+        healthState: gameState.healthState,
+        poison: gameState.poison
     };
     gameStateDisplay.textContent = JSON.stringify(gameStateData, null, 2);
 
@@ -337,7 +340,24 @@ function updateDebugDisplays() {
     }
 }
 
+function poisonDeath() {
+    if (gameState.flags.includes("poisoned")) {
+        gameState.poison += 1;
+
+        if (gameState.poison === 3) {
+            displayText("You don't feel so great. Your stomach churns uneasily.");
+        } else if (gameState.poison === 5) {
+            displayText("A wave of nausea hits you. Your stomach cramps painfully.");
+        } else if (gameState.poison === 8) {
+            displayText("Searing pain erupts in your gut. The poison finally takes its toll.");
+            gameState.healthState = 0;
+        }
+    }
+}
+
 function handlePlayerDeath() {
+    poisonDeath();
+
     if (gameState.healthState === 0) {
         displayText("You have died.");
         const checkpointSave = loadGame("internal checkpoint");
@@ -350,6 +370,7 @@ function handlePlayerDeath() {
             gameState.visitedRooms = checkpointSave.visitedRooms;
             gameState.combatState = checkpointSave.combatState;
             gameState.healthState = checkpointSave.healthState;
+            gameState.poison = checkpointSave.poison || 0;
             gameState.roomItemChanges = checkpointSave.roomItemChanges;
             gameState.lastCheckpoint = checkpointSave.lastCheckpoint;
 

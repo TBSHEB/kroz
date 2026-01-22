@@ -3,6 +3,110 @@
 // Use these as templates when adding new content to your game
 
 /*
+// ===== ROOM STRUCTURE EXAMPLE =====
+
+exampleRoom: {
+  // ===== BASIC PROPERTIES =====
+  name: "The Example Chamber",           // Display name shown in room header
+
+  // ===== LOOK DESCRIPTION (3 formats) =====
+  // Format 1: Simple string (use this if description never changes)
+  look: "A simple room with stone walls.",
+
+  // Format 2: Function (use for complex dynamic descriptions)
+  look: () => {
+    let parts = [];
+    parts.push("The main description always shows.");
+
+    if (gameState.flags.includes("torchLit")) {
+      parts.push("Firelight dances on the walls.");
+    } else {
+      parts.push("The room is dark.");
+    }
+
+    return parts.join(" ");
+  },
+
+  // Format 3: Object with base and conditional parts (cleaner for simple conditions)
+  look: {
+    base: "A chamber with ancient murals on the walls.",  // Always shown first
+    parts: [
+      {text: "The murals glow faintly in the light.", if: "lanternEquipped"},      // Show if flag exists
+      {text: "The murals are barely visible in the darkness.", unless: "lanternEquipped"},  // Show if flag doesn't exist
+      {text: "A hidden door is now visible.", if: "secretRevealed"}
+    ]
+  },
+
+  // ===== PASSAGES (simple exits) =====
+  passages: {
+    north: "northRoom",
+    south: "southRoom",
+    east: "eastRoom",
+    west: "westRoom",
+    northeast: "neRoom",
+    southeast: "seRoom",
+    southwest: "swRoom",
+    northwest: "nwRoom",
+    up: "upperRoom",
+    down: "lowerRoom"
+  },
+
+  // ===== RESTRICTED PASSAGES (conditional exits) =====
+  restrictedPassages: {
+    east: {
+      // Requirements (checked in order)
+      requirements: [
+        {
+          flag: "doorUnlocked",                 // Check if flag exists
+          failMessage: "The door is locked.",   // Shown if requirement not met
+          unmetDescription: "A locked door blocks the way east."  // Shown in look when unmet
+        },
+        {
+          flag: "doorOpen",
+          failMessage: "The door is closed.",
+          unmetDescription: "A closed door stands to the east."
+        },
+        {
+          item: "torch",                        // Check if item in inventory
+          failMessage: "It's too dark to proceed.",
+          unmetDescription: "Darkness blocks the eastern passage."
+        },
+        {
+          roomItems: ["ladder", "stepladder"],  // Check if ANY of these items dynamically placed in room
+          failMessage: "I can't reach that high.",
+          unmetDescription: "A hole high in the wall is out of reach."
+        }
+      ],
+      room: "secretRoom",                       // Destination when all requirements met
+      metDescription: "An open doorway leads east.",  // Shown in look when all requirements met
+      hidden: true,                             // Don't show in look even when met (for secret passages)
+      backFailMessage: "I need the key to go back."  // Custom message when returning
+    }
+  },
+
+  // ===== ITEMS (pickupable objects) =====
+  items: ["sword", "torch", "key"],             // Item IDs from items.js
+
+  // ===== OBJECTS (non-pickupable interactables) =====
+  objects: ["lever", "statue", "dragon"],       // Object IDs from objects.js
+
+  // ===== HIDE ITEM DESCRIPTIONS =====
+  hideItemDescriptions: ["hiddenKey", "secretNote"],  // Item descriptions won't show in look
+                                                       // (useful for items hidden until discovered)
+
+  // ===== DISALLOWED TAKES (scenery/flavor) =====
+  disallowedTakes: {
+    "murals": "The murals are painted on the walls.",
+    "walls": "I can't take the walls.",
+    "shadows": "I can't take shadows.",
+    "door": "It's attached to the wall.",
+    "ceiling": "That's not something I can take."
+  },
+
+  // ===== CHECKPOINT (respawn point) =====
+  isCheckpoint: true                            // If true, becomes respawn point on first visit
+},
+
 // ===== ITEM STRUCTURE EXAMPLES =====
 
 // BASIC ITEM (pickupable, can be examined)

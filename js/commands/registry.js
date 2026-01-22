@@ -27,6 +27,7 @@ const aliasToAction = {
   'lift': 'operate',
   'shut': 'operate',
   'close': 'operate',
+  'eat': 'operate'
 };
 
 // Common prepositions we recognize as separators

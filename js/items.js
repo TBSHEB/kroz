@@ -417,7 +417,7 @@ const items = {
     setFlag: "brushTaken"
   },
   extinguisher: {
-    names: ["fire extinguisher", "extinguisher", "fire-extinguisher"],
+    names: ["fire extinguisher", "fire-extinguisher", "extinguisher"],
     examine: "A fire extinguisher, the pressure gauge indicating it's ready for use.",
     initialDescription: "Mounted on the wall is a red fire extinguisher.",
     description: "A fire extinguisher sits on the ground.",
@@ -453,15 +453,33 @@ const items = {
   },
   hamburger: {
     names: ["hamburger", "burger", "food"],
+    primaryType: "operate",
     examine: "A hamburger kept warm in the vending machine. Still looks edible.",
     initialDescription: "Sitting in the vending machine's tray is a fresh hamburger.",
-    description: "A hamburger sits on the ground."
+    description: "A hamburger sits on the ground.",
+    operate: {
+      eat: {
+        allowedVerbs: ["eat", "consume", "bite", "taste", "devour"],
+        message: "You eat the hamburger. Not bad for vending machine food.",
+        setFlags: ["hamburgerEaten"],
+        consumeOnOperate: true
+      }
+    }
   },
   hamburgerPoisoned: {
     names: ["hamburger", "burger", "food"],
+    primaryType: "operate",
     examine: "A hamburger kept warm in the vending machine. Still looks edible.",
     initialDescription: "Sitting in the vending machine's tray is a fresh hamburger.",
-    description: "A hamburger lies on the ground."
+    description: "A hamburger lies on the ground.",
+    operate: {
+      eat: {
+        allowedVerbs: ["eat", "consume", "bite", "taste", "devour"],
+        message: "You eat the hamburger. It's awful - stale, rubbery, and tastes like it's been sitting there for weeks.",
+        setFlags: ["poisoned"],
+        consumeOnOperate: true
+      }
+    }
   },
   concrete: {
     names: ["concrete chunk", "concrete", "chunk"],
@@ -481,12 +499,21 @@ const items = {
     setFlag: "cupTaken"
   },
   mineralWater: {
-    names: ["mineral water", "water", "mineral", "drink"],
+    names: ["mineral water", "water", "drink"],
+    primaryType: "operate",
     examine: "A cup of water filled with concrete powder. I don't have the best feeling about this.",
-    description: "A cup of mineral water rests here, the liquid perfectly clear."
+    description: "A cup of mineral water rests here, the liquid perfectly clear.",
+    operate: {
+      drink: {
+        allowedVerbs: ["drink", "consume", "sip", "gulp", "swallow"],
+        message: "You drink the water. It tastes strange, almost electric, and leaves your mouth feeling numb.",
+        setFlags: ["waterDrunk"],
+        consumeOnOperate: true
+      }
+    }
   },
   spentExtinguisher: {
-    names: ["fire extinguisher", "extinguisher", "fire-extinguisher", "empty extinguisher"],
+    names: ["fire extinguisher", "fire-extinguisher", "extinguisher", "empty extinguisher", "empty-extinguisher"],
     examine: "An empty fire extinguisher. The pressure gauge reads zero.",
     description: "A fire extinguisher sits on the ground.",
     setFlag: "spentExtinguisherTaken"
@@ -508,6 +535,18 @@ const recipes = {
     retains: ["hammer"],
     message: "You smash the skull with the hammer. Inside is a glowing purple map \nYou now have the glowing purple map",
     setFlags: ["oneHammerUse"],
+  },
+  crucibleSilver: {
+    requires: ["crucible", "wire"],
+    retains: [],
+    message: "You put the silver wire in the crucible.",
+    setFlags: [],
+  },
+  mineralWater: {
+    requires: ["concretePowder", "cup"],
+    retains: [],
+    message: "You sprinkle the concrete powder into the cup of water. It disolves instantly.",
+    setFlags: [],
   },
 }
 

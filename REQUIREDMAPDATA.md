@@ -23,55 +23,55 @@ This document lists all items, objects, and flags referenced in map.js.
 | pick2 | pick2 (Troll's Den) | Sets pick2Taken flag |
 | helmet | armory | Equippable armor, sets helmetTaken flag |
 | parachute | parachute | Equippable, sets parachuteTaken flag |
-
-### Need to be Implemented
-
-| Item ID | Rooms Found In | Purpose |
-|---------|---------------|---------|
-| redCake | redCake | Consumable |
-| greenCake | greenCake | Consumable |
-| blueCake | blueCake | Consumable |
-| shovel | topGlass | Digging tool for dirt room |
-| wire | ezam1 | Component/tool |
-| brick1 | bricks | Building material, breaks glass |
-| brick2 | bricks | Building material, breaks glass |
-| greenKey1 | cross | Key for final door (note: also a room name - potential confusion) |
-| gum | gum | Item/component |
-| greenKey2 | big | Key for final door |
-| greenKey3 | greenKey1 (room) | Key for final door |
-| purpleKey | candle (The Church) | Unlocks purpleDoor |
-| cup | water | Container |
-| wood | wood (The Wooden room) | Item, affects woodTaken flag, can be chipped into sawdust |
-| pick3 | pick3 (Pickaxe shed) | Tool/weapon, breaks vendingMachine for poisoned hamburger |
-| screwdriver | workshop | Activates machine through pipe |
-| wrench | workshop | Loosens bolt to open gate |
-| dynamite | dynamite (Explosives Storehouse) | Explosive for round room passage, light with candle |
-| battery | battery (Battery room) | Battery component |
-| greenKey4 | tiny (Tiny room) | Key for final door |
-| tongs | smith (Blacksmithy) | Picks up crucibleMelt |
-| coal | smith (Blacksmithy) | Fuel for furnace |
-| crucible | smith (Blacksmithy) | Container for silver (likely crucibleSilver when filled) |
-| brush | brush (Hair Salon) | Grooming item |
-| extinguisher | extinguisher | Extinguishes fire |
-| brassHammer | hammer2 (Brassworks) | Rings bell to shatter case |
-| greenKey8 | greenKey3 (Key room) | Key for final door |
-| coin | coin (Coin room) | Buys hamburger from vendingMachine |
-| blueKey | blueKey (Blue Sanctuary) | Unlocks blueDoor |
-| greenKey5 | greenKey2 (Green Sanctuary) | Key for final door |
-| redKey | redKey (Red Sanctuary) | Key |
+| redCake | redCake | Consumable, kills player when eaten |
+| greenCake | greenCake | Consumable, heals player to full, sets checkpoint |
+| blueCake | blueCake | Consumable, causes sleep and loses non-vital items |
+| shovel | topGlass | Digging tool for dirt room, sets shovelTaken flag |
+| wire | ezam1 | Silver wire component, sets wireTaken flag |
+| brick1 | bricks | Building material, breaks glass, sets brick1Taken flag |
+| brick2 | bricks | Building material, breaks glass, sets brick2Taken flag |
+| greenKey1 | cross | Key for final door, sets greenKey1Taken flag |
+| greenKey2 | big | Key for final door, sets greenKey2Taken flag |
+| greenKey3 | greenKey1 (room) | Key for final door, sets greenKey3Taken flag |
+| greenKey4 | tiny (Tiny room) | Key for final door, sets greenKey4Taken flag |
+| greenKey5 | greenKey2 (Green Sanctuary) | Key for final door, sets greenKey5Taken flag |
 | greenKey6 | *(created)* | **Created** by bell/case interaction, key for final door |
 | greenKey7 | *(created)* | **Created** by ball room button puzzle, key for final door |
+| greenKey8 | greenKey3 (Key room) | Key for final door, sets greenKey8Taken flag |
+| gum | gum | Old chewing gum, kills player when eaten |
+| purpleKey | candle (The Church) | Unlocks purpleDoor, sets purpleKeyTaken flag |
+| wood | wood (The Wooden room) | Item, sets woodTaken flag, can be chipped into sawdust |
 | sawdust | *(created)* | **Created** by chipper from wood/ladder, fills lake |
-| hamburger | *(created)* | **Created** by vendingMachine with coin, consumable (sets hamburgerEaten) |
-| hamburgerPoisoned | *(created)* | **Created** by vendingMachine with pick3, consumable (likely bad effect) |
-| concretePowder | *(created)* | **Created** by grinder from concrete |
+| dynamite | dynamite (Explosives Storehouse) | Explosive, sets dynamiteTaken flag |
 | litDynamite | *(created)* | **Created** by candle from dynamite, explosive |
-| crucibleSilver | *(unknown)* | Crucible with silver wire, melted in furnace |
+| pick3 | pick3 (Pickaxe shed) | Tool/weapon, sets pick3Taken flag |
+| screwdriver | workshop | Activates machine through pipe, sets screwdriverTaken flag |
+| wrench | workshop | Loosens bolt to open gate, sets wrenchTaken flag |
+| battery | battery (Battery room) | Battery component, sets batteryTaken flag |
+| tongs | smith (Blacksmithy) | Picks up crucibleMelt, sets tongsTaken flag |
+| coal | smith (Blacksmithy) | Fuel for furnace, sets coalTaken flag |
+| crucible | smith (Blacksmithy) | Container for silver, sets crucibleTaken flag |
+| crucibleSilver | *(created)* | **Crafted** from crucible+wire |
 | crucibleTongs | *(created)* | **Created** when tongs pick up crucibleMelt |
 | silverMold | *(created)* | **Created** when crucibleTongs poured into mold |
 | silverKey | *(created)* | **Created** when silverMold cooled in slackTub |
+| brush | brush (Hair Salon) | Grooming item, sets brushTaken flag |
+| extinguisher | extinguisher | Extinguishes fire, sets extinguisherTaken flag |
+| spentExtinguisher | *(created)* | **Created** after using extinguisher on fire |
+| brassHammer | hammer2 (Brassworks) | Rings bell to shatter case, sets brassHammerTaken flag |
+| redKey | redKey (Red Sanctuary) | Key, sets redKeyTaken flag |
+| blueKey | blueKey (Blue Sanctuary) | Unlocks blueDoor, sets blueKeyTaken flag |
+| coin | coin (Coin room) | Buys hamburger from vendingMachine, sets coinTaken flag |
+| hamburger | *(created)* | **Created** by vendingMachine with coin, consumable |
+| hamburgerPoisoned | *(created)* | **Created** by vendingMachine with pick3, consumable |
 | concrete | *(created)* | **Created** by wall when chipped with pick3 |
-| mineralWater | *(created)* | **Crafted** from concretePowder + cup, consumable |
+| concretePowder | *(created)* | **Created** by grinder from concrete |
+| cup | water | Container, sets cupTaken flag |
+| mineralWater | *(created)* | **Crafted** from concretePowder+cup, consumable |
+
+### Need to be Implemented
+
+None - all items from map.js have been implemented!
 
 ## Objects
 

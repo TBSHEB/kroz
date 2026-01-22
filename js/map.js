@@ -1094,20 +1094,14 @@ const rooms = {
     }
   },
   rorrim: { // Oaky, for this room, I want something special. Every command needs to be flipped. If the command is north, they go to the south room. Vise versa for east and west. However, the back command is interesting. As going back takes you in the direction that should take you back, it also needs to be flipped. So coming from the round room, "back" needs to take you south.
-    name: "The rooriM room",
+    name: "The rorriM room",
     look: "All of the walls here are made of shiny mirrors! It's really offputting.",
     passages: {
+      north: "round",
       south: "workshop",
       west: "pick3"
     },
     restrictedPassages: {
-      north: {
-        requirements: [ // change this to a barricaded wooden door.
-          {flag: "roundExplosion", failMessage: "There's a cavein that way.", unmetDescription: "There's a cavein to the north."}
-        ],
-        room: "round",
-        metDescription: "There's a passage to the north.",
-      },
       east: {
         requirements: [
           {flag: "redDoorOpened", failMessage: "There's a glowing red door in the way.", unmetDescription: "There's a locked, glowing red door to the east."}
@@ -1120,6 +1114,7 @@ const rooms = {
     disallowedTakes: {
       "mirror": "In order to take the mirrors, I'd have to break them first. I don't want 7 years bad luck.",
     },
+    objects: ["redDoor"]
   },
   pick3: {
     name: "The Pickaxe shed",
@@ -1169,7 +1164,7 @@ workshop: {
     look: "Ancient symbols are etched into every surface. A riddle awaits on a stone pedestal.", // TODO: Make dynamic - say "second" if riddle2 not visited, else "third"
     passages: {north: "round"},
     restrictedPassages: {
-      northwest: {
+      south: {
         requirements: [
           {flag: "thirdRiddleSolved", failMessage: "There's a heavy door in the way.", unmetDescription: "The southern wall houses a heavy looking door."}
         ],
@@ -1379,7 +1374,7 @@ workshop: {
   },
   smith: {
     name: "The Blacksmithy",
-    look: "An old blacksmithy. The forge is cold, but the tools are still here.",
+    look: "An old blacksmithy. The forge sits cold by the wall, bellows mounted at its side. A slack tub and key-shaped mold rest on a nearby workbench.",
     passages: {
       north: "tiny",
       south: "hideout"
@@ -1574,7 +1569,7 @@ workshop: {
     restrictedPassages: {
       east: {
         requirements: [
-          {flag: "silverDoorOpen", failMessage: "The door is locked.", unmetDescription: "There's a locked silver door in the eastern wall."}
+          {flag: "silverDoorOpen", failMessage: "The door is locked.", unmetDescription: "There's a tarnished silver door in the eastern wall."}
         ],
         room: "extinguisher",
         metDescription: "There's an open silver door to the east."
@@ -1589,7 +1584,8 @@ workshop: {
       "warnings": "The warning signs are painted on. Can't take those.",
       "signs": "They're attached to the walls.",
       "sign": "It's attached to the wall."
-    }
+    },
+    objects: ["silverDoor"]
   },
   extinguisher: {
     name: "The Fire Control Station",
