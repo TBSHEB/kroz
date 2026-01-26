@@ -4,7 +4,25 @@ function move(direction) {
   const currentRoom = rooms[gameState.currentRoom];
 
   if (direction !== "back") {
+
+    if (currentRoom.mirrorDirections) {
+      direction = flipDirection(direction);
+    }
+
     if (currentRoom.passages && currentRoom.passages[direction]) {
+      if (currentRoom.entryMessages && currentRoom.entryMessages[direction]) {
+        displayText(currentRoom.entryMessages[direction]);
+      }
+      // Handle onExit actions
+      if (currentRoom.onExit && gameState.visitedRooms.includes(gameState.currentRoom)) {
+        if (currentRoom.onExit.setFlags) {
+          for (const flag of currentRoom.onExit.setFlags) {
+            if (!gameState.flags.includes(flag)) {
+              gameState.flags.push(flag);
+            }
+          }
+        }
+      }
       gameState.previousRoom = gameState.currentRoom;
       gameState.currentRoom = currentRoom.passages[direction];
       if (!gameState.visitedRooms.includes(gameState.currentRoom)) {
@@ -16,7 +34,8 @@ function move(direction) {
           saveGame(gameState, "internal checkpoint");
         }
       } else {
-        displayRoomTitle(rooms[gameState.currentRoom].name);
+        const roomName = typeof rooms[gameState.currentRoom].name === "function" ? rooms[gameState.currentRoom].name() : rooms[gameState.currentRoom].name;
+        displayRoomTitle(roomName);
       }
       return;
     }
@@ -51,6 +70,19 @@ function move(direction) {
       }
 
       // All requirements met
+      if (currentRoom.entryMessages && currentRoom.entryMessages[direction]) {
+        displayText(currentRoom.entryMessages[direction]);
+      }
+      // Handle onExit actions
+      if (currentRoom.onExit && gameState.visitedRooms.includes(gameState.currentRoom)) {
+        if (currentRoom.onExit.setFlags) {
+          for (const flag of currentRoom.onExit.setFlags) {
+            if (!gameState.flags.includes(flag)) {
+              gameState.flags.push(flag);
+            }
+          }
+        }
+      }
       gameState.previousRoom = gameState.currentRoom;
       gameState.currentRoom = restrictedPassage.room;
       if (!gameState.visitedRooms.includes(gameState.currentRoom)) {
@@ -62,7 +94,8 @@ function move(direction) {
           saveGame(gameState, "internal checkpoint");
         }
       } else {
-        displayRoomTitle(rooms[gameState.currentRoom].name);
+        const roomName = typeof rooms[gameState.currentRoom].name === "function" ? rooms[gameState.currentRoom].name() : rooms[gameState.currentRoom].name;
+        displayRoomTitle(roomName);
       }
       return;
     }
@@ -93,7 +126,25 @@ function move(direction) {
         const directions = Object.keys(currentRoom.passages);
 
         for (const direction of directions) {
+
+          if (currentRoom.mirrorDirections) {
+            direction = flipDirection(direction);
+          }
+
           if (currentRoom.passages[direction] === gameState.previousRoom) {
+            if (currentRoom.entryMessages && currentRoom.entryMessages[direction]) {
+              displayText(currentRoom.entryMessages[direction]);
+            }
+            // Handle onExit actions
+            if (currentRoom.onExit && gameState.visitedRooms.includes(gameState.currentRoom)) {
+              if (currentRoom.onExit.setFlags) {
+                for (const flag of currentRoom.onExit.setFlags) {
+                  if (!gameState.flags.includes(flag)) {
+                    gameState.flags.push(flag);
+                  }
+                }
+              }
+            }
             gameState.previousRoom = gameState.currentRoom;
             gameState.currentRoom = currentRoom.passages[direction];
             if (!gameState.visitedRooms.includes(gameState.currentRoom)) {
@@ -105,7 +156,8 @@ function move(direction) {
                 saveGame(gameState, "internal checkpoint");
               }
             } else {
-              displayRoomTitle(rooms[gameState.currentRoom].name);
+              const roomName = typeof rooms[gameState.currentRoom].name === "function" ? rooms[gameState.currentRoom].name() : rooms[gameState.currentRoom].name;
+        displayRoomTitle(roomName);
             }
             foundDirection = true;
             return;
@@ -118,6 +170,11 @@ function move(direction) {
         const directions = Object.keys(currentRoom.restrictedPassages);
 
         for (const direction of directions) {
+
+          if (currentRoom.mirrorDirections) {
+            direction = flipDirection(direction);
+          }
+
           if (currentRoom.restrictedPassages[direction].room === gameState.previousRoom) {
             // Check if requirements are met
             if (currentRoom.restrictedPassages[direction].requirements) {
@@ -159,6 +216,19 @@ function move(direction) {
 
 
             // All requirements met
+            if (currentRoom.entryMessages && currentRoom.entryMessages[direction]) {
+              displayText(currentRoom.entryMessages[direction]);
+            }
+            // Handle onExit actions
+            if (currentRoom.onExit && gameState.visitedRooms.includes(gameState.currentRoom)) {
+              if (currentRoom.onExit.setFlags) {
+                for (const flag of currentRoom.onExit.setFlags) {
+                  if (!gameState.flags.includes(flag)) {
+                    gameState.flags.push(flag);
+                  }
+                }
+              }
+            }
             gameState.previousRoom = gameState.currentRoom;
             gameState.currentRoom = currentRoom.restrictedPassages[direction].room;
             if (!gameState.visitedRooms.includes(gameState.currentRoom)) {
@@ -170,7 +240,8 @@ function move(direction) {
                 saveGame(gameState, "internal checkpoint");
               }
             } else {
-              displayRoomTitle(rooms[gameState.currentRoom].name);
+              const roomName = typeof rooms[gameState.currentRoom].name === "function" ? rooms[gameState.currentRoom].name() : rooms[gameState.currentRoom].name;
+        displayRoomTitle(roomName);
             }
             foundDirection = true;
             return;

@@ -159,15 +159,44 @@ Rooms use plain objects with this structure:
 ```javascript
 const rooms = {
   "roomId": {
-    name: "Room Name",           // Display name
-    look: "Description text",    // What player sees
+    name: "Room Name",           // Display name (can be function for dynamic names)
+    look: "Description text",    // What player sees (can be object with base/parts for dynamic text)
     passages: {                  // Available exits
       north: "otherRoomId",
       up: "anotherRoomId"
     },
+    restrictedPassages: {        // Passages requiring flags/items (optional)
+      east: {
+        requirements: [
+          {flag: "doorOpen", failMessage: "The door is locked."}
+        ],
+        room: "secretRoom",
+        metDescription: "An open door to the east."
+      }
+    },
     items: ["item1", "item2"],   // Pickupable items (IDs from items.js)
     objects: ["object1"],         // Fixed interactables (IDs from objects.js)
-    roomItems: []                 // Dynamic items added via gameplay (e.g., ladder)
+    roomItems: [],                // Dynamic items added via gameplay (e.g., ladder)
+    light: true,                  // Room has natural light (optional, default false)
+    isCheckpoint: true,           // Safe respawn point (optional)
+    hazard: {                     // Environmental hazard (optional)
+      count: 2,                   // Commands before damage
+      damage: 1,                  // Damage per cycle
+      messages: ["..."],          // Random damage messages
+      unless: "flagName",         // Flag that disables hazard
+      killIfInventory: {          // Instant death items
+        itemId: "Death message"
+      }
+    },
+    onExit: {                     // Flags set when leaving (optional)
+      setFlags: ["leftRoom"]
+    },
+    entryMessages: {              // Custom messages on entry (optional)
+      north: "You fall through a hole."
+    },
+    disallowedTakes: {            // Items that can't be taken
+      "walls": "The walls are part of the structure."
+    }
   }
 };
 ```
@@ -178,6 +207,7 @@ const rooms = {
 - Direction abbreviations: `n`, `s`, `e`, `w`, `ne`, `se`, `sw`, `nw`, `u`, `d`
 - Items/objects must be defined in their respective files before being referenced
 - `roomItems` is modified during gameplay (e.g., placing ladders creates new passages)
+- Rooms without `light: true` are dark and block look/examine/takeAll without lantern
 
 ### Item Structure (items.js)
 
@@ -186,15 +216,58 @@ const items = {
   "itemId": {
     names: ["primary name", "alias1", "alias2"],  // All valid names
     description: "Text shown when item is in room",
-    examine: "Detailed examination text",
+    examine: "Detailed examination text",  // Can be function for dynamic text
     primaryType: "equipment|consumable|weapon|tool",  // For smart routing
-    canTake: true,
-    onUse: {
-      verb: "equip|operate|consume",  // Determines handler
-      // Handler-specific properties...
+    canTake: true,               // Or function returning true/error message
+    infinite: true,              // Stays in room after taking (optional)
+    vital: true,                 // Protected from blue cake theft (optional)
+    temporary: () => { ... },    // Function returning countdown config (optional)
+    operate: {                   // Operating the item
+      activate: {
+        allowedVerbs: ["light", "activate"],
+        message: "You activate it.",
+        setFlags: ["activated"],
+        requireNotFlags: ["broken"],
+        failMessages: {          // Flag-specific fail messages
+          broken: "It's broken.",
+          activated: "Already on."
+        },
+        setHealth: 4,            // Set player health
+        removeItem: true         // Consume item after use
+      }
+    },
+    applyWith: {                 // Applying to objects
+      itemId: {
+        message: "You combine them.",
+        consumeItem: true
+      }
     }
   }
 };
+```
+
+**Temporary Items:**
+Items with `temporary` property (function) count down while in inventory:
+```javascript
+temporary: () => {
+  if (gameState.flags.includes("lanternLit")) {
+    return {
+      duration: 800,              // Commands until expiration
+      messages: {                 // Warning messages at specific counts
+        100: "Getting low...",
+        750: "Almost done!"
+      },
+      onExpire: "extinguish",     // Action: "extinguish" or "destroy"
+      onExpireMessage: {
+        inventory: "It goes out.",
+        floor: "It fizzles out."
+      },
+      actionSetFlags: ["out"],    // Flags to set on expiration
+      actionUnsetFlags: ["lit"]   // Flags to unset
+    };
+  }
+  return false;  // Not active
+}
 ```
 
 ### Object Structure (objects.js)
@@ -248,15 +321,24 @@ Save format stored in localStorage under key `'kroz-save'`:
 ```javascript
 {
   currentRoom: "roomId",
+  previousRoom: "previousRoomId",
   inventory: ["item1", "item2"],
   visitedRooms: ["room1", "room2"],
-  gameFlags: {},
-  equippedItems: {},
-  roomItems: {},  // Dynamic items placed in rooms
-  combatState: {},  // Combat tracking per enemy
-  playerDamaged: false,
-  playerHealth: 100,
-  lastCheckpoint: "start",
+  flags: ["flag1", "flag2"],      // Game flags
+  roomItemChanges: {              // Tracks items added/removed from rooms
+    roomId: ["item1", "item2"]
+  },
+  combatState: {},                // Combat tracking per enemy
+  healthState: 4,                 // Player health (4 = full, 0 = dead)
+  poison: 0,                      // Poison level
+  hazardState: {                  // Current hazard tracking
+    room: "roomId",
+    count: 1
+  },
+  itemCountdowns: {               // Temporary item countdowns
+    itemId: 350
+  },
+  lastCheckpoint: "start",        // Respawn location
   timestamp: "ISO-8601 string"
 }
 ```
@@ -265,6 +347,7 @@ Save format stored in localStorage under key `'kroz-save'`:
 - Always validate loaded data (could be corrupted/tampered)
 - Handle localStorage unavailable/full scenarios
 - Check storage availability with `isStorageAvailable()`
+- `healthState`: 4 = full health, 3 = minor damage, 2 = moderate damage, 1 = severe, 0 = dead
 
 ## Testing Instructions
 
@@ -322,8 +405,24 @@ Open browser DevTools (F12) → Console tab to see:
 ### Adding Items
 1. Define item in `items.js` with `names`, `description`, `examine`, `primaryType`
 2. Place item in appropriate room's `items` array in `map.js`
-3. Add any item-specific interactions in `onUse` property
-4. Test take, drop, examine, and use commands
+3. Add any item-specific interactions in `operate` or `applyWith` properties
+4. Optional properties: `infinite`, `canTake` (function), `temporary` (function), `vital`
+5. Test take, drop, examine, and use commands
+
+### Adding Crafting Recipes
+1. Define recipe in `items.js` `recipes` object
+2. Structure:
+   ```javascript
+   resultItemId: {
+     requires: ["item1", "item2"],
+     creates: ["resultItem"],     // Optional, defaults to recipe key
+     retains: ["item1"],           // Items not consumed
+     unsetFlags: ["flag1"],        // Flags to remove
+     resetCountdowns: ["itemId"],  // Reset temporary item timers
+     setFlags: ["crafted"],
+     message: "You craft something."
+   }
+   ```
 
 ### Adding Objects
 1. Define object in `objects.js`
@@ -391,14 +490,16 @@ element.textContent = userInput;
 - Use optional chaining (`?.`) where appropriate
 - Validate item/object IDs exist before manipulation
 
-## Combat System
+## Game Systems
+
+### Combat System
 
 Kroz features a turn-based combat system with instakill mechanics. See `COMBAT.md` for full specification.
 
 **Key Points:**
 - First engagement with correct item = instant kill
 - Wrong item or non-attack action = combat begins
-- Player has 2 health states: healthy → damaged → dead
+- Player health: 4 states (4 = full, 3 = minor damage, 2 = moderate, 1 = severe, 0 = dead)
 - Enemies have dodge chances and defensive moves
 - Death respawns player at last checkpoint
 
@@ -411,6 +512,72 @@ Kroz features a turn-based combat system with instakill mechanics. See `COMBAT.m
   dodgeChanceDamaged: 0.7,
   defensiveChance: 0.25,
   // See COMBAT.md for full structure
+}
+```
+
+### Hazard System
+
+Rooms can have environmental hazards that damage the player:
+
+```javascript
+hazard: {
+  count: 2,                    // Commands before damage
+  damage: 1,                   // Damage amount
+  messages: ["Ouch!", "..."],  // Random damage messages
+  unless: "fireout",           // Flag that disables hazard
+  killIfInventory: {           // Items that cause instant death
+    dynamite: "The dynamite explodes!"
+  }
+}
+```
+
+- Hazards count commands while in room
+- Apply damage every `count` commands
+- Can be disabled with flags (e.g., extinguishing fire)
+- `killIfInventory` checks on room entry and each command
+
+### Dark Room System
+
+Rooms without `light: true` are dark and restrict commands:
+
+- **Blocked commands:** look, examine, takeAll (can still take if you know the item name)
+- **Works normally:** movement, inventory, drop, use items
+- **Lantern:** Setting `lanternLit` flag enables all commands in dark rooms
+- **Display:** Dark rooms show title "A dark room" and message "It's too dark to see!"
+
+### Checkpoint System
+
+Rooms with `isCheckpoint: true` are safe respawn points:
+
+- Automatically saves game state on first visit
+- Player respawns here after death (healthState = 0)
+- Implemented in movement.js when entering new rooms
+
+### Temporary Items
+
+Items with countdown timers (lantern, litDynamite):
+
+- `temporary` property is a function returning config when active
+- Counts up each command until reaching `duration`
+- Shows warning messages at specific counts
+- On expiration: "extinguish" (turn off) or "destroy" (explode)
+- Can set/unset flags on expiration
+
+### Infinite Items
+
+Items with `infinite: true` and/or `canTake` function:
+
+- **infinite**: Item stays in room after taking
+- **canTake**: Function returning `true` or error message string
+- Used for gum (unlimited) and dynamite (only one at a time)
+
+Example:
+```javascript
+canTake: () => {
+  if (gameState.inventory.includes("dynamite")) {
+    return "You already have dynamite.";
+  }
+  return true;
 }
 ```
 
@@ -458,16 +625,25 @@ Kroz features a turn-based combat system with instakill mechanics. See `COMBAT.m
 
 See `TODO.md` for current task list and priorities.
 
-**High Priority:**
-- Redo dungeon room (start room)
-- Implement attack handler and combat system
-- Implement smart "use" detection with primaryType routing
-
-**Completed:**
-- Use command system with verb routing
+**Major Systems Completed:**
+- Use command system with verb routing (attack, apply, operate, craft)
+- Combat system with instakill mechanics
 - Equipment system (helmet, parachute, lantern)
+- Hazard system (fire room damage, dynamic hazards)
+- Dark room system (rooms require lantern for look/examine)
+- Lantern power system (800 command countdown, battery recharge)
+- Temporary item countdown system (litDynamite explosion timer)
+- Checkpoint system (safe respawn points)
+- Infinite items (gum, dynamite with restrictions)
 - Ladder placement mechanics
-- Basic command system
+- Dynamic room text (function-based names/descriptions)
+- Restricted passages with requirements
+- Mirror room (reversed directions)
+
+**Remaining Content:**
+- Riddle answers (riddle1 text, riddle2/3 answer arrays)
+- Testing all implemented systems
+- Bug fixes (optional)
 
 ## Notes for AI Agents
 

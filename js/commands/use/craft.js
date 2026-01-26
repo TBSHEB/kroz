@@ -41,6 +41,23 @@ function handleCraft(itemNames) {
         });
       }
 
+      // Unset flags if specified
+      if (recipe.unsetFlags) {
+        recipe.unsetFlags.forEach(flag => {
+          if (gameState.flags.includes(flag)) {
+            setGameState("flags", flag, false);
+          }
+        })
+      }
+
+      if (recipe.resetCooldowns) {
+        recipe.resetCooldowns.forEach(itemId => {
+          if (gameState.itemCooldowns[itemId] !== undefined) {
+            gameState.itemCountdowns[itemId] = 0;
+          }
+        });
+      }
+
       // Display message
       displayText(recipe.message);
       return true;

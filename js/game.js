@@ -13,7 +13,12 @@ const gameState = {
     partCraftItems: [],
     combatState: {},
     healthState: 4,
+    hazardState: {
+        room: "",
+        count: 0
+    },
     poison: 0,
+    itemCountdowns: {},
     roomItemChanges: {},
     lastCheckpoint: "start"
 }
@@ -77,6 +82,8 @@ function handleCommand() {
 
 
     if (command) {
+        let currentRoom = rooms[gameState.currentRoom];
+        const oldRoom = gameState.currentRoom;
         // Display the user's command
         displayCommand(command);
 
@@ -215,15 +222,151 @@ function handleCommand() {
                 gameState.partCommand = "";
             }
         }
+        //reset room in case of movement
+        currentRoom = rooms[gameState.currentRoom];
+        let skipHazCheck = false;
+
+        if (currentRoom?.hazard?.killIfInventory) {
+            for (const [item, message] of Object.entries(currentRoom.hazard.killIfInventory)) {
+                if (gameState.inventory.includes(item)) {
+                    gameState.healthState = 0;
+                    displayText(message);
+                    skipHazCheck = true;
+                }
+            }
+        }
+
+        // Check for hazard damage
+        if (gameState.currentRoom === oldRoom) {
+            if (currentRoom.hazard && !skipHazCheck) {
+                if ((currentRoom.hazard.unless && !gameState.flags.includes(currentRoom.hazard.unless)) || !currentRoom.hazard.unless) {
+                    //Recieve the hazard effects
+                    if (gameState.hazardState.room !== gameState.currentRoom) {
+                        gameState.hazardState.room = gameState.currentRoom;
+                        gameState.hazardState.count = 1;
+                    } else {
+                        gameState.hazardState.count += 1;
+                    }
+
+                    if (gameState.hazardState.count >= currentRoom.hazard.count) {
+                        gameState.hazardState.count = 0;
+                        if (currentRoom.hazard.message) {
+                            displayText(currentRoom.hazard.message);
+                        } else if (currentRoom.hazard.messages) {
+                            const randomMessage = currentRoom.hazard.messages[Math.floor(Math.random() * currentRoom.hazard.messages.length)];
+                            displayText(randomMessage);
+                        }
+                        if (currentRoom.hazard.damage) {
+                            gameState.healthState -= currentRoom.hazard.damage;
+                        }
+                    }
+
+                } else {
+                    // hazard is off
+                    gameState.hazardState.room = "";
+                    gameState.hazardState.count = 0;
+                }
+            } else {
+                // not in a room with a hazard, remove tracking
+                gameState.hazardState.room = "";
+                gameState.hazardState.count = 0;
+            }
+        }
 
         // Update the turn count on command if there is combat in this room unless you have a part command going on
-        const currentRoom = rooms[gameState.currentRoom];
         if (currentRoom.objects && !gameState.partCommand) {
             for (const object of currentRoom.objects) {
                 const enemy = objects[object];
                 if (enemy.combat && gameState.combatState[object]) {
                     gameState.combatState[object].turnCount += 1;
                 }
+            }
+        }
+
+        // check for temporary items
+        for (const itemId of gameState.inventory) {
+
+            const tempConfig = typeof items[itemId]?.temporary === "function" ? items[itemId].temporary() : items[itemId]?.temporary;
+
+            if (tempConfig && gameState.itemCountdowns[itemId] === undefined) {
+                gameState.itemCountdowns[itemId] = 0;
+            }
+        }
+
+        // increment temporary items
+        for (const [item, count] of Object.entries(gameState.itemCountdowns)) {
+            const tempConfig = typeof items[item]?.temporary === "function" ? items[item].temporary() : items[item]?.temporary;
+
+            // if temporary is off, skip
+            if (!tempConfig) {
+                continue;
+            }
+
+            if (tempConfig.duration === count) {
+                // the item "expires" do the action
+                switch (tempConfig.onExpire) {
+                    case "destroy":
+                        // kill the player, and destroy all items in the room.
+                        if (currentRoom.items.includes(item) || gameState.inventory.includes(item)) {
+                            gameState.healthState = 0;
+                        }
+
+                        if (currentRoom.objects) {
+                            for (const object of currentRoom.objects) {
+                                if (objects[object].destructible) {
+                                    setRoomState("objects", object, false)
+                                }
+                                if (objects[object].onDestruct) {
+                                    for (const flag of objects[object].onDestruct) {
+                                        setGameState("flags", flag);
+                                    }
+                                }
+                            }
+                        }
+
+                        //display the appropriate message
+                        if (currentRoom.items.includes(item)) {
+                            displayText(tempConfig.onExpireMessage.floor);
+                        } else if (gameState.inventory.includes(item)) {
+                            displayText(tempConfig.onExpireMessage.inventory);
+                        } else {
+                            displayText(tempConfig.onExpireMessage.away);
+                        }
+                        break;
+
+                    case "extinguish":
+
+                        if (currentRoom.items.includes(item)) {
+                            displayText(tempConfig.onExpireMessage.floor);
+                        } else if (gameState.inventory.includes(item)) {
+                            displayText(tempConfig.onExpireMessage.inventory);
+                        }
+
+                        if (tempConfig.actionSetFlags) {
+                            for (const flag of tempConfig.actionSetFlags) {
+                                setGameState("flags", flag);
+                            }
+                        }
+                        if (tempConfig.actionUnsetFlags) {
+                            for (const flag of tempConfig.actionUnsetFlags) {
+                                setGameState("flags", flag, false);
+                            }
+                        }
+
+
+
+
+                }
+                delete gameState.itemCountdowns[item];
+            }
+            // check if the item has a message at this stage?
+            if (tempConfig.messages?.[count]) {
+                displayText(tempConfig.messages[count]);
+            }
+
+            // increment the count
+            if (gameState.itemCountdowns[item]) {
+                gameState.itemCountdowns[item]++;
             }
         }
 

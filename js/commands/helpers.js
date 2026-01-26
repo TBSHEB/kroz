@@ -533,3 +533,26 @@ function trackRoomItemChange(itemId, added = true, roomOverride) {
     delete gameState.roomItemChanges[roomId];
   }
 }
+
+// Flip a direction to its opposite (for mirror rooms)
+function flipDirection(direction) {
+  const directionMap = {
+    'north': 'south',
+    'south': 'north',
+    'east': 'west',
+    'west': 'east',
+    'northeast': 'southwest',
+    'southwest': 'northeast',
+    'northwest': 'southeast',
+    'southeast': 'northwest',
+    'n': 's',
+    's': 'n',
+    'e': 'w',
+    'w': 'e',
+    'ne': 'sw',
+    'sw': 'ne',
+    'nw': 'se',
+    'se': 'nw'
+  };
+  return directionMap[direction] || direction;
+}

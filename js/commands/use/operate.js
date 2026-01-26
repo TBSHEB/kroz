@@ -59,9 +59,12 @@ function handleOperate(verb, item) {
   // Do you have any flags restricting the operation of the item?
   if (matchedAction.requireNotFlags) {
     let allowed = true;
+    let failedFlag = null;
     for (const flag of matchedAction.requireNotFlags) {
       if (gameState.flags.includes(flag)) {
         allowed = false;
+        failedFlag = flag;
+        break;
       }
     }
 
@@ -69,6 +72,8 @@ function handleOperate(verb, item) {
       // Have flags restricting use.
       if (matchedAction.failMessage) {
         displayText(matchedAction.failMessage);
+      } else if (matchedAction.failMessages && matchedAction.failMessages[failedFlag]) {
+        displayText(matchedAction.failMessages[failedFlag]);
       } else {
         displayText("Not allowed.");
       }
@@ -107,6 +112,16 @@ function handleOperate(verb, item) {
   // Remove object from room
   if (matchedAction.removeObject) {
     setRoomState("objects", item.id, false);
+  }
+
+  // Remove item from player
+  if (matchedAction.removeItem) {
+    setGameState("inventory", item.id, false)
+  }
+
+  // Set player health
+  if (matchedAction.setHealth) {
+    gameState.healthState = matchedAction.setHealth;
   }
 
   // Set any checkpoints and remove items

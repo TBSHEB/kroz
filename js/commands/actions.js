@@ -92,6 +92,25 @@ function take(things, all = false) {
         const itemId = aliasToItemId[thing];
 
         if (itemId && currentRoom.items.includes(itemId)) {
+          if (items[itemId].canTake) {
+            let canTakeResult;
+
+            if (typeof items[itemId].canTake === "function") {
+              canTakeResult = items[itemId].canTake();
+            } else {
+              canTakeResult = items[itemId].canTake;
+            }
+
+            if (canTakeResult !== true) {
+              if (typeof canTakeResult === "string") {
+                feedback += `${canTakeResult}\n`
+              } else {
+                feedback += `${thing}: You can't take that\n`;
+              }
+              continue;
+            }
+          }
+
           // Item found in room
           setGameState("inventory", itemId);
           if (items[itemId].setFlag) {
@@ -99,12 +118,14 @@ function take(things, all = false) {
           }
 
           // Remove item from room
-          setRoomState("items", itemId, false);
+          if (!items[itemId].infinite) {
+            setRoomState("items", itemId, false);
+            trackRoomItemChange(itemId, false);
+          }
+
           taken.add(itemId);
-          trackRoomItemChange(itemId, false);
-
-
           feedback += `${thing}: Taken.\n`;
+
         } else if (taken.has(itemId)) {
           feedback += `${thing}: You've already taken that.`
         } else if (currentRoom.disallowedTakes && nonTakeableItems.includes(thing)) {
@@ -119,14 +140,35 @@ function take(things, all = false) {
       const itemId = aliasToItemId[things[0]];
 
       if (itemId) {
+        if (items[itemId].canTake) {
+          let canTakeResult;
+
+          if (typeof items[itemId].canTake === "function") {
+            canTakeResult = items[itemId].canTake();
+          } else {
+            canTakeResult = items[itemId].canTake;
+          }
+
+          if (canTakeResult !== true) {
+            if (typeof canTakeResult === "string") {
+              feedback += `${canTakeResult}\n`
+            } else {
+              feedback += `${things[0]}: You can't take that\n`;
+            }
+            displayText(feedback);
+            return;
+          }
+        }
         // Item found in room
         setGameState("inventory", itemId);
         if (items[itemId].setFlag) {
           setGameState("flags", items[itemId].setFlag)
         }
         // Remove item from room
-        setRoomState("items", itemId, false);
-        trackRoomItemChange(itemId, false);
+        if (!items[itemId].infinite) {
+          setRoomState("items", itemId, false);
+          trackRoomItemChange(itemId, false);
+        }
 
         feedback += "Taken.";
       } else if (currentRoom.disallowedTakes && nonTakeableItems.includes(things[0])) {
@@ -209,11 +251,23 @@ function drop(things) {
 }
 
 function examineSingle(alias) {
+
+  if (!rooms[gameState.currentRoom].light && !gameState.flags.includes("lanternLit")) {
+    displayText("It's far too dark to examine anything...");
+    return;
+  }
+
   gameState.partCommand = "examine";
   displayText(`What would you like to ${alias}?`);
 }
 
 function examine(things) {
+
+  if (!rooms[gameState.currentRoom].light && !gameState.flags.includes("lanternLit")) {
+    displayText("It's far too dark to examine anything...");
+    return;
+  }
+
   if (!things || things.length === 0) {
     displayText("I can't examine that.");
     return;
@@ -255,7 +309,11 @@ function examine(things) {
         if (aliasToItemId[things[0]]) {
           const item = items[aliasToItemId[things[0]]];
           if (item && item.examine) {
-            feedback += item.examine;
+            if (typeof item.examine === "function") {
+              feedback += item.examine();
+            } else {
+              feedback += item.examine;
+            }
             found = true;
           }
         }
@@ -278,7 +336,11 @@ function examine(things) {
         if (aliasToItemId[things[0]]) {
           const item = items[aliasToItemId[things[0]]];
           if (item && item.examine) {
-            feedback += item.examine;
+            if (typeof item.examine === "function") {
+              feedback += item.examine();
+            } else {
+              feedback += item.examine;
+            }
             found = true;
           }
         }
@@ -341,7 +403,11 @@ function examine(things) {
         if (!found && roomItemAliases[thing]) {
           const item = items[roomItemAliases[thing]];
           if (item && item.examine) {
-            feedback += `${thing}: ${item.examine}\n`;
+            if (typeof item.examine === "function") {
+              feedback += `${thing}: ${item.examine()}`;
+            } else {
+              feedback += `${thing}: ${item.examine}`;
+            }
             found = true;
           }
         }
@@ -350,7 +416,11 @@ function examine(things) {
         if (!found && inventoryAliases[thing]) {
           const item = items[inventoryAliases[thing]];
           if (item && item.examine) {
-            feedback += `${thing}: ${item.examine}\n`;
+            if (typeof item.examine === "function") {
+              feedback += `${thing}: ${item.examine()}`;
+            } else {
+              feedback += `${thing}: ${item.examine}`;
+            }
             found = true;
           }
         }
@@ -374,6 +444,12 @@ function examine(things) {
 }
 
 function takeAll() {
+
+  if (!rooms[gameState.currentRoom].light && !gameState.flags.includes("lanternLit")) {
+    displayText("I'm not sure how you want me to take everything in the room, when I can see nothing of the room.");
+    return;
+  }
+
   const interactables = buildInteractablesList();
 
   // We want to try to take all items in the room, all objects in the room, and all room specific items that can't be taken

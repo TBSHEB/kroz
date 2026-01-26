@@ -43,17 +43,24 @@ function inventory() {
 }
 
 function look() {
-  displayRoomTitle(rooms[gameState.currentRoom].name);
+  const currentRoom = rooms[gameState.currentRoom];
+
+  if (!currentRoom.light && !gameState.flags.includes("lanternLit")) {
+    displayRoomTitle("A dark room");
+    displayText("It's too dark to see!");
+    return;
+  }
+  const roomName = typeof currentRoom.name === "function" ? currentRoom.name() : currentRoom.name;
+  displayRoomTitle(roomName);
 
   let look = "";
-  const room = rooms[gameState.currentRoom];
 
-  if (typeof room.look === "object") {
-    if (room.look.base) {
-      look += room.look.base + "\n";
+  if (typeof currentRoom.look === "object") {
+    if (currentRoom.look.base) {
+      look += currentRoom.look.base + "\n";
 
     }
-    for (const part of room.look.parts) {
+    for (const part of currentRoom.look.parts) {
       if (part.if) {
         if (gameState.flags.includes(part.if)) {
           if (look) look += " ";
@@ -68,10 +75,10 @@ function look() {
         look = "This room has an error...";
       }
     }
-  } else if (typeof room.look === "string") {
-    look = room.look;
-  } else if (typeof room.look === "function") {
-    look = room.look();
+  } else if (typeof currentRoom.look === "string") {
+    look = currentRoom.look;
+  } else if (typeof currentRoom.look === "function") {
+    look = currentRoom.look();
   } else {
     look = "This room has an error...";
   }
@@ -79,8 +86,8 @@ function look() {
   look += "\n";
 
   // Add object descriptions
-  if (room.objects && room.objects.length > 0) {
-    for (const objectId of room.objects) {
+  if (currentRoom.objects && currentRoom.objects.length > 0) {
+    for (const objectId of currentRoom.objects) {
       const obj = objects[objectId];
       if (obj && obj.description) {
         look += obj.description + "\n";
@@ -88,18 +95,32 @@ function look() {
     }
   }
 
-  if (room.passages) {
-    const directions = Object.keys(room.passages);
+  // Collect all visible passages (normal + restricted with showAsNormal)
+  let allDirections = [];
 
-    if (directions.length === 1) {
-      const dir = directions[0];
+  if (currentRoom.passages) {
+    allDirections = Object.keys(currentRoom.passages);
+  }
+
+  // Add restricted passages marked as showAsNormal
+  if (currentRoom.restrictedPassages) {
+    for (const direction of Object.keys(currentRoom.restrictedPassages)) {
+      if (currentRoom.restrictedPassages[direction].showAsNormal === true) {
+        allDirections.push(direction);
+      }
+    }
+  }
+
+  if (allDirections.length > 0) {
+    if (allDirections.length === 1) {
+      const dir = allDirections[0];
       if (dir === "up" || dir === "down") {
         look += `There is a passage ${dir}.`;
       } else {
         look += `There is a passage to the ${dir}.`;
       }
-    } else if (directions.length > 1) {
-      const firstDir = directions[0];
+    } else if (allDirections.length > 1) {
+      const firstDir = allDirections[0];
 
       // Start the sentence based on first direction
       if (firstDir === "up" || firstDir === "down") {
@@ -109,9 +130,9 @@ function look() {
       }
 
       // Build passage list
-      for (let i = 0; i < directions.length; i++) {
-        const dir = directions[i];
-        const isLast = (i === directions.length - 1);
+      for (let i = 0; i < allDirections.length; i++) {
+        const dir = allDirections[i];
+        const isLast = (i === allDirections.length - 1);
 
         if (isLast) {
           // Last item: "and [direction]."
@@ -132,10 +153,15 @@ function look() {
     }
   }
 
-  if (room.restrictedPassages) {
-    const directions = Object.keys(room.restrictedPassages);
+  if (currentRoom.restrictedPassages) {
+    const directions = Object.keys(currentRoom.restrictedPassages);
     for (const direction of directions) {
-      const passage = room.restrictedPassages[direction];
+      const passage = currentRoom.restrictedPassages[direction];
+
+      // Skip passages shown as normal (already included in passage list above)
+      if (passage.showAsNormal === true) {
+        continue;
+      }
 
       if (passage.hidden !== true) {
         let allRequirementsMet = true;
@@ -153,7 +179,7 @@ function look() {
               const allowedItems = Array.isArray(requirement.roomItems)
                 ? requirement.roomItems
                 : [requirement.roomItems];
-              roomItemMet = allowedItems.some(item => room.items?.includes(item));
+              roomItemMet = allowedItems.some(item => currentRoom.items?.includes(item));
             }
 
             if (!flagMet || !itemMet || !roomItemMet) {
@@ -176,12 +202,12 @@ function look() {
   }
 
   // Add item descriptions
-  if (room.items && room.items.length > 0) {
+  if (currentRoom.items && currentRoom.items.length > 0) {
     let itemTexts = [];
 
-    for (const itemId of room.items) {
+    for (const itemId of currentRoom.items) {
       // Skip items that this room wants to handle manually
-      if (room.hideItemDescriptions && room.hideItemDescriptions.includes(itemId)) {
+      if (currentRoom.hideItemDescriptions && currentRoom.hideItemDescriptions.includes(itemId)) {
         continue;
       }
 

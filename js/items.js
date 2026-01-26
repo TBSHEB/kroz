@@ -27,19 +27,51 @@ const items = {
   lantern: {
     names: ["brass lantern", "lantern", "lamp", "brass", "light"],
     primaryType: "operate",
-    examine: "It is currently off",
+    examine: () => {
+      if (gameState.flags.includes("lanternLit")) {
+        return "An old brass lantern. Given its apparent age, I'm surprised it's still working.";
+      }
+      if (gameState.flags.includes("lanternOut")) {
+        return "An old brass lantern. It's completely out of battery, and as such is useless to me.";
+      }
+      return "An old brass lantern. It's off.";
+    },
     initialDescription: "An old brass lantern rests here.",
     description: "A brass lantern rests here.",
     setFlag: "lanternTaken",
+    temporary: () => {
+      if (gameState.flags.includes("lanternLit")) {
+        return {
+          duration: 800,
+          messages: {
+            100: "You wonder if the light from the lantern is dimmer than it was earlier.",
+            400: "You notice the lantern is indeed giving off less light.",
+            600: "The lantern is giving off considerably less light.",
+            750: "The lantern is all but a flicker.",
+            790: "The light from the lantern is so little, you can barely see."
+          },
+          onExpire: "extinguish",
+          onExpireMessage: {
+            inventory: "The lantern goes out. I would say I'm plunged into darkness, however not much has changed.",
+            floor: "The lantern goes out."
+          },
+          actionSetFlags: ["lanternOut"],
+          actionUnsetFlags: ["lanternLit"]
+        }
+      }
+    },
     vital: true,
     togglable: true,
     operate: {
       activate: {
         allowedVerbs: ["light", "activate", "operate"],
-        requireNotFlags: ["lanternLit"],
+        requireNotFlags: ["lanternLit", "lanternOut"],
         message: "You light the lantern. It glows brightly.",
         setFlags: ["lanternLit"],
-        failMessage: "The lantern is already lit."
+        failMessages: {
+          lanternLit: "The lantern is already lit.",
+          lanternOut: "It won't turn on."
+        }
       },
       deactivate: {
         allowedVerbs: ["extinguish", "deactivate"],
@@ -188,7 +220,7 @@ const items = {
         allowedVerbs: ["eat", "consume", "bite", "taste", "lick", "swallow"],
         message: "You eat the green cake. It tastes amazing, and you feel a warm, soothing sensation spread through your body. Your wounds begin to heal, and you feel completely refreshed.",
         action: "setCheckpoint",
-        consumeOnOperate: true,
+        removeItem: true,
         setHealth: 4
       }
     }
@@ -205,7 +237,7 @@ const items = {
         allowedVerbs: ["eat", "consume", "bite", "taste", "lick", "swallow"], // add more?
         message: "You eat the entirety of the blue cake. You pig! After such a big meal, you get rather sleepy, and feel like a little nap...\nUpon waking, you notice some of your possesions have been stolen whilst sleeping!",
         action: "loseNonvitalItems",
-        consumeOnOperate: true
+        removeItem: true
       }
     }
   },
@@ -300,6 +332,7 @@ const items = {
     examine: "Old chewing gum, hardened and discolored. Utterly repulsive.",
     initialDescription: "Someone's discarded chewing gum is stuck here. Gross.",
     description: "A wad of old chewing gum has been left here.",
+    infinite: true,
     operate: {
       eat: {
         allowedVerbs: ["eat", "consume", "bite", "taste", "lick", "swallow"],
@@ -332,13 +365,38 @@ const items = {
     examine: "A single stick of dynamite with a long fuse. Handle with care.",
     initialDescription: "One of the crates has been pulled out, and is sitting open on the floor. A lone stick of dynamite is inside.",
     description: "A stick of dynamite rests here.",
-    setFlag: "dynamiteTaken"
+    setFlag: "dynamiteTaken",
+    canTake: () => {
+      if (gameState.inventory.includes("dynamite")) {
+        return "Walking around with one stick of a powerful explosive is bad enough. I'm not taking more.";
+      }
+      if (gameState.inventory.includes("litDynamite")) {
+        return "Walking around with one stick of a powerful explosive, a lit one at that, is bad enough. I'm not taking more."
+      }
+      if (Object.values(gameState.roomItemChanges).some(itemArray => itemArray.includes("dynamite"))) {
+        return "If I were to go around leaving dynamite wherever I please, then come back to pick up some more from a seemingly infinite box, that's the sort of behaviour that's going to blow this place off this planet."
+      }
+      return true;
+    },
+    infinite: true,
   },
   litDynamite: {
     names: ["lit dynamite", "dynamite", "explosive", "lit explosive"],
     examine: "A stick of dynamite with its fuse burning rapidly. This is bad.",
     description: "A stick of lit dynamite lies on the ground, its fuse burning down rapidly.",
-    vital: true
+    temporary: {
+      duration: 5,
+      messages: {
+        1: "The dynamite's fuse is burning.",
+        3: "The fuse is almost gone!"
+      },
+      onExpire: "destroy",
+      onExpireMessage: {
+        inventory: "The dynamite explodes with a bang! It would probably have been a good idea not to keep a stick of dynamite in your pocket.",
+        floor: "The dynamite explodes with a bang! Maybe it wasn't the best idea to watch a powerful explosive go off. It is impressive, in fact the most impressive thing you will see for the rest of your life.",
+        away: "You hear a *boom* echoing from a nearby passage."
+      }
+    }
   },
   pick3: {
     names: ["pickaxe", "pick", "axe"],
@@ -462,7 +520,7 @@ const items = {
         allowedVerbs: ["eat", "consume", "bite", "taste", "devour"],
         message: "You eat the hamburger. Not bad for vending machine food.",
         setFlags: ["hamburgerEaten"],
-        consumeOnOperate: true
+        removeItem: true
       }
     }
   },
@@ -477,7 +535,7 @@ const items = {
         allowedVerbs: ["eat", "consume", "bite", "taste", "devour"],
         message: "You eat the hamburger. It's awful - stale, rubbery, and tastes like it's been sitting there for weeks.",
         setFlags: ["poisoned"],
-        consumeOnOperate: true
+        removeItem: true
       }
     }
   },
@@ -508,7 +566,7 @@ const items = {
         allowedVerbs: ["drink", "consume", "sip", "gulp", "swallow"],
         message: "You drink the water. It tastes strange, almost electric, and leaves your mouth feeling numb.",
         setFlags: ["waterDrunk"],
-        consumeOnOperate: true
+        removeItem: true
       }
     }
   },
@@ -517,6 +575,11 @@ const items = {
     examine: "An empty fire extinguisher. The pressure gauge reads zero.",
     description: "A fire extinguisher sits on the ground.",
     setFlag: "spentExtinguisherTaken"
+  },
+  spentBattery: {
+    names: ["dead battery", "battery", "spent battery", "used battery"],
+    examine: "An old battery, charge completely used up.",
+    description: "A dead battery sits on the floor.",
   }
 }
 
@@ -534,7 +597,7 @@ const recipes = {
     requires: ["skull", "hammer"],
     retains: ["hammer"],
     message: "You smash the skull with the hammer. Inside is a glowing purple map \nYou now have the glowing purple map",
-    setFlags: ["oneHammerUse"],
+    setFlags: [],
   },
   crucibleSilver: {
     requires: ["crucible", "wire"],
@@ -548,6 +611,14 @@ const recipes = {
     message: "You sprinkle the concrete powder into the cup of water. It disolves instantly.",
     setFlags: [],
   },
+  spentBattery: {
+    requires: ["lantern", "battery"],
+    retains: ["lantern"],
+    message: "You put the battery into the lantern. That should give it a bit more power.",
+    setFlags: ["batteryUsed"],
+    unsetFlags: ["lanternOut"],
+    resetCooldowns: ["lantern"]
+  }
 }
 
 // ===== GENERIC ITEMS =====

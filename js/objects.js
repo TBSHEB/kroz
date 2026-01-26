@@ -419,6 +419,26 @@ const objects = {
     }
   },
 
+  barricade: {
+    names: ["barricaded wooden door", "barricade", "door", "wooden door"],
+    examine: "A battered wooden door. It's been covered with wooden boards, and is completely unusable in its current state.",
+    operate: {
+      open: {
+        allowedVerbs: ["open"],
+        message: "The wooden planks covering the door are forcing it shut. It's not being opened without removing those."
+      }
+    },
+    applyWith: {
+      litDynamite: {
+        message: "You place the lit dynamite at the base of the door.",
+        consumeItem: true,
+      }
+    },
+    destructible: true,
+    onDestruct: ["roundExplosion"]
+
+  },
+
   candle: {
     names: ["candle", "flame", "light", "wick"],
     description: "A thick candle burns steadily in a candlestick.",
