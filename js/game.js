@@ -19,7 +19,7 @@ const gameState = {
     },
     poison: 0,
     itemCountdowns: {},
-    roomItemChanges: {},
+    roomChanges: {},
     lastCheckpoint: "start",
     disambiguationMatches: [],
     disambiguationSearchName: "",
@@ -67,7 +67,7 @@ function initGame() {
         gameState.combatState = autoSave.combatState;
         gameState.healthState = autoSave.healthState;
         gameState.poison = autoSave.poison || 0;
-        gameState.roomItemChanges = autoSave.roomItemChanges;
+        gameState.roomChanges = autoSave.roomChanges;
         gameState.lastCheckpoint = autoSave.lastCheckpoint;
 
         console.log('Auto-save loaded');
@@ -587,11 +587,11 @@ function handlePlayerDeath() {
             gameState.combatState = checkpointSave.combatState;
             gameState.healthState = checkpointSave.healthState;
             gameState.poison = checkpointSave.poison || 0;
-            gameState.roomItemChanges = checkpointSave.roomItemChanges;
+            gameState.roomChanges = checkpointSave.roomChanges;
             gameState.lastCheckpoint = checkpointSave.lastCheckpoint;
 
-            if (checkpointSave.roomItemChanges) {
-                applyRoomItemChanges(checkpointSave.roomItemChanges);
+            if (checkpointSave.roomChanges) {
+                applyRoomChanges(checkpointSave.roomChanges);
             }
 
             look();

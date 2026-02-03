@@ -147,7 +147,7 @@ function take(things, all = false) {
           // Remove item from room
           if (!items[itemId].infinite) {
             setRoomState("items", itemId, false);
-            trackRoomItemChange(itemId, false);
+            trackRoomChange(itemId, "item", false);
           }
 
           taken.add(itemId);
@@ -200,7 +200,7 @@ function take(things, all = false) {
         // Remove item from room
         if (!items[itemId].infinite) {
           setRoomState("items", itemId, false);
-          trackRoomItemChange(itemId, false);
+          trackRoomChange(itemId, "item", false);
         }
 
         feedback += "Taken.";
@@ -277,7 +277,7 @@ function drop(things) {
           setRoomState("items", itemId);
           feedback += `${thing}: Dropped.\n`;
           dropped.add(itemId);
-          trackRoomItemChange(itemId);
+          trackRoomChange(itemId, "item");
 
         } else if (dropped.has(itemId)) {
           feedback += `${thing}: You've already dropped that.\n`;
@@ -291,7 +291,7 @@ function drop(things) {
       if (setGameState("inventory", itemId, false)) {
 
         setRoomState("items", itemId);
-        trackRoomItemChange(itemId);
+        trackRoomChange(itemId, "item");
         feedback += "Dropped.";
 
       } else {
@@ -623,6 +623,7 @@ function say(raw) {
             // Remove object
             if (obj.sayTrigger.removeObject) {
               setRoomState("objects", objectId, false);
+              trackRoomChange(objectId, "object", false);
             }
 
             clearUseState();

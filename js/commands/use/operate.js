@@ -128,6 +128,7 @@ function handleOperate(verb, item) {
   // Remove object from room
   if (matchedAction.removeObject) {
     setRoomState("objects", item.id, false);
+    trackRoomChange(item.id, "object", false);
   }
 
   // Remove item from player
@@ -159,7 +160,7 @@ function handleOperate(verb, item) {
           for (const item of itemsToLose) {
             setGameState("inventory", item, false);
             setRoomState("items", item, true, "hideout");
-            trackRoomItemChange(item, true, "hideout");
+            trackRoomChange(item, "item", true, "hideout");
           }
         }
     }

@@ -383,8 +383,8 @@ const items = {
       if (gameState.inventory.includes("litDynamite")) {
         return "Walking around with one stick of a powerful explosive, a lit one at that, is bad enough. I'm not taking more."
       }
-      if (gameState.roomItemChanges && Object.values(gameState.roomItemChanges).some(changes =>
-        changes.added && changes.added.includes("dynamite")
+      if (gameState.roomChanges && Object.values(gameState.roomChanges).some(changes =>
+        changes.items.added && changes.items.added.includes("dynamite")
       )) {
         return "If I were to go around leaving dynamite wherever I please, then come back to pick up some more from a seemingly infinite box, that's the sort of behaviour that's going to blow this place off this planet."
       }

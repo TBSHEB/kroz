@@ -16,7 +16,7 @@ function saveGame(gameState, saveName = null) {
             combatState: gameState.combatState,
             healthState: gameState.healthState,
             poison: gameState.poison,
-            roomItemChanges: gameState.roomItemChanges,
+            roomChanges: gameState.roomChanges,
             lastCheckpoint: gameState.lastCheckpoint,
             timestamp: new Date().toISOString()
         };
@@ -51,8 +51,8 @@ function loadGame(saveName = null) {
             return null;
         }
 
-        if (loadedState.roomItemChanges) {
-            applyRoomItemChanges(loadedState.roomItemChanges);
+        if (loadedState.roomChanges) {
+            applyRoomChanges(loadedState.roomChanges);
         }
 
 
@@ -63,23 +63,40 @@ function loadGame(saveName = null) {
     }
 }
 
-function applyRoomItemChanges(roomItemChanges) {
-    for (const roomId in roomItemChanges) {
-        const changes = roomItemChanges[roomId];
+function applyRoomChanges(roomChanges) {
+    for (const roomId in roomChanges) {
+        const itemChanges = roomChanges[roomId].items;
+        const objectChanges = roomChanges[roomId].objects;
         const room = rooms[roomId];
 
-        if (!room || !room.items) continue;
+        if (!room) continue;
 
-        for (const itemId of changes.removed) {
+        if (!room.items) room.items = [];
+        if (!room.objects) room.objects = [];
+
+        for (const itemId of itemChanges.removed) {
             const index = room.items.indexOf(itemId);
             if (index > -1) {
                 room.items.splice(index, 1);
             }
         }
 
-        for (const itemId of changes.added) {
+        for (const itemId of itemChanges.added) {
             if (!room.items.includes(itemId)) {
                 room.items.push(itemId);
+            }
+        }
+
+        for (const objectId of objectChanges.removed) {
+            const index = room.objects.indexOf(objectId);
+            if (index > -1) {
+                room.objects.splice(index, 1);
+            }
+        }
+
+        for (const objectId of objectChanges.added) {
+            if (!room.objects.includes(objectId)) {
+                room.objects.push(objectId)
             }
         }
     }

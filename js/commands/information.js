@@ -328,7 +328,7 @@ function load(name) {
   gameState.visitedRooms = loadedState.visitedRooms;
   gameState.combatState = loadedState.combatState;
   gameState.healthState = loadedState.healthState;
-  gameState.roomItemChanges = loadedState.roomItemChanges;
+  gameState.roomChanges = loadedState.roomChanges;
   gameState.lastCheckpoint = loadedState.lastCheckpoint;
 
   gameState.partCommand = "";
@@ -355,11 +355,11 @@ function reset() {
   gameState.partCraftItems = []
   gameState.combatState = {}
   gameState.healthState = 4
-  gameState.roomItemChanges = {}
+  gameState.roomChanges = {}
   gameState.lastCheckpoint = "start"
 
 
-  applyRoomItemChanges(gameState.roomItemChanges);
+  applyRoomChanges(gameState.roomChanges);
 
   deleteSave();
 

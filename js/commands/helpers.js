@@ -556,7 +556,7 @@ function replaceSplitWordsWithFullName(words) {
   return result;
 }
 
-function trackRoomItemChange(itemId, added = true, roomOverride) {
+function trackRoomChange(id, type, added = true, roomOverride) {
   let roomId
   if (roomOverride) {
     roomId = roomOverride;
@@ -564,34 +564,57 @@ function trackRoomItemChange(itemId, added = true, roomOverride) {
     roomId = gameState.currentRoom;
   }
 
-  if (!gameState.roomItemChanges[roomId]) {
-    gameState.roomItemChanges[roomId] = { removed: [], added: [] };
+  if (!gameState.roomChanges[roomId]) {
+    gameState.roomChanges[roomId] = { items: { removed: [], added: [] }, objects: { removed: [], added: [] } };
   }
 
-  const changes = gameState.roomItemChanges[roomId];
+  const changes = gameState.roomChanges[roomId];
 
-  if (added) {
-    if (!changes.added.includes(itemId)) {
-      changes.added.push(itemId);
-    }
+  if (type === "item") {
+    if (added) {
+      if (!changes.items.added.includes(id)) {
+        changes.items.added.push(id);
+      }
 
-    const removedIndex = changes.removed.indexOf(itemId);
-    if (removedIndex > -1) {
-      changes.removed.splice(removedIndex, 1);
-    }
-  } else {
-    if (!changes.removed.includes(itemId)) {
-      changes.removed.push(itemId);
-    }
+      const removedIndex = changes.items.removed.indexOf(id);
+      if (removedIndex > -1) {
+        changes.items.removed.splice(removedIndex, 1);
+      }
+    } else {
+      if (!changes.items.removed.includes(id)) {
+        changes.items.removed.push(id);
+      }
 
-    const addedIndex = changes.added.indexOf(itemId);
-    if (addedIndex > -1) {
-      changes.added.splice(addedIndex, 1);
+      const addedIndex = changes.items.added.indexOf(id);
+      if (addedIndex > -1) {
+        changes.items.added.splice(addedIndex, 1);
+      }
+    }
+  }
+  if (type === "object") {
+    if (added) {
+      if (!changes.objects.added.includes(id)) {
+        changes.objects.added.push(id);
+      }
+
+      const removedIndex = changes.objects.removed.indexOf(id);
+      if (removedIndex > -1) {
+        changes.objects.removed.splice(removedIndex, 1);
+      }
+    } else {
+      if (!changes.objects.removed.includes(id)) {
+        changes.objects.removed.push(id);
+      }
+
+      const addedIndex = changes.objects.added.indexOf(id);
+      if (addedIndex > -1) {
+        changes.objects.added.splice(addedIndex, 1);
+      }
     }
   }
 
-  if (changes.added.length === 0 && changes.removed.length === 0) {
-    delete gameState.roomItemChanges[roomId];
+  if (changes.items.added.length === 0 && changes.items.removed.length === 0 && changes.objects.added.length === 0 && changes.objects.removed.length === 0) {
+    delete gameState.roomChanges[roomId];
   }
 }
 

@@ -325,7 +325,7 @@ Save format stored in localStorage under key `'kroz-save'`:
   inventory: ["item1", "item2"],
   visitedRooms: ["room1", "room2"],
   flags: ["flag1", "flag2"],      // Game flags
-  roomItemChanges: {              // Tracks items added/removed from rooms
+  roomChanges: {              // Tracks items added/removed from rooms
     roomId: ["item1", "item2"]
   },
   combatState: {},                // Combat tracking per enemy

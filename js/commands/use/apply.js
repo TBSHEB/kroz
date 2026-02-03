@@ -166,12 +166,14 @@ function handleApply(item, target) {
     // Remove object from room
     if (interaction.removeObject && currentRoom.objects) {
       setRoomState("objects", target.id, false);
+      trackRoomChange(target.id, "object", false);
     }
 
     // Conditional removal (removeObjectIfAllFlags)
     if (interaction.removeObjectIfAllFlags && interaction.removeObjectIfAllFlags.every(f => gameState.flags.includes(f))) {
       if (currentRoom.objects) {
         setRoomState("objects", target.id, false);
+        trackRoomChange(target.id, "object", false);
         if (objects[target.id] && objects[target.id].removeMessage) {
           displayText(objects[target.id].removeMessage);
         }
@@ -413,6 +415,7 @@ function handleCombination(items, target) {
     // Remove object from room
     if (interaction.removeObject && currentRoom.objects) {
       setRoomState("objects", target.id, false);
+      trackRoomChange(target.id, "object", false);
     }
 
     if (target.removeMessage) {
