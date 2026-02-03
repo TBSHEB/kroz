@@ -2,6 +2,20 @@
 
 function handleAttack(item, target) {
 
+  // Check if target is a disallowedTake with attack interactions
+  if (target.type === 'disallowedTake' && target.attack) {
+    // attack is an object with item IDs as keys and error messages as values
+    let errorMessage = target.attack[item.id];
+    if (errorMessage) {
+      if (typeof errorMessage === 'function') {
+        errorMessage = errorMessage();
+      }
+      displayText(errorMessage);
+      return false;
+    }
+    // Fall through to default error if no specific message
+  }
+
   // If there is no combat for the target
   if (!target.combat) {
     if (target.attackMessage) {

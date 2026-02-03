@@ -93,7 +93,7 @@ function handleCommand() {
         words = replaceSplitWordsWithFullName(words);
 
         // List of use-system aliases
-        const useAliases = ['use', 'apply', 'attack', 'kill', 'strike', 'stab', 'hit', 'combine', 'craft', 'make', 'create', 'operate', 'equip', 'wear', 'light', 'activate', 'unequip', 'remove', 'extinguish', 'deactivate', 'lift', 'open', 'close', 'shut'];
+        const useAliases = Object.keys(aliasToAction);
 
         // If in multi-step mode but user types a recognized command, break out
         if (gameState.partCommand &&
@@ -126,6 +126,8 @@ function handleCommand() {
                     handleUseCommand(mainCommand, null);
                 } else if (complicatedCommands[mainCommand]) {
                     complicatedCommands[mainCommand].singleCommand(mainCommand);
+                } else if (knownWords[mainCommand]) {
+                    displayText(knownWords[mainCommand])
                 } else if (rooms[gameState.currentRoom].objects) {
                     for (const objectId of rooms[gameState.currentRoom].objects) {
                         const object = objects[objectId];
@@ -134,6 +136,8 @@ function handleCommand() {
                             break;
                         }
                     }
+                } else {
+                    displayText("I don't know that word.");
                 }
             } else if (simpleCommands[mainCommand]) {
                 // Simple command with extra words - use failedCommand with the extra words
@@ -365,7 +369,7 @@ function handleCommand() {
             }
 
             // increment the count
-            if (gameState.itemCountdowns[item]) {
+            if (gameState.itemCountdowns[item] !== undefined) {
                 gameState.itemCountdowns[item]++;
             }
         }

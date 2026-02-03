@@ -54,6 +54,43 @@ const rooms = {
     },
     items: ["dungeonWood"],
     objects: ["dungeonLamp", "dungeonTrapdoor"],
+    disallowedTakes: {
+      chains: {
+        names: ["chains", "chain", "chandelier chains"],
+        message: () => {
+          if (gameState.flags.includes("dungeonLampTaken")) {
+            return "The shattered remains of the chain lie scattered on the floor, bits of twisted metal too small or sharp to bother messing with.";
+          }
+          return "The chains are firmly anchored to the ceiling.";
+        },
+        examine: () => {
+          if (gameState.flags.includes("dungeonLampTaken")) {
+            return "Broken links of rusted iron, twisted and scattered where they fell.";
+          }
+          return "Heavy iron chains suspend the ornate chandelier, links darkened with age.";
+        },
+        apply: {
+          key: "Although I appreciate your concern for wanting to fix broken decor, putting one loop back won't do much good."
+        }
+      },
+      hole: {
+        names: ["hole", "ceiling hole", "opening", "gap"],
+        message: "I can't take a hole.",
+        examine: "A ragged opening in the stone ceiling where the chandelier once hung.",
+        operate: {
+          climb: "It's too high to reach without a ladder.",
+          reach: "It's too high to reach without a ladder.",
+          grab: "It's too high to reach without a ladder.",
+          scale: "It's too high to reach without a ladder.",
+          enter: "It's too high to reach without a ladder."
+        }
+      },
+      debris: {
+        names: ["debris", "rubble", "chunks"],
+        message: "The sharp edges and heavy pieces make it unwise to handle.",
+        examine: "Chunks of broken ceiling scattered across the floor, remnants of where the chandelier tore free."
+      }
+    },
     light: true
   },
   cellar: {
@@ -62,9 +99,21 @@ const rooms = {
     passages: {north: "start"},
     items: ["stepladder"],
     disallowedTakes: {
-      "moisture": "I can't take dampness.",
-      "dampness": "It's everywhere, but not something I can pick up.",
-      "mildew": "I'm not touching that."
+      moisture: {
+        names: ["moisture", "dampness", "damp", "wetness"],
+        message: "It's everywhere, but not something I can pick up.",
+        examine: "A slight wetness that fills the room and gives it an old mouldy smell."
+      },
+      mildew: {
+        names: ["mildew", "fungus", "growth", "patches"],
+        message: "I'm not touching that.",
+        examine: "It's covering the walls in large patches, and is giving the room an old mouldy smell."
+      },
+      smell: {
+        names: ["smell", "odour", "odor", "stench", "mustiness", "mould", "mold", "mouldy smell", "moldy smell"],
+        message: "It's a bit tricky to take the mouldy smell, unless you include my nose. That smell is coming with me anyway.",
+        examine: "A mouldy, wet odour that is not altogether unpleasant. That being said, it doesn't smell great."
+      }
     },
     light: true
   },
@@ -94,6 +143,23 @@ const rooms = {
       }
     },
     items: [],
+    disallowedTakes: {
+      shimmer: {
+        names: ["shimmer", "shimmering", "glow", "glimmer"],
+        message: () => {
+          if (!gameState.flags.includes("hasMap")) {
+            return "I can't find that.";
+          }
+          return "That's the state the wall is in, not exactly something I can take.";
+        },
+        examine: () => {
+          if (!gameState.flags.includes("hasMap")) {
+            return "I can't find that.";
+          }
+          return "A purple sparkling glow, phasing in and out of the wall.";
+        }
+      }
+    },
     light: true
   },
   hammer1: {
@@ -101,12 +167,39 @@ const rooms = {
     look: "A small workshop.",
     passages: {southwest: "deadEnd1", southeast: "three"},
     items: ["hammer"],
+    disallowedTakes: {
+      workshop: {
+        names: ["workshop"],
+        message: "I don't think the workshop would fit in my pocket.",
+        examine: "It's small, but functional, built for hands-on work."
+      }
+    }
   },
   deadEnd1: {
     name: "A Dead end",
     look: "It doesn't look like this path will take me any further.",
     passages: {south: "hammer1"},
     items: ["skull"],
+    disallowedTakes: {
+      dead: {
+        names: ["dead"],
+        message: "Dead what?",
+        examine: "I can't see ghosts!",
+        allIgnore: true
+      },
+      end: {
+        names: ["end"],
+        message: "The end of what, exactly?",
+        examine: "It's a room where the path stops.",
+        allIgnore: true
+      },
+      deadEnd: {
+        names: ["dead end", "deadend", "dead-end"],
+        message: "If I took this with me, I'd get nowhere.",
+        examine: "The passage ends. I can make no more progress here.",
+        allIgnore: true
+      }
+    }
   },
   sand: {
     name: "The Sandy room",
@@ -275,7 +368,7 @@ const rooms = {
   },
   armory: {
     name: "The Armory",
-    look: "An armory, once filled with weapons of war, now mostly empty. There's a hole in the roof.",
+    look: "An armory, once filled with weapons of war, now mostly empty.",
     passages: {north: "magic"},
     failedBackText: "The hole in the roof closed up, somehow.",
     items: ["helmet"],

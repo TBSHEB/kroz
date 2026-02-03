@@ -48,13 +48,26 @@ function buildInteractablesList() {
 
   // Add room-specific disallowed items (things that exist but can't be taken)
   if (currentRoom.disallowedTakes) {
-    Object.keys(currentRoom.disallowedTakes).forEach(itemId => {
-      interactables.push({
-        id: itemId,
-        type: 'generic',
-        names: [itemId],
-        location: 'room'
-      });
+    Object.entries(currentRoom.disallowedTakes).forEach(([itemId, data]) => {
+      // Support both old string format and new object format
+      if (typeof data === 'string') {
+        // Old format: key -> message string
+        interactables.push({
+          id: itemId,
+          type: 'disallowedTake',
+          names: [itemId],
+          message: data,
+          location: 'room'
+        });
+      } else {
+        // New format: key -> object with names, message, examine, operate, apply, allIgnore
+        interactables.push({
+          ...data,              // Spread all properties (examine, operate, apply, etc.)
+          id: itemId,
+          type: 'disallowedTake',
+          location: 'room'
+        });
+      }
     });
   }
 
@@ -63,7 +76,9 @@ function buildInteractablesList() {
     interactables.push({
       id: itemId,
       type: 'generic',
-      names: [itemId]
+      names: [itemId],
+      message: genericDisallowedItems[itemId],
+      location: 'global'
     });
   });
 

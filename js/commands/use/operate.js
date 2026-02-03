@@ -1,6 +1,22 @@
 // ===== OPERATE HANDLER =====
 
 function handleOperate(verb, item) {
+  // Check if this is a disallowedTake with operate error messages
+  if (item.type === 'disallowedTake' && item.operate) {
+    // operate is an object with verb: error message format
+    let errorMessage = item.operate[verb];
+    if (errorMessage) {
+      if (typeof errorMessage === 'function') {
+        errorMessage = errorMessage();
+      }
+      displayText(errorMessage);
+    } else {
+      // No specific message for this verb, use generic message
+      displayText(`You can't ${verb} that.`);
+    }
+    return false;
+  }
+
   if (!item.operate) {
     displayText(`You can't ${verb} that.`);
     return false;
@@ -135,7 +151,8 @@ function handleOperate(verb, item) {
         if (gameState.inventory.length > 0) {
           const itemsToLose = [];
           for (const item of gameState.inventory) {
-            if (!items[item].vital) {
+            const isVital = typeof items[item].vital === 'function' ? items[item].vital() : items[item].vital;
+            if (!isVital) {
               itemsToLose.push(item);
             }
           }

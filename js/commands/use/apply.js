@@ -21,6 +21,20 @@ function handleApply(item, target) {
     return handleOperate('use', item);
   }
 
+  // Check if target is a disallowedTake with apply interactions
+  if (target.type === 'disallowedTake' && target.apply) {
+    // apply is an object with item IDs as keys and error messages as values
+    let errorMessage = target.apply[item.id];
+    if (errorMessage) {
+      if (typeof errorMessage === 'function') {
+        errorMessage = errorMessage();
+      }
+      displayText(errorMessage);
+      return false;
+    }
+    // Fall through to default error if no specific message
+  }
+
   // Check if target is an object with applyWith interactions
   if (target.type === 'object' && target.applyWith) {
     // Check for progressive combination with single item
@@ -223,6 +237,22 @@ function handleCombination(items, target) {
   console.log("  target:", target);
   console.log("  target.type:", target?.type);
   console.log("  target.applyWith:", target?.applyWith);
+
+  // Check if target is a disallowedTake with apply interactions
+  if (target.type === 'disallowedTake' && target.apply) {
+    // Check if any of the items have a specific error message
+    for (const itemId of items) {
+      let errorMessage = target.apply[itemId];
+      if (errorMessage) {
+        if (typeof errorMessage === 'function') {
+          errorMessage = errorMessage();
+        }
+        displayText(errorMessage);
+        return false;
+      }
+    }
+    // Fall through to default error if no specific messages
+  }
 
   // Check if target is an object with applyWith interactions
   if (target.type === 'object' && target.applyWith) {

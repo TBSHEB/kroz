@@ -129,6 +129,10 @@ const items = {
     examine: "It's faintly glowing, and appears to be of a great underground empire",
     initialDescription: "",
     description: "A glowing purple map has been left here.",
+    vital: () => {
+      const softlockRooms = ["start", "cellar", "five", "three", "hammer1", "deadEnd1", "sand", "pick1", "tall", "sword", "ogre", "riddle1", "parachute"]
+      return softlockRooms.includes(gameState.currentRoom);
+    }
   },
   sword: {
     names: ["sword", "blade", "weapon"],
@@ -184,14 +188,10 @@ const items = {
         setFlags: ["parachuteEquipped"],
         failMessage: "You're already wearing the parachute."
       },
-      unequip: {
-        allowedVerbs: ["unequip", "remove"],
-        requireFlags: ["parachuteEquipped"],
-        message: "You take off the parachute.",
-        unsetFlags: ["parachuteEquipped"],
-        failMessage: "You're not wearing the parachute."
-      }
-    }
+    },
+    vital: true,
+    undroppable: true,
+    undroppableMessage: "It's strapped to your back, and won't come off."
   },
   redCake: {
     names: ["red cake", "cake", "dessert"],
@@ -373,7 +373,9 @@ const items = {
       if (gameState.inventory.includes("litDynamite")) {
         return "Walking around with one stick of a powerful explosive, a lit one at that, is bad enough. I'm not taking more."
       }
-      if (Object.values(gameState.roomItemChanges).some(itemArray => itemArray.includes("dynamite"))) {
+      if (gameState.roomItemChanges && Object.values(gameState.roomItemChanges).some(changes =>
+        changes.added && changes.added.includes("dynamite")
+      )) {
         return "If I were to go around leaving dynamite wherever I please, then come back to pick up some more from a seemingly infinite box, that's the sort of behaviour that's going to blow this place off this planet."
       }
       return true;

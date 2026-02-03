@@ -248,7 +248,7 @@ const objects = {
       removeOnAnswer: true,
       setFlags: ["firstRiddleSolved"],
       message: "When uttering those words, the stone door to the east grinds open.",
-      riddle: "I'll fill this in later"
+      riddle: "Two men are lying in the desert. They both have backpacks on. One of them is dead. What is in the backpack?"
     }
   },
 
@@ -502,7 +502,7 @@ const objects = {
       removeOnAnswer: true,
       setFlags: ["secondRiddleSolved"],
       message: "When uttering those words, the stone door grinds open.",
-      riddle: "I'll fill this in later"
+      riddle: "I am not strong, yet the strongest door cannot stand in my way. I am not rich, yet I can access things of great value. I have no friends, yet people will stand in the street to wait for me. What am I?"
     }
   },
 
@@ -514,7 +514,7 @@ const objects = {
       removeOnAnswer: true,
       setFlags: ["thirdRiddleSolved"],
       message: "When uttering those words, the stone door to the northwest grinds open.",
-      riddle: "I'll fill this in later"
+      riddle: "What is made of wood, but cannot be cut by even the strongest saw?"
     }
   },
 

@@ -80,7 +80,23 @@ function take(things, all = false) {
       }
     }
 
-    const nonTakeableItems = currentRoom.disallowedTakes ? Object.keys(currentRoom.disallowedTakes) : [];
+    // Build alias-to-key map for disallowedTakes (supports both string and object format)
+    const disallowedAliasToKey = {};
+    if (currentRoom.disallowedTakes) {
+      Object.entries(currentRoom.disallowedTakes).forEach(([key, data]) => {
+        if (typeof data === 'string') {
+          // Old format: key is the only alias
+          disallowedAliasToKey[key] = key;
+        } else {
+          // New format: map all names to the key
+          if (data.names) {
+            data.names.forEach(alias => {
+              disallowedAliasToKey[alias] = key;
+            });
+          }
+        }
+      });
+    }
 
     console.log("Final things array:", things);
 
@@ -127,11 +143,17 @@ function take(things, all = false) {
           feedback += `${thing}: Taken.\n`;
 
         } else if (taken.has(itemId)) {
-          feedback += `${thing}: You've already taken that.`
-        } else if (currentRoom.disallowedTakes && nonTakeableItems.includes(thing)) {
-          feedback += `${thing}: ${currentRoom.disallowedTakes[thing]}.\n`;
+          feedback += `${thing}: You've already taken that.\n`
+        } else if (disallowedAliasToKey[thing]) {
+          const key = disallowedAliasToKey[thing];
+          const data = currentRoom.disallowedTakes[key];
+          let message = typeof data === 'string' ? data : data.message;
+          if (typeof message === 'function') {
+            message = message();
+          }
+          feedback += `${thing}: ${message}\n`;
         } else if (genericDisallowedItems[thing]) {
-          feedback += `${thing}: ${genericDisallowedItems[thing]}.\n`;
+          feedback += `${thing}: ${genericDisallowedItems[thing]}\n`;
         } else {
           feedback += `${thing}: I can't find it.\n`;
         }
@@ -153,7 +175,7 @@ function take(things, all = false) {
             if (typeof canTakeResult === "string") {
               feedback += `${canTakeResult}\n`
             } else {
-              feedback += `${things[0]}: You can't take that\n`;
+              feedback += `You can't take the ${things[0]}.\n`;
             }
             displayText(feedback);
             return;
@@ -171,8 +193,14 @@ function take(things, all = false) {
         }
 
         feedback += "Taken.";
-      } else if (currentRoom.disallowedTakes && nonTakeableItems.includes(things[0])) {
-        feedback += currentRoom.disallowedTakes[things[0]];
+      } else if (disallowedAliasToKey[things[0]]) {
+        const key = disallowedAliasToKey[things[0]];
+        const data = currentRoom.disallowedTakes[key];
+        let message = typeof data === 'string' ? data : data.message;
+        if (typeof message === 'function') {
+          message = message();
+        }
+        feedback += message;
       } else if (genericDisallowedItems[things[0]]) {
         feedback += genericDisallowedItems[things[0]];
       } else {
@@ -199,7 +227,6 @@ function drop(things) {
     return;
   } else {
     let feedback = "";
-    const currentRoom = rooms[gameState.currentRoom];
 
     // Build alias-to-itemId map for items in the inventory
     const aliasToItemId = {};
@@ -220,6 +247,11 @@ function drop(things) {
       for (const thing of things) {
         const itemId = aliasToItemId[thing];
 
+        if (items[itemId].undroppable === true) {
+          displayText(items[itemId].undroppableMessage);
+          continue;
+        }
+
         if (setGameState("inventory", itemId, false)){
 
           setRoomState("items", itemId);
@@ -228,7 +260,7 @@ function drop(things) {
           trackRoomItemChange(itemId);
 
         } else if (dropped.has(itemId)) {
-          feedback += `${thing}: You've already dropped that.`;
+          feedback += `${thing}: You've already dropped that.\n`;
         } else {
           feedback += `${thing}: I don't have that.\n`;
         }
@@ -346,6 +378,21 @@ function examine(things) {
         }
       }
 
+      // Check disallowedTakes for examine text
+      if (!found && currentRoom.disallowedTakes) {
+        for (const [key, data] of Object.entries(currentRoom.disallowedTakes)) {
+          if (typeof data === 'object' && data.names && data.names.includes(things[0]) && data.examine) {
+            if (typeof data.examine === 'function') {
+              feedback += data.examine();
+            } else {
+              feedback += data.examine;
+            }
+            found = true;
+            break;
+          }
+        }
+      }
+
       // Check generic examines
       if (!found && genericExamines[things[0]]) {
         feedback += genericExamines[things[0]];
@@ -425,6 +472,21 @@ function examine(things) {
           }
         }
 
+        // Check disallowedTakes for examine text
+        if (!found && currentRoom.disallowedTakes) {
+          for (const [key, data] of Object.entries(currentRoom.disallowedTakes)) {
+            if (typeof data === 'object' && data.names && data.names.includes(thing) && data.examine) {
+              let examineText = data.examine;
+              if (typeof examineText === 'function') {
+                examineText = examineText();
+              }
+              feedback += `${thing}: ${examineText}\n`;
+              found = true;
+              break;
+            }
+          }
+        }
+
         // Check generic examines
         if (!found && genericExamines[thing]) {
           feedback += `${thing}: ${genericExamines[thing]}\n`;
@@ -452,21 +514,15 @@ function takeAll() {
 
   const interactables = buildInteractablesList();
 
-  // We want to try to take all items in the room, all objects in the room, and all room specific items that can't be taken
-  let takes = [];
-
-  for (const item of interactables) {
-    if (item.location === "room") {
-      takes.push(item)
-    }
-  }
+  // Filter items in the room, excluding those with allIgnore: true
+  let takes = interactables.filter(item =>
+    item.location === "room" && !item.allIgnore
+  );
 
   const takesIds = takes.map(t => {
-    if (t.type === "item" && t.names) {
-      return t.names[0];
-    } else if (t.type === "object" && t.names) {
-      return t.names[0];
-    } else if (t.type === "generic") {
+    if (t.names) {
+      return t.names[0];  // Use first name/alias
+    } else if (t.type === "generic" || t.type === "disallowedTake") {
       return t.id;
     }
   }).filter(id => id !== undefined);
