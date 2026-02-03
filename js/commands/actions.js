@@ -10,6 +10,17 @@ function take(things, all = false) {
     displayText("That's not something I can take.");
     return;
   } else {
+    // Check for ambiguous items first (unless taking all)
+    if (!all) {
+      const interactables = buildInteractablesList();
+      for (const thing of things) {
+        const result = disambiguateItem(thing, interactables, "take");
+        if (result === "AMBIGUOUS") {
+          return; // Wait for clarification
+        }
+      }
+    }
+
     let feedback = "";
     const currentRoom = rooms[gameState.currentRoom];
     const operableObjects = [];
@@ -198,6 +209,15 @@ function drop(things) {
     displayText("I don't think I could drop that.");
     return;
   } else {
+    // Check for ambiguous items first
+    const interactables = buildInteractablesList();
+    for (const thing of things) {
+      const result = disambiguateItem(thing, interactables, "drop");
+      if (result === "AMBIGUOUS") {
+        return; // Wait for clarification
+      }
+    }
+
     let feedback = "";
     const currentRoom = rooms[gameState.currentRoom];
 
@@ -272,6 +292,15 @@ function examine(things) {
     displayText("I can't examine that.");
     return;
   } else {
+    // Check for ambiguous items first
+    const interactables = buildInteractablesList();
+    for (const thing of things) {
+      const result = disambiguateItem(thing, interactables, "examine");
+      if (result === "AMBIGUOUS") {
+        return; // Wait for clarification
+      }
+    }
+
     let feedback = "";
     const currentRoom = rooms[gameState.currentRoom];
 

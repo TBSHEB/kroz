@@ -169,7 +169,6 @@ const rooms = {
     },
     objects: ["cavein", "troll"],
     disallowedTakes: {
-      "troll": "I can't carry a troll.",
       "cave-in": "There's too much rubble to carry.",
       "cavein": "There's too much rubble to carry.",
     },
@@ -224,7 +223,6 @@ const rooms = {
     },
     objects: ["ogre"],
     disallowedTakes: {
-      "ogre": "I can't carry an ogre.",
       "temple": "I can't take the temple.",
     },
     items: [],

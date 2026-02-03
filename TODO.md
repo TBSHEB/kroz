@@ -1,5 +1,25 @@
 # TODO - Kroz Development
 
+## Recent Session Fixes (2026-02-02)
+- [x] Fixed deprecated keypress event → changed to keydown
+- [x] Fixed "eat" command not working → made useAliases dynamic from aliasToAction
+- [x] Fixed duplicate "to the to the" in passage descriptions
+- [x] Fixed crafting duplication bug → added inventory-only check for craft components
+- [x] Implemented complete disambiguation system for ambiguous item matching
+- [x] Added partial item name aliases to all items (keys, cakes, hammer, dynamite, cup, etc.)
+- [x] Fixed internal item ID exposure → display names in multi-step prompts (resolution.js)
+- [x] Fixed grammar typo → "Its mounting" not "It's mounting" (chandelier)
+- [x] Fixed dead enemies in disallowedTakes → removed troll and ogre entries
+- [x] Fixed debug display error → added null checks in updateDebugDisplays()
+- [x] Completely rewrote help command → added progressive goals system
+- [x] Added stackId system for interchangeable items (green keys, pickaxes)
+- [x] **COMPLETED SOFTLOCK REMOVAL** - Comprehensive audit and fixes:
+  - Made parachute undroppable to prevent one-way passage trap
+  - Added function support to vital property (map conditionally vital in Section A)
+  - Prevents blue cake from stealing map in starting area, avoiding permanent trap
+  - Verified all other potential softlocks (dynamite, green keys, bricks, lantern/battery, routing)
+  - Game is now fully softlock-free - players cannot get permanently stuck
+
 ## High Priority - COMPLETED
 - [x] Redo the dungeon room (start room) - fix bugs in look() function, clean up flag-based descriptions, test all interactions
 - [x] Implement attack handler and combat system
@@ -31,24 +51,23 @@
 - [x] Fix togglable operate logic bug (operate.js:14, 17 - .every() should be .some())
 - [x] Fix wrong property name in apply.js:104 (clearedMessage → removeMessage)
 - [x] Add map item setFlag to enable hasMap flag in three room
-- [ ] Fix bug with take all taking all forms of a thing
-- [ ] Fix crafting duplication bug: items in room can be used for crafting without being consumed - require all craft components to be in inventory before allowing craft
-- [ ] Fix double periods in messages (especially "take all" with disallowedTakes) - implement hybrid punctuation: auto-add period only if message doesn't end with ., !, or ?
-- [ ] Fix items not responding to partial names (e.g., "take key" fails, requires "take green key") - expand names arrays with common shortened versions
-- [ ] Fix single-word unrecognized commands giving no feedback - ensure error message displays for all unrecognized inputs, not just multi-word commands
-- [ ] Fix take message format inconsistency - single item failures should use natural format ("You can't take the cave-in"), not colon format ("cave-in: ...") which is only for "take all"
-- [ ] Fix dead enemies still having disallowedTakes - after killing troll/ogre/etc, "take troll" should say "I can't find a troll" not "I can't carry a troll" (remove/flag objects after combat death)
+- [x] Fix bug with take all taking all forms of a thing
+- [x] Fix crafting duplication bug: items in room can be used for crafting without being consumed - require all craft components to be in inventory before allowing craft
+- [x] Fix double periods in messages (especially "take all" with disallowedTakes) - implement hybrid punctuation: auto-add period only if message doesn't end with ., !, or ?
+- [x] Fix items not responding to partial names (e.g., "take key" fails, requires "take green key") - expand names arrays with common shortened versions
+- [x] Fix single-word unrecognized commands giving no feedback - ensure error message displays for all unrecognized inputs, not just multi-word commands
+- [x] Fix take message format inconsistency - single item failures should use natural format ("You can't take the cave-in"), not colon format ("cave-in: ...") which is only for "take all"
+- [x] Fix dead enemies still having disallowedTakes - after killing troll/ogre/etc, "take troll" should say "I can't find a troll" not "I can't carry a troll" (remove/flag objects after combat death)
 - [x] Fix hammer consumption in crafting - make hammer a reusable tool (don't consume it after crafting ladder/map)
 - [x] Fix fire room north passage hazard not killing player - debug existing restricted passages system to properly block/kill on unsafe passage (IMPLEMENTED with killIfInventory hazard feature for dynamite)
 - [x] Fix extinguisher not removing fire hazard - ensure "use extinguisher on fire" properly sets fireExtinguished flag and removes passage restriction
-- [ ] Fix ambiguous item matching - when multiple items match (e.g., "take key" with greenKey, silverKey, dungeonKey present), ask "Which key?" without listing options (applies to take, use, drop, examine, all commands)
+- [x] Fix ambiguous item matching - when multiple items match (e.g., "take key" with greenKey, silverKey, dungeonKey present), ask "Which key?" without listing options (applies to take, use, drop, examine, all commands)
 - [ ] Verify and fix save/load functionality - double-check that saves are working properly, test save persistence and state restoration
 
 ## Code Quality
 - [x] Fix look() function - replace "typeof room.look == object" with === (lines 50, 70, 72)
-- [ ] Add safety checks in take() and drop() functions if items[itemId] is undefined
-- [ ] Implement natural language verb support - add parser-level recognition for verbs like eat, drink, unlock, wear, attack, etc. that route to appropriate use command handlers
-- [ ] Complete softlock removal - audit and fix all possible softlock scenarios in the game
+- [x] Implement natural language verb support - add parser-level recognition for verbs like eat, drink, unlock, wear, attack, etc. that route to appropriate use command handlers
+- [x] Complete softlock removal - audit and fix all possible softlock scenarios in the game
 
 ## Map.js Content - COMPLETED
 - [x] Fix spelling errors in map.js (norhwest→northwest, crusy→crusty, entirely, extra space)
@@ -63,8 +82,9 @@
 ## Objects and Items
 - [x] Add examine text to all objects (all required objects now have examine text)
 - [x] Populate genericExamines object with descriptions for common room elements
-- [ ] Add description fields to objects (16 objects have empty description: "" - grinder, machine, code, candle, bolt, chipper, bellows, crucibleMelt, mold, slackTub, hatbox, bell, case, blueDoor, vendingMachine, door)
-- [ ] Expand names arrays for each object with additional relevant aliases
+- [x] Add description fields to objects (16 objects have empty description: "" - grinder, machine, code, candle, bolt, chipper, bellows, crucibleMelt, mold, slackTub, hatbox, bell, case, blueDoor, vendingMachine, door)
+- [x] Expand names arrays for items with additional relevant aliases (all keys, cakes, hammer, dynamite, cup)
+- [ ] Expand names arrays for objects with additional relevant aliases
 - [x] Implement hamburger operate logic (eat verb with consumable)
 - [x] Implement hamburgerPoisoned operate logic (eat verb with poison flag)
 - [x] Implement mineralWater operate logic (drink verb with consumable)
@@ -76,13 +96,13 @@
 - [ ] Expand genericExamines with comprehensive coverage - add examines for common words: walls, floor, ceiling, dust, darkness, shadows, air, etc.
 - [ ] Comprehensive content audit - ensure all nouns mentioned in look descriptions, item descriptions, examines, and other text can be examined or have take denial messages (closer to comprehensive coverage than just critical items)
 
-## Items/Objects Missing Mechanisms
+## Items/Objects Missing Mechanisms - COMPLETED
 - [x] Implement setHealth handler in operate.js: redCake, greenCake, and gum have setHealth property but it's not processed
 - [x] Implement litDynamite placement mechanism: add applyWith handler to a room object (floor/cavein?) in round or rorrim room to place and explode litDynamite, setting roundExplosion flag (IMPLEMENTED via temporary item countdown system)
 - [x] Create barricadedDoor object: replace cave-in obstacle in rorrim room north passage with wooden door that can be destroyed (with litDynamite?) (IMPLEMENTED as barricade object in round room)
-- [ ] Add riddle1 riddle text (currently placeholder: "I'll fill this in later")
-- [ ] Add riddle2 answer words (currently empty array in objects.js)
-- [ ] Add riddle3 answer words (currently empty array in objects.js)
+- [x] Add riddle1 riddle text (currently placeholder: "I'll fill this in later")
+- [x] Add riddle2 answer words (currently empty array in objects.js)
+- [x] Add riddle3 answer words (currently empty array in objects.js)
 - [x] Create silverDoor object: add to dynamite room with applyWith handler for silverKey to set silverDoorOpen flag (ALREADY EXISTS)
 - [x] Create redDoor object: add to rorrim room with mechanism to open after ball puzzle (set redDoorOpened flag when ballPuzzleSolved) (ALREADY EXISTS)
 - [x] Implement battery recharge mechanism: add applyWith handler to lantern item so battery can refill lantern power (IMPLEMENTED via craft recipe with resetCountdowns)

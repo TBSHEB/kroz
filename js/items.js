@@ -97,7 +97,7 @@ const items = {
     setFlag: "nailsTaken",
   },
   hammer: {
-    names: ["hammer"],
+    names: ["hammer", "old hammer", "old"],
     examine: "It appears to be fairly weak, better use it wisely...",
     initialDescription: "A hammer rests on a bench.",
     description: "A hammer lies on the ground.",
@@ -116,6 +116,7 @@ const items = {
     initialDescription: "There's a weathered pickaxe propped in the corner.",
     description: "A pickaxe leans against the wall.",
     setFlag: "pick1Taken",
+    stackId: "pickaxe"
   },
   ladder: {
     names: ["ladder"],
@@ -144,6 +145,7 @@ const items = {
     initialDescription: "A pickaxe lies among the debris.",
     description: "A pickaxe lies on the ground.",
     setFlag: "pick2Taken",
+    stackId: "pickaxe"
   },
   helmet: {
     names: ["helmet", "helm"],
@@ -194,7 +196,7 @@ const items = {
     }
   },
   redCake: {
-    names: ["red cake", "cake", "dessert"],
+    names: ["red cake", "cake", "dessert", "red"],
     primaryType: "operate",
     examine: "A large cake covered in deep red frosting.",
     initialDescription: "A large, red cake sits centred on the table here.",
@@ -209,7 +211,7 @@ const items = {
     }
   },
   greenCake: {
-    names: ["green cake", "cake", "dessert"],
+    names: ["green cake", "cake", "dessert", "green"],
     primaryType: "operate",
     examine: "A large cake decorated with bright green icing.",
     initialDescription: "A large, green cake is sitting on the bench.",
@@ -226,7 +228,7 @@ const items = {
     }
   },
   blueCake: {
-    names: ["blue cake", "cake", "dessert"],
+    names: ["blue cake", "cake", "dessert", "blue"],
     primaryType: "operate",
     examine: "A massive blue wedding cake, intricately decorated. Far too much for one person.",
     initialDescription: "A large, blue, wedding cake sits on the floor. Despite its colour, it looks out of place.",
@@ -271,60 +273,68 @@ const items = {
     setFlag: "brick2Taken"
   },
   greenKey1: {
-    names: ["glowing green key", "green key"],
+    names: ["glowing green key", "green key", "key"],
     examine: "A simple key. It's glowing green, and looks fragile.",
     initialDescription: "Centred on the floor here lies a glowing green key.",
     description: "A glowing green key lies on the ground.",
-    setFlag: "greenKey1Taken"
+    setFlag: "greenKey1Taken",
+    stackId: "greenKey"
   },
   greenKey2: {
-    names: ["glowing green key", "green key"],
+    names: ["glowing green key", "green key", "key"],
     examine: "A simple key. It's glowing green, and looks fragile.",
     initialDescription: "Someone left a glowing green key lying on the floor.",
     description: "A glowing green key has been dropped here.",
-    setFlag: "greenKey2Taken"
+    setFlag: "greenKey2Taken",
+    stackId: "greenKey"
   },
   greenKey3: {
-    names: ["glowing green key", "green key"],
+    names: ["glowing green key", "green key", "key"],
     examine: "A simple key. It's glowing green, and looks fragile.",
     initialDescription: "A glowing green key sits atop a marble pedestal.",
     description: "A glowing green key rests here.",
-    setFlag: "greenKey3Taken"
+    setFlag: "greenKey3Taken",
+    stackId: "greenKey"
   },
   greenKey4: {
-    names: ["glowing green key", "green key"],
+    names: ["glowing green key", "green key", "key"],
     examine: "A simple key. It's glowing green, and looks fragile.",
     initialDescription: "Wedged in a corner is a glowing green key.",
     description: "A glowing green key lies here.",
-    setFlag: "greenKey4Taken"
+    setFlag: "greenKey4Taken",
+    stackId: "greenKey"
   },
   greenKey5: {
-    names: ["glowing green key", "green key"],
+    names: ["glowing green key", "green key", "key"],
     examine: "A simple key. It's glowing green, and looks fragile.",
     initialDescription: "A glowing green key lies peacefully on the sanctuary floor.",
     description: "A glowing green key rests on the ground.",
-    setFlag: "greenKey5Taken"
+    setFlag: "greenKey5Taken",
+    stackId: "greenKey"
   },
   greenKey6: {
-    names: ["glowing green key", "green key"],
+    names: ["glowing green key", "green key", "key"],
     examine: "A simple key. It's glowing green, and looks fragile.",
     initialDescription: "Lying in the shattered remains of the glass case, is a glowing green key.",
     description: "A glowing green key has been left here.",
-    setFlag: "greenKey6Taken"
+    setFlag: "greenKey6Taken",
+    stackId: "greenKey"
   },
   greenKey7: {
-    names: ["glowing green key", "green key"],
+    names: ["glowing green key", "green key", "key"],
     examine: "A simple key. It's glowing green, and looks fragile.",
     initialDescription: "On the floor, underneath the ball rests a glowing green key.",
     description: "A glowing green key sits on the floor.",
-    setFlag: "greenKey7Taken"
+    setFlag: "greenKey7Taken",
+    stackId: "greenKey"
   },
   greenKey8: {
-    names: ["glowing green key", "green key"],
+    names: ["glowing green key", "green key", "key"],
     examine: "A simple key. It's glowing green, and looks fragile.",
     initialDescription: "A glowing green key sits in the corner of the room.",
     description: "A glowing green key lies here.",
-    setFlag: "greenKey8Taken"
+    setFlag: "greenKey8Taken",
+    stackId: "greenKey"
   },
   gum: {
     names: ["old chewing gum", "gum", "chewing gum", "old gum", "chewing-gum", "old-gum"],
@@ -342,7 +352,7 @@ const items = {
     }
   },
   purpleKey: {
-    names: ["glowing purple key", "purple key"],
+    names: ["glowing purple key", "purple key", "key"],
     examine: "A simple key. It's glowing purple, and looks fragile.",
     initialDescription: "Lying on the church floor is a glowing purple key.",
     description: "A glowing purple key rests here.",
@@ -361,7 +371,7 @@ const items = {
     description: "A pile of sawdust sits on the ground."
   },
   dynamite: {
-    names: ["dynamite", "explosive"],
+    names: ["dynamite", "explosive", "stick"],
     examine: "A single stick of dynamite with a long fuse. Handle with care.",
     initialDescription: "One of the crates has been pulled out, and is sitting open on the floor. A lone stick of dynamite is inside.",
     description: "A stick of dynamite rests here.",
@@ -404,6 +414,7 @@ const items = {
     initialDescription: "A well-kept pickaxe has been left here, barely used.",
     description: "There's a shiny pickaxe, someone left it leaning on the wall.",
     setFlag: "pick3Taken",
+    stackId: "pickaxe"
   },
   screwdriver: {
     names: ["screwdriver", "driver"],
@@ -463,7 +474,7 @@ const items = {
     description: "A mold filled with molten silver rests here."
   },
   silverKey: {
-    names: ["silver key", "silver-key"],
+    names: ["silver key", "silver-key", "key"],
     examine: "A simple key crafted from solid silver.",
     description: "A silver key lies on the ground."
   },
@@ -550,7 +561,7 @@ const items = {
     description: "A pile of fine concrete powder sits here."
   },
   cup: {
-    names: ["cup of water", "water", "glass of water", "cup"],
+    names: ["cup of water", "water", "glass of water", "cup", "glass"],
     examine: "A cup of remarkably clear water. It doesn't look like it came from here.",
     initialDescription: "A cup of water sits in the perfect middle of the table. The dust forms a ring, ~10 cm back from the glass, suggesting it is repelled by the water.",
     description: "A cup of water has been placed here.",
