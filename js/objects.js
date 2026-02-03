@@ -3,7 +3,7 @@
 
 const objects = {
   dungeonLamp: {
-    names: ["chandelier", "lamp", "light", "lantern", "fixture", "chain", "chains"],
+    names: ["chandelier", "lamp", "light", "lantern", "fixture"],
     examine: "The chandelier looks very heavy. Its mounting looks extremely fragile.",
     primaryType: "operate",
     operate: {

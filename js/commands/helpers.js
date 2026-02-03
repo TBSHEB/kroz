@@ -51,7 +51,6 @@ function buildInteractablesList() {
     Object.entries(currentRoom.disallowedTakes).forEach(([itemId, data]) => {
       // Support both old string format and new object format
       if (typeof data === 'string') {
-        // Old format: key -> message string
         interactables.push({
           id: itemId,
           type: 'disallowedTake',
@@ -60,13 +59,14 @@ function buildInteractablesList() {
           location: 'room'
         });
       } else {
-        // New format: key -> object with names, message, examine, operate, apply, allIgnore
-        interactables.push({
-          ...data,              // Spread all properties (examine, operate, apply, etc.)
-          id: itemId,
-          type: 'disallowedTake',
-          location: 'room'
-        });
+        if (data.hiddenUnlessHasFlag === undefined || gameState.flags.includes(data.hiddenUnlessHasFlag)) {
+          interactables.push({
+            ...data,
+            id: itemId,
+            type: 'disallowedTake',
+            location: 'room'
+          });
+        }
       }
     });
   }

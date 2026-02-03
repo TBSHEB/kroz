@@ -83,12 +83,14 @@ const rooms = {
           grab: "It's too high to reach without a ladder.",
           scale: "It's too high to reach without a ladder.",
           enter: "It's too high to reach without a ladder."
-        }
+        },
+        hiddenUnlessHasFlag: "dungeonLampTaken"
       },
       debris: {
         names: ["debris", "rubble", "chunks"],
         message: "The sharp edges and heavy pieces make it unwise to handle.",
-        examine: "Chunks of broken ceiling scattered across the floor, remnants of where the chandelier tore free."
+        examine: "Chunks of broken ceiling scattered across the floor, remnants of where the chandelier tore free.",
+        hiddenUnlessHasFlag: "dungeonLampTaken"
       }
     },
     light: true
