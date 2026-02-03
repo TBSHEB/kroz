@@ -20,7 +20,10 @@ const gameState = {
     poison: 0,
     itemCountdowns: {},
     roomItemChanges: {},
-    lastCheckpoint: "start"
+    lastCheckpoint: "start",
+    disambiguationMatches: [],
+    disambiguationSearchName: "",
+    disambiguationOriginalCommand: ""
 }
 
 const damageMessages = {
@@ -104,6 +107,67 @@ function handleCommand() {
             // User wants to do something else - exit multi-step mode
             clearUseState();
             // Fall through to process as new command
+        }
+
+        // Handle disambiguation mode
+        if (gameState.disambiguationMatches.length > 0) {
+            // Check if user typed a valid command (exits disambiguation)
+            if (simpleCommands[mainCommand] || useAliases.includes(mainCommand) ||
+                complicatedCommands[mainCommand] || knownWords[mainCommand]) {
+                // Clear disambiguation state
+                gameState.disambiguationMatches = [];
+                gameState.disambiguationSearchName = "";
+                gameState.disambiguationOriginalCommand = "";
+                // Fall through to process as normal command
+            } else {
+                // Try to narrow down matches with user's input
+                const matches = gameState.disambiguationMatches;
+                const previousSearch = gameState.disambiguationSearchName;
+                const originalCommand = gameState.disambiguationOriginalCommand;
+
+                // Filter matches by checking if command matches any name (exact or word-based)
+                const narrowedMatches = matches.filter(match => {
+                    const itemData = items[match.id] || objects[match.id];
+                    if (!itemData || !itemData.names) return false;
+
+                    // Check if any name includes the command (exact match or as a word)
+                    return itemData.names.some(name => {
+                        if (name.includes(command)) return true;
+                        const words = name.split(' ');
+                        return words.includes(command);
+                    });
+                });
+
+                if (narrowedMatches.length === 0) {
+                    displayText(`You don't have the ${command} ${previousSearch}.`);
+                    gameState.disambiguationMatches = [];
+                    gameState.disambiguationSearchName = "";
+                    gameState.disambiguationOriginalCommand = "";
+                } else if (narrowedMatches.length === 1) {
+                    // Found it! Execute original command with specific item
+                    const item = narrowedMatches[0];
+                    gameState.disambiguationMatches = [];
+                    gameState.disambiguationSearchName = "";
+                    gameState.disambiguationOriginalCommand = "";
+
+                    // Execute the original command
+                    if (originalCommand === "take") {
+                        take([item.id]);
+                    } else if (originalCommand === "drop") {
+                        drop([item.id]);
+                    } else if (originalCommand === "examine") {
+                        examine([item.id]);
+                    }
+                } else {
+                    // Still ambiguous - update search name and ask again
+                    gameState.disambiguationMatches = narrowedMatches;
+                    gameState.disambiguationSearchName = `${command} ${previousSearch}`;
+                    displayText(`Which ${gameState.disambiguationSearchName}?`);
+                }
+
+                inputElement.value = '';
+                return; // Don't process as normal command, don't count time
+            }
         }
 
         if (!gameState.partCommand) {
@@ -455,6 +519,11 @@ function clearOutput() {
 
 // Update debug displays
 function updateDebugDisplays() {
+    // Only update if debug panel elements exist
+    if (!gameStateDisplay || !roomStateDisplay) {
+        return;
+    }
+
     // Update game state display (excluding visitedRooms)
     const gameStateData = {
         currentRoom: gameState.currentRoom,
@@ -533,7 +602,7 @@ function handlePlayerDeath() {
 }
 
 // Event listeners
-inputElement.addEventListener('keypress', (event) => {
+inputElement.addEventListener('keydown', (event) => {
     if (event.key === 'Enter') {
         handleCommand();
     }

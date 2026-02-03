@@ -1,21 +1,58 @@
 // ===== INFORMATION/DISPLAY COMMANDS =====
 
 function help() {
+  // Progressive goal logic
+  let goal;
+
+  // Count green keys found
+  const greenKeysFound = [
+    "greenKey1Taken", "greenKey2Taken", "greenKey3Taken", "greenKey4Taken",
+    "greenKey5Taken", "greenKey6Taken", "greenKey7Taken", "greenKey8Taken"
+  ].filter(flag => gameState.flags.includes(flag)).length;
+
+  // Determine current goal based on progression
+  if (!gameState.visitedRooms.includes("five")) {
+    goal = "Escape the dungeon";
+  } else if (!gameState.visitedRooms.includes("drop")) {
+    goal = "Explore the underground";
+  } else if (!gameState.flags.includes("parachuteTaken") && !gameState.inventory.includes("parachute")) {
+    goal = "Find a way to safely descend the hole";
+  } else if (greenKeysFound === 0) {
+    goal = "Explore the underground";
+  } else if (!gameState.visitedRooms.includes("door")) {
+    goal = "Find the keys";
+  } else if (greenKeysFound < 8) {
+    goal = `Find all eight glowing green keys (${greenKeysFound}/8)`;
+  } else {
+    goal = "Escape";
+  }
+
   displayText("=== KROZ ===\n" +
-    "Goal: Escape the underground maze, find your way to the forest\n\n" +
+    `Current Goal: ${goal}\n\n` +
     "MOVEMENT:\n" +
     "  north (n), south (s), east (e), west (w)\n" +
-    "  northeast (ne), northwest (nw), southeast (se), southwest (sw)\n" +
-    "  up (u), down (d)\n\n" +
-    "ACTIONS:\n" +
-    "  look (l) - Examine your surroundings\n" +
-    "  inventory (i, inv) - Check what you're carrying\n" +
+    "  northeast (ne), southeast (se), southwest (sw), northwest (nw)\n" +
+    "  up (u), down (d)\n" +
+    "  back (b) - Takes you in the direction of the previous room\n\n" +
+    "COMMANDS:\n" +
+    "  look (l) - See the room and available exits\n" +
+    "  examine <thing> (x) - Take a more detailed look at something\n" +
+    "  inventory (i) (inv) - Display the inventory\n\n" +
     "  take <item> - Pick up an item\n" +
-    "  drop <item> - Drop an item from inventory\n" +
-    "  use <object> - Interact with objects in the room\n" +
-    "  examine <item> - Look closely at something\n\n" +
-    "OTHER:\n" +
-    "  help (h, ?) - Display this message")
+    "  take all - Pick up everything in the room\n" +
+    "  drop <item> - Drop an item\n\n" +
+    "  use <item> - Use, operate, equip, or activate an item\n" +
+    "  use <item> on <target> - Use an item on something\n" +
+    "  attack <enemy> with <weapon> - Engage in combat\n" +
+    "  craft <item> and <item> - Combine items to create something\n\n" +
+    "GAME:\n" +
+    "  save - Save your progress\n" +
+    "  save <name> - Save to a specific slot\n" +
+    "  load - Load your last save\n" +
+    "  load <name> - Load a specific save\n" +
+    "  reset - Restart from the beginning\n" +
+    "  help (h) (?) - Display this message\n\n" +
+    "These are all required commands, but there are more commands. Try things out!")
 }
 
 function inventory() {
@@ -143,7 +180,10 @@ function look() {
           }
         } else {
           // Middle items
-          if (dir === "up" || dir === "down") {
+          if (i === 0) {
+            // First item - "to the" already in sentence starter (line 129)
+            look += `${dir}, `;
+          } else if (dir === "up" || dir === "down") {
             look += `${dir}, `;
           } else {
             look += `to the ${dir}, `;

@@ -2,16 +2,50 @@
 
 // Crafting handler - checks recipes and creates items
 function handleCraft(itemNames) {
-  // Convert item names to IDs
+  // Convert item names to IDs - track which ones we find
   const interactables = buildInteractablesList();
-  const itemIds = itemNames.map(name => {
+  const foundItems = itemNames.map(name => {
     const found = findInteractable(name, interactables);
-    return found?.id;
-  }).filter(id => id !== undefined); // Remove any not found
+    return { name, id: found?.id };
+  });
 
-  // Check if we have all the items (should already be validated, but double-check)
-  if (itemIds.length !== itemNames.length) {
-    displayText("I don't have all of those items.");
+  // Check if we have all the items - show which ones are missing
+  const notFound = foundItems.filter(item => item.id === undefined);
+  if (notFound.length > 0) {
+    const names = notFound.map(item => `the ${item.name}`);
+    let itemList;
+    if (names.length === 1) {
+      itemList = names[0];
+    } else if (names.length === 2) {
+      itemList = `${names[0]} or ${names[1]}`;
+    } else {
+      // 3+ items: Oxford comma style
+      const allButLast = names.slice(0, -1).join(', ');
+      const last = names[names.length - 1];
+      itemList = `${allButLast}, or ${last}`;
+    }
+    displayText(`I don't have ${itemList}.`);
+    return false;
+  }
+
+  const itemIds = foundItems.map(item => item.id);
+
+  // Ensure all items are in inventory (not just interactable in room)
+  const notInInventory = itemIds.filter(id => !gameState.inventory.includes(id));
+  if (notInInventory.length > 0) {
+    const names = notInInventory.map(id => `the ${items[id].names[0]}`);
+    let itemList;
+    if (names.length === 1) {
+      itemList = names[0];
+    } else if (names.length === 2) {
+      itemList = `${names[0]} or ${names[1]}`;
+    } else {
+      // 3+ items: Oxford comma style
+      const allButLast = names.slice(0, -1).join(', ');
+      const last = names[names.length - 1];
+      itemList = `${allButLast}, or ${last}`;
+    }
+    displayText(`I don't have ${itemList}.`);
     return false;
   }
 

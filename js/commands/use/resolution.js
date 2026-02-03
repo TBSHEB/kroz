@@ -61,7 +61,7 @@ function resolveSmartUse(parsed, interactables) {
 
       return {
         action: "need-target",
-        itemName: parsed.items[0]
+        itemName: items[0].names[0]
       };
     }
 
@@ -85,7 +85,7 @@ function resolveSmartUse(parsed, interactables) {
 
       return {
         action: "need-target",
-        itemNames: parsed.items,
+        itemNames: items.map(i => i.names[0]),
         isPartialRecipe: true
       };
     }
@@ -139,7 +139,7 @@ function resolveSmartUse(parsed, interactables) {
       if (recipeMatch.type === "partial") {
         return {
           action: "need-target",
-          itemNames: [...parsed.items, ...parsed.target],
+          itemNames: [...items.map(i => i.names[0]), ...targets.map(t => t.names[0])],
           isPartialRecipe: true
         };
       }

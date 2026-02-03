@@ -102,6 +102,52 @@ function findInteractable(searchName, interactables) {
   return null;
 }
 
+// Disambiguate item selection - handles ambiguous matches
+// Returns: item object if found, "AMBIGUOUS" if ambiguous (sets state), null if not found
+function disambiguateItem(searchName, interactables, commandName) {
+  // First: exact ID match
+  const exactMatch = interactables.find(i => i.id === searchName);
+  if (exactMatch) return exactMatch;
+
+  // Second: find all name matches
+  const nameMatches = interactables.filter(i =>
+    i.names && i.names.includes(searchName)
+  );
+
+  if (nameMatches.length === 0) {
+    return null; // Not found
+  }
+
+  if (nameMatches.length === 1) {
+    return nameMatches[0]; // Single match
+  }
+
+  // Multiple matches - check if they're all the same ID (duplicate items)
+  const uniqueIds = [...new Set(nameMatches.map(m => m.id))];
+  if (uniqueIds.length === 1) {
+    return nameMatches[0]; // All same item, just return first
+  }
+
+  // Check if all have same stackId (interchangeable items)
+  const stackIds = nameMatches.map(m => {
+    const itemData = items[m.id] || objects[m.id];
+    return itemData?.stackId;
+  }).filter(id => id);
+
+  if (stackIds.length === nameMatches.length &&
+      stackIds.every(id => id === stackIds[0])) {
+    return nameMatches[0]; // All interchangeable
+  }
+
+  // Truly ambiguous - set state
+  gameState.disambiguationMatches = nameMatches;
+  gameState.disambiguationSearchName = searchName;
+  gameState.disambiguationOriginalCommand = commandName;
+
+  displayText(`Which ${searchName}?`);
+  return "AMBIGUOUS";
+}
+
 // Parse command into items and targets based on preposition
 // For attack: "attack troll with sword" → target: [troll], items: [sword]
 // For use/apply: "use sword on troll" → items: [sword], target: [troll]
