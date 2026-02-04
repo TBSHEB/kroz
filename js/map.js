@@ -113,7 +113,7 @@ const rooms = {
       },
       smell: {
         names: ["smell", "odour", "odor", "stench", "mustiness", "mould", "mold", "mouldy smell", "moldy smell"],
-        message: "It's a bit tricky to take the mouldy smell, unless you include my nose. That smell is coming with me anyway.",
+        message: "It's a bit tricky to take the mouldy smell, unless you include the scent in my nose. That smell is coming with me anyway.",
         examine: "A mouldy, wet odour that is not altogether unpleasant. That being said, it doesn't smell great."
       }
     },
@@ -213,12 +213,65 @@ const rooms = {
     },
     passages: {west: "five", northeast: "pick1"},
     items: ["nails"],
+    disallowedTakes: {
+      sand: {
+        names: ["sand"],
+        message: "If I pick that up, it will go all throughout my pocket, and I will never get rid of it.",
+        examine: "Soft white sand. Exactly the sort that sticks to everything."
+      },
+      shine: {
+        names: ["shine", "shining", "glint", "glinting", "glimmer", "sparkle", "sparkling"],
+        message: () => {
+          if (gameState.flags.includes("nailsTaken")) {
+            return "I can't find that.";
+          }
+          return "I can't take the shine itself, but I could probably find what it's glinting off.";
+        },
+        examine: () => {
+          if (gameState.flags.includes("nailsTaken")) {
+            return "I can't find that.";
+          }
+          return "Taking a closer look at the sand reveals it is full of nails! That would be what is glinting in the light.";
+        },
+        allIgnore: true
+      },
+      light: {
+        names: ["light"],
+        message: () => {
+          if (gameState.flags.includes("nailsTaken")) {
+            return "I can't find that.";
+          }
+          return "I've already got the lantern, and the sand isn't producing any light. Just reflecting it.";
+        },
+        examine: () => {
+          if (gameState.flags.includes("nailsTaken")) {
+            return "I can't find that.";
+          }
+          return "Why does light always seem brighter when reflecting off of something shiny?";
+        },
+        allIgnore: true
+      }
+    }
   },
   pick1: {
     name: "The Pickaxe room",
     look: "A bare room with little of interest.",
     passages: {west: "sand", south: "five", east: "tall"},
     items: ["pick1"],
+    disallowedTakes: {
+      interest: {
+        names: ["interest"],
+        message: "While I say there is little of that here, what I mean is none.",
+        examine: "Ooh interesting!",
+        allIgnore: true
+      },
+      bear: {
+        names: ["bear"],
+        message: "While this is the room that would contain bears, unfortunately, they seem to have left.",
+        examine: "Any of a family (Ursidae of the order Carnivora) of large heavy mammals of the Americas and Eurasia that have long shaggy hair, short tails, and plantigrade feet with nonretractile claws and that are mainly omnivorous but include some that are primarily carnivorous (as the polar bear) or herbivorous (as the giant panda).",
+        allIgnore: true
+      }
+    }
   },
   tall: {
     name: "The Tall room",
@@ -266,6 +319,17 @@ const rooms = {
     disallowedTakes: {
       "cave-in": "There's too much rubble to carry.",
       "cavein": "There's too much rubble to carry.",
+      bear: {
+        names: ["bear"],
+        message: "While this is the room that would contain bears, unfortunately, they seem to have left.",
+        examine: "Any of a family (Ursidae of the order Carnivora) of large heavy mammals of the Americas and Eurasia that have long shaggy hair, short tails, and plantigrade feet with nonretractile claws and that are mainly omnivorous but include some that are primarily carnivorous (as the polar bear) or herbivorous (as the giant panda).",
+        allIgnore: true
+      },
+      magical: {
+        names: ["magical", "magic"],
+        message: "There's nothing magical here to take.",
+        examine: "Sadly, there's nothing extraordinary here."
+      }
     },
     items: [],
     light: true
@@ -287,6 +351,19 @@ const rooms = {
       down: "Down\nyou\ngo\n...\n\nYou decide it's probably a good idea to open your parachute, so do that.\nAfter a long decent, you land on solid ground, and put the parachute back into the pack."
     },
     items: [],
+    disallowedTakes: {
+      darkness: {
+        names: ["darkness"],
+        message: "That would require jumping down the hole. Not worth it in my opinion.",
+        examine: "It's dark? I'm not sure how you expect me to see the lack of light...",
+        allIgnore: true
+      },
+      hole: {
+        names: ["hole", "gap", "pit"],
+        message: "As much as I would love to place a hole on the ground and jump through any floor I want, this isn't a cartoon.",
+        examine: "It's very deep, and doesn't seem like a good idea to check exactly how deep."
+      }
+    }
   },
   sword: {
     name: "The Sword room",
@@ -302,6 +379,14 @@ const rooms = {
       }
     },
     items: ["sword"],
+    disallowedTakes: {
+      things: {
+        names: ["things"],
+        message: "There aren't any here any more.",
+        examine: "There aren't any here any more.",
+        allIgnore: true
+      }
+    }
   },
   ogre: {
     name: "The Ogre room",
@@ -318,7 +403,23 @@ const rooms = {
     },
     objects: ["ogre"],
     disallowedTakes: {
-      "temple": "I can't take the temple.",
+      entrance: {
+        names: ["entrance"],
+        message: "What do you mean? I can't just rip a doorway out of the wall like that!",
+        examine: "A doorway, made from carved marble blocks.",
+        allIgnore: true
+      },
+      temple: {
+        names: ["temple"],
+        message: "Hmm, yes let's just pick up this large building and put it in my pocket, yes?",
+        examine: "An underground temple. It's made from carved marble blocks."
+      },
+      marble: {
+        names: ["marble", "block"],
+        message: "That's a part of the wall!",
+        examine: "It's white? With streaks? What would you expect from a block of marble?",
+        allIgnore: true
+      }
     },
     items: [],
     light: true

@@ -62,6 +62,7 @@
 - [x] Fix fire room north passage hazard not killing player - debug existing restricted passages system to properly block/kill on unsafe passage (IMPLEMENTED with killIfInventory hazard feature for dynamite)
 - [x] Fix extinguisher not removing fire hazard - ensure "use extinguisher on fire" properly sets fireExtinguished flag and removes passage restriction
 - [x] Fix ambiguous item matching - when multiple items match (e.g., "take key" with greenKey, silverKey, dungeonKey present), ask "Which key?" without listing options (applies to take, use, drop, examine, all commands)
+- [ ] Ensure consistent punctuation across all messages - examine responses, action feedback, and other messages are missing ending periods
 - [ ] Verify and fix save/load functionality - double-check that saves are working properly, test save persistence and state restoration
 
 ## Code Quality
