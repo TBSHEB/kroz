@@ -75,10 +75,15 @@ webctl eval "document.querySelector('.room-title').textContent"
 
 **Common Gotchas:**
 - Output div can have rendering issues with rapid commands
-- Some mechanics require dropping items (not just carrying them)
-- Item names can differ between room descriptions and inventory
+- Some mechanics require dropping items (not just carrying them) - stepladder/ladder must be dropped to create passages
+- Equipment items (helmet, parachute) must be equipped with "use" before they function in restricted passages
+- Item names can differ between room descriptions and inventory (e.g., "boards" → "wood")
 - Use "help" command in-game to check available commands
 - Always "look" after entering a new room to see full description
+- Combat: First-strike with correct item = instant kill (never fails), but using wrong item/action loses opportunity and enters normal combat
+- Save frequently before risky actions (combat, exploring new areas)
+- Crafting often requires specific item combinations - try systematic combinations when stuck
+- Some items contain hidden contents (e.g., skull) discoverable through crafting
 
 ## Game State Manipulation
 
@@ -279,6 +284,103 @@ webctl eval "gameState.flags.includes('lanternLit')"
 - Unclear command syntax
 - Inconsistent game mechanics
 - Balance issues (too easy/hard)
+
+## Testing Specific Game Systems
+
+### Testing Combat
+```bash
+# Check if enemy is present
+webctl type "#input" "look" --key Enter
+
+# First-strike test (should instakill with correct weapon)
+webctl type "#input" "attack [enemy] with [weapon]" --key Enter
+
+# Check combat state after
+webctl eval "gameState.combatState"
+webctl eval "gameState.healthState"
+
+# If combat initiated (wrong weapon/action), continue attacking
+# Death respawns at last checkpoint - verify with:
+webctl eval "gameState.lastCheckpoint"
+```
+
+**Combat Notes:**
+- First engagement with correct item = instant kill (never fails)
+- Wrong item or non-attack action = enters turn-based combat
+- Save before attempting if unsure of correct weapon
+- Helmet provides "proper protection" for certain passages
+
+### Testing Crafting
+```bash
+# View current inventory
+webctl type "#input" "inventory" --key Enter
+
+# Try craft combinations (use "and" between items)
+webctl type "#input" "craft item1 and item2" --key Enter
+webctl type "#input" "craft item1 and item2 and item3" --key Enter
+
+# Check if item was created
+webctl eval "gameState.inventory"
+
+# Known recipes from start→hub:
+# - wood + hammer + nails = ladder
+# - skull + hammer = purple map
+```
+
+**Crafting Notes:**
+- Hammer is reusable (not consumed in recipes)
+- Some items must be in inventory, not just in room
+- Failed craft: "I can't make anything with those items"
+
+### Testing Equipment/Operating Items
+```bash
+# Equipment items require "use" to equip
+webctl type "#input" "use helmet" --key Enter
+webctl type "#input" "use parachute" --key Enter
+webctl type "#input" "use lantern" --key Enter  # Lights it
+
+# Check if equipped/activated
+webctl eval "gameState.flags"  # Look for equipped/lit flags
+
+# Test functionality (e.g., try restricted passage with helmet equipped)
+```
+
+### Testing Puzzles & Riddles
+```bash
+# Examine puzzle elements
+webctl type "#input" "examine [object]" --key Enter
+
+# Try answering riddles by typing the answer
+webctl type "#input" "answer" --key Enter
+
+# Check if puzzle solved (door opened, passage revealed, etc.)
+webctl type "#input" "look" --key Enter
+```
+
+### Testing Hidden Passages & Map Mechanics
+```bash
+# Get map item (if available)
+webctl type "#input" "take map" --key Enter
+
+# Holding map may reveal hidden passages in room descriptions
+webctl type "#input" "look" --key Enter
+
+# Look for text like "shimmers faintly" or "hiding something"
+# Try direction that was previously blocked
+```
+
+### Testing Resource Management (Lantern Power)
+```bash
+# Check current lantern power
+webctl eval "gameState.itemCountdowns.lantern"
+
+# Each command while lit drains 1 power
+# Starting power: 800 commands
+# Battery can recharge (craft battery + lantern)
+
+# Test in dark room (requires lit lantern)
+webctl eval "gameState.flags.includes('lanternLit')"
+```
 
 ## Quick State Setup for Late-Game Testing
 

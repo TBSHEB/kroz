@@ -19,7 +19,6 @@ function handleCraft(itemNames) {
     } else if (names.length === 2) {
       itemList = `${names[0]} or ${names[1]}`;
     } else {
-      // 3+ items: Oxford comma style
       const allButLast = names.slice(0, -1).join(', ');
       const last = names[names.length - 1];
       itemList = `${allButLast}, or ${last}`;
@@ -33,14 +32,13 @@ function handleCraft(itemNames) {
   // Ensure all items are in inventory (not just interactable in room)
   const notInInventory = itemIds.filter(id => !gameState.inventory.includes(id));
   if (notInInventory.length > 0) {
-    const names = notInInventory.map(id => `the ${items[id].names[0]}`);
+    const names = notInInventory.map(id => `the ${items[id].names[0] ? items[id].names[0] : objects[id].names[0] ? objects[id].names[0] : id}`);
     let itemList;
     if (names.length === 1) {
       itemList = names[0];
     } else if (names.length === 2) {
       itemList = `${names[0]} or ${names[1]}`;
     } else {
-      // 3+ items: Oxford comma style
       const allButLast = names.slice(0, -1).join(', ');
       const last = names[names.length - 1];
       itemList = `${allButLast}, or ${last}`;

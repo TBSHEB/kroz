@@ -9,7 +9,7 @@ function buildInteractablesList() {
   // Add objects in the room (like troll, door, etc.)
   if (currentRoom.objects) {
     currentRoom.objects.forEach(objId => {
-      if (objects[objId]) {
+      if (objects[objId] && (objects[objId].hiddenUnlessHasFlag === undefined || gameState.flags.includes(objects[objId].hiddenUnlessHasFlag))) {
         interactables.push({
           ...objects[objId],  // Copy all object properties
           id: objId,          // Add the ID for reference

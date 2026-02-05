@@ -25,20 +25,6 @@ function take(things, all = false) {
     const currentRoom = rooms[gameState.currentRoom];
     const operableObjects = [];
 
-    // Remove any hidden objects first
-    if (currentRoom.objects) {
-      for (const object of currentRoom.objects) {
-        for (const thing of things) {
-          if (objects[object].names.includes(thing)) {
-            if (objects[object].hiddenUnlessHasFlag && !gameState.flags.includes(objects[object].hiddenUnlessHasFlag)) {
-              // This object is hidden, remove it.
-              things = things.filter(t => t !== thing);
-            }
-          }
-        }
-      }
-    }
-
     // Check if trying to take an object with operate (like dungeonLamp)
     if (currentRoom.objects) {
       for (const objId of currentRoom.objects) {

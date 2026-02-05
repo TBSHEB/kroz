@@ -62,7 +62,17 @@
 - [x] Fix fire room north passage hazard not killing player - debug existing restricted passages system to properly block/kill on unsafe passage (IMPLEMENTED with killIfInventory hazard feature for dynamite)
 - [x] Fix extinguisher not removing fire hazard - ensure "use extinguisher on fire" properly sets fireExtinguished flag and removes passage restriction
 - [x] Fix ambiguous item matching - when multiple items match (e.g., "take key" with greenKey, silverKey, dungeonKey present), ask "Which key?" without listing options (applies to take, use, drop, examine, all commands)
-- [ ] Ensure consistent punctuation across all messages - examine responses, action feedback, and other messages are missing ending periods
+- [ ] Fix missing punctuation across all messages - systematically add periods to examine responses, action feedback, and state messages:
+  - items.js: boards examine, skull examine (if has examine property)
+  - objects.js: chandelier examine, dungeonTrapdoor examine message, chain examine in disallowedTakes
+  - map.js genericExamines or room-specific examines: sand examine, walls examine, floor examine, compass examine
+  - commands/actions.js: "Taken." messages, "Dropped." messages, trapdoor unlock message
+  - commands/use/craft.js: ladder craft success message
+  - commands/movement.js: "There's solid ground beneath me", "There's nothing above me", "The hole is too high to reach", down/up blocking messages, restricted passage failure messages
+  - commands/use/operate.js: helmet equip message, parachute equip message, general equip/activate messages
+  - Riddle solution messages (objects.js riddle1): door opening message "When uttering those words, the stone door to the east grinds open"
+  - Hole room down message: "The drop looks deadly. I need something to break my fall"
+  - Pickaxe cave-in messages: "You chip away at the rubble. The frail pickaxe breaks" and "You clear some of the rubble. Unfortunately, the pickaxe breaks"
 - [ ] Verify and fix save/load functionality - double-check that saves are working properly, test save persistence and state restoration
 
 ## Code Quality

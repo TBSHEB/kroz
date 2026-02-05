@@ -438,8 +438,21 @@ const rooms = {
       }
     },
     disallowedTakes: {
-      "texts": "The texts are ancient and fragile, I shouldn't disturb them.",
-      "tablet": "The stone tablet is secured to the podium.",
+      texts: {
+        names: ["texts", "ancient texts", "text", "writing", "writings"],
+        message: "It's carved into the stone, and I don't have the tools to make a copy.",
+        examine: "It's in a language I don't understand."
+      },
+      podium: {
+        names: ["podium"],
+        message: "The podium is made from a singular block of marble, carved into shape. It would be far too heavy.",
+        examine: "It's made of marble, elegantly carved."
+      },
+      tablet: {
+        names: ["tablet", "stone tablet"],
+        message: "Something's giving me the feeling I shouldn't move this...",
+        examine: "The stone tablet says: \"Two men are lying in the desert. They both have backpacks on. One of them is dead. What is in the backpack?\""
+      }
     },
     items: [],
     objects: ["riddle1"],
