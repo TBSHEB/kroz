@@ -379,31 +379,19 @@ function handleCommand() {
                             gameState.healthState = 0;
                         }
 
-                        if (currentRoom.objects) {
-                            for (const object of currentRoom.objects) {
-                                if (objects[object].destructible) {
-                                    setRoomState("objects", object, false)
-                                }
-                                if (objects[object].onDestruct) {
-                                    for (const flag of objects[object].onDestruct) {
-                                        setGameState("flags", flag);
-                                    }
-                                }
-                            }
-                        }
-
                         //  Delete the item and destroy objects
                         for (const room of Object.keys(gameState.roomChanges)) {
                             if (gameState.roomChanges[room]?.items?.added.includes(item)) {
                                 trackRoomChange(item, "items", false, room);
+                                setRoomState("items", item, false, room);
                                 if (rooms[room].objects) {
                                     for (const object of rooms[room].objects) {
                                         if (objects[object].destructible) {
                                             setRoomState("objects", object, false, room)
-                                        }
-                                        if (objects[object].onDestruct) {
-                                            for (const flag of objects[object].onDestruct) {
-                                                setGameState("flags", flag);
+                                            if (objects[object].onDestruct) {
+                                                for (const flag of objects[object].onDestruct) {
+                                                    setGameState("flags", flag);
+                                                }
                                             }
                                         }
                                     }
@@ -448,7 +436,9 @@ function handleCommand() {
             }
             // check if the item has a message at this stage?
             if (tempConfig.messages?.[count]) {
-                displayText(tempConfig.messages[count]);
+                if (tempConfig.globalMessages || rooms[gameState.currentRoom].items.includes(item)) {
+                    displayText(tempConfig.messages[count]);
+                }
             }
 
             // increment the count
