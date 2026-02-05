@@ -137,7 +137,7 @@ function handleOperate(verb, item) {
   }
 
   // Set player health
-  if (matchedAction.setHealth) {
+  if (matchedAction.setHealth !== undefined) {
     gameState.healthState = matchedAction.setHealth;
   }
 
