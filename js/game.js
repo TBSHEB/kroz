@@ -392,6 +392,25 @@ function handleCommand() {
                             }
                         }
 
+                        //  Delete the item and destroy objects
+                        for (const room of Object.keys(gameState.roomChanges.items.added)) {
+                            if (gameState.roomChanges.items.added[room].includes(item)) {
+                                trackRoomChange(item, "items", false, room);
+                                if (rooms[room].objects) {
+                                    for (const object of rooms[room].objects) {
+                                        if (objects[object].destructible) {
+                                            setRoomState("objects", object, false, room)
+                                        }
+                                        if (objects[object].onDestruct) {
+                                            for (const flag of objects[object].onDestruct) {
+                                                setGameState("flags", flag);
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
                         //display the appropriate message
                         if (currentRoom.items.includes(item)) {
                             displayText(tempConfig.onExpireMessage.floor);

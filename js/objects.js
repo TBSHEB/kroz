@@ -436,7 +436,6 @@ const objects = {
     },
     destructible: true,
     onDestruct: ["roundExplosion"]
-
   },
 
   candle: {
