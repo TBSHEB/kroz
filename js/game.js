@@ -393,8 +393,8 @@ function handleCommand() {
                         }
 
                         //  Delete the item and destroy objects
-                        for (const room of Object.keys(gameState.roomChanges.items.added)) {
-                            if (gameState.roomChanges.items.added[room].includes(item)) {
+                        for (const room of Object.keys(gameState.roomChanges)) {
+                            if (gameState.roomChanges[room]?.items?.added.includes(item)) {
                                 trackRoomChange(item, "items", false, room);
                                 if (rooms[room].objects) {
                                     for (const object of rooms[room].objects) {
