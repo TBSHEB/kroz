@@ -339,6 +339,9 @@ function handleCommand() {
                 gameState.hazardState.room = "";
                 gameState.hazardState.count = 0;
             }
+        } else {
+            gameState.hazardState.room = "";
+            gameState.hazardState.count = 0;
         }
 
         // Update the turn count on command if there is combat in this room unless you have a part command going on
@@ -382,7 +385,7 @@ function handleCommand() {
                         //  Delete the item and destroy objects
                         for (const room of Object.keys(gameState.roomChanges)) {
                             if (gameState.roomChanges[room]?.items?.added.includes(item)) {
-                                trackRoomChange(item, "items", false, room);
+                                trackRoomChange(item, "item", false, room);
                                 setRoomState("items", item, false, room);
                                 if (rooms[room].objects) {
                                     for (const object of rooms[room].objects) {

@@ -1771,7 +1771,9 @@ workshop: {
       south: {
         requirements: [
           {flag: "cyclopsGone", failMessage: "There's a huge cyclops in the way. I don't think he'd let me past.", unmetDescription: "A large cyclops stands, guarding the southern passage. "}
-        ]
+        ],
+        room: "spotty",
+        metDescription: "With the cyclops no longer here, I can go through the southern passage."
       }
     },
     items: [],

@@ -96,15 +96,27 @@ water: {
 }
 ```
 
+## Generic Disallowed Items
+
+The following items have generic handlers and should NOT be suggested unless the room has a special context that makes the generic message inappropriate:
+
+`wall`, `walls`, `floor`, `ground`, `ceiling`, `roof`, `air`, `darkness`, `stone`, `me`, `myself`, `self`
+
+See genericDisallowedItems and genericExamines in the codebase for full list.
+
 ## Process
 
 For each room:
 1. Read the room's `look` description (may be string or function returning string)
-2. Identify nouns mentioned that aren't items/objects
-3. Check existing disallowedTakes for that room
-4. Suggest grouping similar items and adding missing ones
-5. Wait for user to specify the exact format for each item
-6. Update the room's disallowedTakes section
+2. Read item `initialDescription`/`description` for items in the room
+3. Read object `description` for objects in the room
+4. Identify all nouns from these sources (excluding generic items above)
+5. Present list of candidate nouns to user
+6. User specifies which to add (with or without allIgnore)
+7. Suggest message and examine text for each
+8. User approves or provides their own text
+9. Add all approved items to map.js (operate/apply/attack interactions added later)
+10. Move to next room
 
 ## Room Order
 Process rooms in the order they appear in map.js, starting with "start".
@@ -112,7 +124,6 @@ Process rooms in the order they appear in map.js, starting with "start".
 ## Current Progress
 - [x] Helper functions updated to support new format
 - [x] Take/examine/operate/apply/attack handlers updated
-- [ ] start - **IN PROGRESS**
-- [ ] cellar
-- [ ] five
-- [ ] (continue through all rooms...)
+- [x] Rooms before parachute completed
+- [ ] parachute - **IN PROGRESS**
+- [ ] (remaining rooms...)
