@@ -29,7 +29,7 @@ function move(direction) {
         gameState.visitedRooms.push(gameState.currentRoom);
         initializeCombat();
         look();
-        if (gameState.currentRoom.isCheckpoint) {
+        if (rooms[gameState.currentRoom].isCheckpoint) {
           gameState.lastCheckpoint = gameState.currentRoom;
           saveGame(gameState, "internal checkpoint");
         }
@@ -89,7 +89,7 @@ function move(direction) {
         gameState.visitedRooms.push(gameState.currentRoom);
         initializeCombat();
         look();
-        if (gameState.currentRoom.isCheckpoint) {
+        if (rooms[gameState.currentRoom].isCheckpoint) {
           gameState.lastCheckpoint = gameState.currentRoom;
           saveGame(gameState, "internal checkpoint");
         }
@@ -151,7 +151,7 @@ function move(direction) {
               gameState.visitedRooms.push(gameState.currentRoom);
               initializeCombat();
               look();
-              if (gameState.currentRoom.isCheckpoint) {
+              if (rooms[gameState.currentRoom].isCheckpoint) {
                 gameState.lastCheckpoint = gameState.currentRoom;
                 saveGame(gameState, "internal checkpoint");
               }
@@ -235,7 +235,7 @@ function move(direction) {
               gameState.visitedRooms.push(gameState.currentRoom);
               initializeCombat();
               look();
-              if (gameState.currentRoom.isCheckpoint) {
+              if (rooms[gameState.currentRoom].isCheckpoint) {
                 gameState.lastCheckpoint = gameState.currentRoom;
                 saveGame(gameState, "internal checkpoint");
               }

@@ -1,7 +1,7 @@
 // localStorage handling for save/load functionality
 
 const SAVE_PREFIX = 'kroz-save-';
-const AUTO_SAVE_KEY = 'kroz-auto-save';
+const AUTO_SAVE_KEY = 'kroz-save-auto';
 const SAVE_LIST_KEY = 'kroz-save-list';
 
 // Save game state to localStorage
@@ -16,6 +16,8 @@ function saveGame(gameState, saveName = null) {
             combatState: gameState.combatState,
             healthState: gameState.healthState,
             poison: gameState.poison,
+            itemCountdowns: gameState.itemCountdowns,
+            hazardState: gameState.hazardState,
             roomChanges: gameState.roomChanges,
             lastCheckpoint: gameState.lastCheckpoint,
             timestamp: new Date().toISOString()
@@ -51,15 +53,55 @@ function loadGame(saveName = null) {
             return null;
         }
 
+        reverseRoomChanges(gameState.roomChanges);
         if (loadedState.roomChanges) {
             applyRoomChanges(loadedState.roomChanges);
         }
 
 
-        return loadedState;;
+        return loadedState;
     } catch (error) {
         console.error('Failed to load game:', error);
         return null;
+    }
+}
+
+function reverseRoomChanges(roomChanges) {
+    for (const roomId in roomChanges) {
+        const itemChanges = roomChanges[roomId].items;
+        const objectChanges = roomChanges[roomId].objects;
+        const room = rooms[roomId];
+
+        if (!room) continue;
+
+        if (!room.items) room.items = [];
+        if (!room.objects) room.objects = [];
+
+        for (const itemId of itemChanges.added) {
+            const index = room.items.indexOf(itemId);
+            if (index > -1) {
+                room.items.splice(index, 1);
+            }
+        }
+
+        for (const itemId of itemChanges.removed) {
+            if (!room.items.includes(itemId)) {
+                room.items.push(itemId);
+            }
+        }
+
+        for (const objectId of objectChanges.added) {
+            const index = room.objects.indexOf(objectId);
+            if (index > -1) {
+                room.objects.splice(index, 1);
+            }
+        }
+
+        for (const objectId of objectChanges.removed) {
+            if (!room.objects.includes(objectId)) {
+                room.objects.push(objectId);
+            }
+        }
     }
 }
 
@@ -111,7 +153,7 @@ function hasSavedGame(saveName = null) {
 // Delete saved game
 function deleteSave(saveName = null) {
     try {
-        saveKey = saveName ? SAVE_PREFIX + saveName : AUTO_SAVE_KEY;
+        const saveKey = saveName ? SAVE_PREFIX + saveName : AUTO_SAVE_KEY;
         localStorage.removeItem(saveKey);
 
         if (saveName) {

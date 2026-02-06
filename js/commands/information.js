@@ -284,8 +284,16 @@ function look() {
   displayText("\n" + look)
 }
 
-function isInCombat () {
-  return Object.keys(gameState.combatState).length > 0;
+function isInCombat() {
+  const currentRoom = rooms[gameState.currentRoom];
+  if (!currentRoom?.objects) return false;
+
+  return currentRoom.objects.some(objectId => {
+    const object = objects[objectId];
+    if (!object?.combat) return false;
+    const combat = gameState.combatState[objectId];
+    return combat && combat.isEngaged && !combat.isDead;
+  });
 }
 
 function save(name) {
@@ -303,7 +311,7 @@ function save(name) {
       displayText("Failed to save game.");
     }
   } else {
-    if (saveGame(gameState, "quicksave")) {
+    if (saveGame(gameState, "quick")) {
       displayText("Game saved.");
     } else {
       displayText("Failed to save game.");
@@ -314,10 +322,16 @@ function save(name) {
 function load(name) {
   const saveName = name && name.length > 0 ? name.join(" ") : null;
 
-  const loadedState = loadGame(saveName);
+  let loadedState;
+
+  if (saveName !== null) {
+    loadedState = loadGame(saveName);
+  } else {
+    loadedState = loadGame("quick");
+  }
 
   if (!loadedState) {
-    displayText(`No save found with name "${saveName}".`);
+    displayText(saveName ? `No save found with name "${saveName}".` : "No save found.");
     return;
   }
 
@@ -328,6 +342,9 @@ function load(name) {
   gameState.visitedRooms = loadedState.visitedRooms;
   gameState.combatState = loadedState.combatState;
   gameState.healthState = loadedState.healthState;
+  gameState.poison = loadedState.poison || 0;
+  gameState.itemCountdowns = loadedState.itemCountdowns || {};
+  gameState.hazardState = loadedState.hazardState || { room: "", count: 0 };
   gameState.roomChanges = loadedState.roomChanges;
   gameState.lastCheckpoint = loadedState.lastCheckpoint;
 
@@ -358,8 +375,6 @@ function reset() {
   gameState.roomChanges = {}
   gameState.lastCheckpoint = "start"
 
-
-  applyRoomChanges(gameState.roomChanges);
 
   deleteSave();
 

@@ -159,7 +159,8 @@ const rooms = {
             return "I can't find that.";
           }
           return "A purple sparkling glow, phasing in and out of the wall.";
-        }
+        },
+        allIgnore: true
       }
     },
     light: true
@@ -607,7 +608,7 @@ const rooms = {
   },
   nose: {
     name: "The Nose room",
-    look: "A room shaped like a nose! Who'd have thought it. There's a hole in the roof.",
+    look: "A room shaped like a nose! Who'd have thought it.",
     passages: {
       east: "dust",
       south: "topGlass",
@@ -654,9 +655,7 @@ const rooms = {
       }
     },
     items: ["shovel"],
-    disallowedTakes: {
-      "glass": "I'd rather not cut myself thanks."
-    },
+    disallowedTakes: {},
     objects: ["glass"]
   },
   bottomGlass: {

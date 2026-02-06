@@ -67,6 +67,8 @@ function initGame() {
         gameState.combatState = autoSave.combatState;
         gameState.healthState = autoSave.healthState;
         gameState.poison = autoSave.poison || 0;
+        gameState.itemCountdowns = autoSave.itemCountdowns || {};
+        gameState.hazardState = autoSave.hazardState || { room: "", count: 0 };
         gameState.roomChanges = autoSave.roomChanges;
         gameState.lastCheckpoint = autoSave.lastCheckpoint;
 
@@ -174,11 +176,13 @@ function handleCommand() {
             if (mainCommand === "save") {
                 save(words.slice(1));
                 inputElement.value = "";
+                saveGame(gameState);
                 return;
             }
             if (mainCommand === "load") {
                 load(words.slice(1));
                 inputElement.value = "";
+                saveGame(gameState);
                 return;
             }
             // Not in multi-step mode
@@ -599,6 +603,8 @@ function handlePlayerDeath() {
             gameState.combatState = checkpointSave.combatState;
             gameState.healthState = checkpointSave.healthState;
             gameState.poison = checkpointSave.poison || 0;
+            gameState.itemCountdowns = checkpointSave.itemCountdowns || {};
+            gameState.hazardState = checkpointSave.hazardState || { room: "", count: 0 };
             gameState.roomChanges = checkpointSave.roomChanges;
             gameState.lastCheckpoint = checkpointSave.lastCheckpoint;
 
