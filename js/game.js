@@ -395,6 +395,7 @@ function handleCommand() {
                                     for (const object of rooms[room].objects) {
                                         if (objects[object].destructible) {
                                             setRoomState("objects", object, false, room)
+                                            trackRoomChange(object, "object", false, room);
                                             if (objects[object].onDestruct) {
                                                 for (const flag of objects[object].onDestruct) {
                                                     setGameState("flags", flag);

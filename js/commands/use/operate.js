@@ -115,6 +115,7 @@ function handleOperate(verb, item) {
   if (matchedAction.dropItems) {
     for (const item of matchedAction.dropItems) {
       setRoomState("items", item);
+      trackRoomChange(item, "item");
     }
   }
 
@@ -209,6 +210,7 @@ function handleOperate(verb, item) {
       // Remove enemy and set flags
       if (item.combat.removeOnKill) {
         setRoomState("objects", item.id, false);
+        trackRoomChange(item.id, "object", false);
       }
       if (item.combat.setFlags) {
         for (const flag of item.combat.setFlags) {
@@ -223,6 +225,7 @@ function handleOperate(verb, item) {
       if (item.combat.dropItems) {
         for (const dropItem of item.combat.dropItems) {
           setRoomState("items", dropItem);
+          trackRoomChange(dropItem, "item");
         }
       }
       if (item.combat.giveItems) {
@@ -274,6 +277,7 @@ function handleOperate(verb, item) {
         if (matchedAction.dropItems) {
           for (const dropItem of matchedAction.dropItems) {
             setRoomState("items", dropItem);
+            trackRoomChange(dropItem, "item");
           }
         }
 

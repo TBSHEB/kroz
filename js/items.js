@@ -196,7 +196,7 @@ const items = {
     undroppableMessage: "It's strapped to your back, and won't come off."
   },
   redCake: {
-    names: ["red cake", "cake", "dessert", "red"],
+    names: ["red cake", "cake", "dessert"],
     primaryType: "operate",
     examine: "A large cake covered in deep red frosting.",
     initialDescription: "A large, red cake sits centred on the table here.",
@@ -211,7 +211,7 @@ const items = {
     }
   },
   greenCake: {
-    names: ["green cake", "cake", "dessert", "green"],
+    names: ["green cake", "cake", "dessert"],
     primaryType: "operate",
     examine: "A large cake decorated with bright green icing.",
     initialDescription: "A large, green cake is sitting on the bench.",
@@ -228,7 +228,7 @@ const items = {
     }
   },
   blueCake: {
-    names: ["blue cake", "cake", "dessert", "blue"],
+    names: ["blue cake", "cake", "dessert", "wedding cake"],
     primaryType: "operate",
     examine: "A massive blue wedding cake, intricately decorated. Far too much for one person.",
     initialDescription: "A large, blue, wedding cake sits on the floor. Despite its colour, it looks out of place.",

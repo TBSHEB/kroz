@@ -10,6 +10,7 @@ function handleApply(item, target) {
   // Special case: ladder placement on floor/ground
   if ((item.id === 'stepladder' || item.id === 'ladder') && (target.id === 'floor' || target.id === 'ground')) {
     setRoomState("items", item.id);
+    trackRoomChange(item.id, "item");
     setGameState("inventory", item.id, false);
     displayText(`You place the ${item.names[0]} on the ${target.names[0]}.`);
     return true;
@@ -68,6 +69,7 @@ function handleApply(item, target) {
           }
           if (config.removeOnComplete) {
             setRoomState("objects", target.id, false);
+            trackRoomChange(target.id, "object", false);
           }
         } else {
           const remaining = config.items.filter(itemId =>
@@ -153,6 +155,7 @@ function handleApply(item, target) {
       if (!currentRoom.items) currentRoom.items = [];
       interaction.dropItems.forEach(itemId => {
         setRoomState("items", itemId);
+        trackRoomChange(itemId, "item");
       });
     }
 
@@ -160,6 +163,7 @@ function handleApply(item, target) {
     if (interaction.addObjects) {
       interaction.addObjects.forEach(objectId => {
         setRoomState("objects", objectId);
+        trackRoomChange(objectId, "object");
       });
     }
 
@@ -203,10 +207,12 @@ function handleApply(item, target) {
             if (effect.room) {
               effect.dropItems.forEach(itemId => {
                 setRoomState("items", itemId, true, effect.room);
+                trackRoomChange(itemId, "item", true, effect.room);
               });
             } else {
               effect.dropItems.forEach(itemId => {
                 setRoomState("items", itemId);
+                trackRoomChange(itemId, "item");
               });
             }
           }
@@ -215,8 +221,10 @@ function handleApply(item, target) {
           if (effect.removeOnTrigger) {
             if (effect.room) {
               setRoomState("objects", objectId, false, effect.room);
+              trackRoomChange(objectId, "object", false, effect.room);
             } else {
               setRoomState("objects", objectId, false);
+              trackRoomChange(objectId, "object", false);
             }
           }
         }
@@ -306,6 +314,7 @@ function handleCombination(items, target) {
         }
         if (config.removeOnComplete) {
           setRoomState("objects", target.id, false);
+          trackRoomChange(target.id, "object", false);
         }
       } else {
         const remaining = config.items.filter(itemId =>
@@ -402,6 +411,7 @@ function handleCombination(items, target) {
       if (!currentRoom.items) currentRoom.items = [];
       interaction.dropItems.forEach(itemId => {
         setRoomState("items", itemId);
+        trackRoomChange(itemId, "item");
       });
     }
 
@@ -409,6 +419,7 @@ function handleCombination(items, target) {
     if (interaction.addObjects) {
       interaction.addObjects.forEach(objectId => {
         setRoomState("objects", objectId);
+        trackRoomChange(objectId, "object");
       });
     }
 
@@ -443,10 +454,12 @@ function handleCombination(items, target) {
             if (effect.room) {
               effect.dropItems.forEach(itemId => {
                 setRoomState("items", itemId, true, effect.room);
+                trackRoomChange(itemId, "item", true, effect.room);
               });
             } else {
               effect.dropItems.forEach(itemId => {
                 setRoomState("items", itemId);
+                trackRoomChange(itemId, "item");
               });
             }
           }
@@ -455,8 +468,10 @@ function handleCombination(items, target) {
           if (effect.removeOnTrigger) {
             if (effect.room) {
               setRoomState("objects", objectId, false, effect.room);
+              trackRoomChange(objectId, "object", false, effect.room);
             } else {
               setRoomState("objects", objectId, false);
+              trackRoomChange(objectId, "object", false);
             }
           }
         }

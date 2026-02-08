@@ -218,7 +218,10 @@ const rooms = {
       sand: {
         names: ["sand"],
         message: "If I pick that up, it will go all throughout my pocket, and I will never get rid of it.",
-        examine: "Soft white sand. Exactly the sort that sticks to everything."
+        examine: "Soft white sand. Exactly the sort that sticks to everything.",
+        apply: {
+          shovel: "You dig in the sand. It's quite shallow, revealing a stone floor beneath. You fill up the hole, can't forget about saftey!"
+        }
       },
       shine: {
         names: ["shine", "shining", "glint", "glinting", "glimmer", "sparkle", "sparkling"],
@@ -259,6 +262,7 @@ const rooms = {
     look: "A bare room with little of interest.",
     passages: {west: "sand", south: "five", east: "tall"},
     items: ["pick1"],
+    failedBackText: "There's no hole in the roof?!",
     disallowedTakes: {
       interest: {
         names: ["interest"],
@@ -466,7 +470,22 @@ const rooms = {
     failedBackText: "I can't climb up that hole.",
     items: ["parachute"],
     disallowedTakes: {
-      "shrine": "I can't take the shrine.",
+      shrine: {
+        names: ["shrine"],
+        message: "I can't pick up something while I'm inside of it",
+        examine: "A small shrine. The pedestal in the center seems to be the focal point."
+      },
+      pedestal: {
+        names: ["pedestal", "stand"],
+        message: "The pedestal is far too heavy to pick up",
+        examine: "A short pedestal, carved from a single block of marble, like everything in this place."
+      },
+      hole: {
+        names: ["hole", "opening"],
+        message: "I can't take a hole",
+        examine: "As far as I can see, it goes straight up. No chance that's a path I can go.",
+        allIgnore: true
+      }
     },
     light: true
   },
@@ -476,9 +495,58 @@ const rooms = {
     passages: {north: "magic"},
     items: ["pick2"],
     disallowedTakes: {
-      "bones": "I'd rather not touch those.",
-      "corpse": "I don't know what these bones belonged to, but I'm not touching them.",
-      "skeleton": "Best left alone."
+      bones: {
+        names: ["bones"],
+        message: "I'd rather not touch those",
+        examine: "They are a variety of sizes, and as such likely come from a variety of sources... That's a nice thought."
+      },
+      bone: {
+        names: ["bone"],
+        message: "I'd rather not touch that",
+        examine: "One bone among many scattered across the floor.",
+        allIgnore: true
+      },
+      corpse: {
+        names: ["corpse", "body", "remains"],
+        message: "I don't know what these bones belonged to, but I'm not touching them",
+        examine: "An old set of bones, scraps of old skin holding them in shape. I don't recognize the creature it used to be."
+      },
+      skeleton: {
+        names: ["skeleton"],
+        message: "Best left alone",
+        examine: "Thankfully, it doesn't seem to be human, although it's been mauled badly enough that I guess it could be?"
+      },
+      cave: {
+        names: ["cave", "den"],
+        message: "The cave is rather large to carry",
+        examine: "A small cave, fashioned as a home. I don't think the resident will be making an appearance for a while."
+      },
+      debris: {
+        names: ["debris", "rubble", "refuse"],
+        message: "I'm not touching that. It is an unrecognizable pile of filth",
+        examine: "An unrecognizable pile of filth."
+      },
+      smell: {
+        names: ["smell", "stench", "odor", "reek"],
+        message: "Even if I could take it I wouldn't want to",
+        examine: "It smells primarily of rotting flesh, but with a hint of something you've never smelt before.",
+        allIgnore: true
+      },
+      skin: {
+        names: ["skin"],
+        message: "I'd rather not touch that",
+        examine: "It's dry, and stretched taut. There are little bits of fur clinging to it."
+      },
+      flesh: {
+        names: ["flesh", "rotting flesh", "rot"],
+        message: "I can't actually find any of that here, it just smells like it",
+        examine: "I can't actually find any of that here, it just smells like it."
+      },
+      filth: {
+        names: ["filth"],
+        message: "Yeah no",
+        examine: "It looks disgusting."
+      }
     }
   },
   armory: {
@@ -488,7 +556,27 @@ const rooms = {
     failedBackText: "The hole in the roof closed up, somehow.",
     items: ["helmet"],
     disallowedTakes: {
-      "weapons": "There are no weapons left to take.",
+      weapons: {
+        names: ["weapons"],
+        message: "There are no weapons left to take",
+        examine: "There's none here."
+      },
+      weapon: {
+        names: ["weapon"],
+        message: "There is no weapon left to take",
+        examine: "There's none here.",
+        allIgnore: true
+      },
+      armory: {
+        names: ["armory"],
+        message: "I can't take an armory",
+        examine: "It looks like it used to store weapons. For what, I have no clue..."
+      },
+      rack: {
+        names: ["rack", "stand"],
+        message: "It's bolted to the wall",
+        examine: "It's empty."
+      }
     },
   },
   hub: {
@@ -516,6 +604,14 @@ const rooms = {
     },
     failedBackText: "There's no hole in the roof?..",
     items: [],
+    disallowedTakes: {
+      hole: {
+        names: ["hole", "opening"],
+        message: "I can't take a hole",
+        examine: "That leads back up, although I have no way of going that way.",
+        allIgnore: true
+      }
+    },
     isCheckpoint: true
   },
   toilet: {
@@ -530,7 +626,15 @@ const rooms = {
     look: "A small room with a sink. Good thing to have around.",
     passages: {south: "hub"},
     items: [],
-    objects: ["sink"]
+    objects: ["sink"],
+    disallowedTakes: {
+      porcelain: {
+        names: ["porcelain"],
+        message: "The porcelain is part of the sink",
+        examine: "White porcelain, slightly stained from age.",
+        allIgnore: true
+      }
+    }
   },
   redCake: {
     name: "The Red Cake room",
@@ -546,8 +650,35 @@ const rooms = {
     },
     items: ["redCake"],
     disallowedTakes: {
-      "table": "It's stuck to the floor with... red paint."
-    }
+      table: {
+        names: ["table"],
+        message: "It's stuck to the floor with... red paint",
+        examine: "A short coffee table, ideal for holding cakes."
+      },
+      lights: {
+        names: ["lights"],
+        message: "I'm not sure how you want me to accomplish that",
+        examine: "The light is being filtered through red glass of some kind."
+      },
+      light: {
+        names: ["light"],
+        message: "I'm not sure how you want me to accomplish that",
+        examine: "The light is being filtered through red glass of some kind.",
+        allIgnore: true
+      },
+      red: {
+        names: ["red", "redness", "color", "colour"],
+        message: "You are now red",
+        examine: "It's bright red, and a little overwhelming.",
+        allIgnore: true
+      },
+      glass: {
+        names: ["glass"],
+        message: "It's in the wall",
+        examine: "It's tinted red."
+      }
+    },
+    light: true
   },
   greenCake: {
     name: "The Green Cake room",
@@ -557,7 +688,37 @@ const rooms = {
       north: "hub",
       east: "blueCake"
     },
-    items: ["greenCake"]
+    items: ["greenCake"],
+    disallowedTakes: {
+      bench: {
+        names: ["bench"],
+        message: "It's stuck to the floor with... green paint",
+        examine: "A short bench, ideal for holding cakes."
+      },
+      lights: {
+        names: ["lights"],
+        message: "I'm not sure how you want me to accomplish that",
+        examine: "The light is being filtered through green glass of some kind."
+      },
+      light: {
+        names: ["light"],
+        message: "I'm not sure how you want me to accomplish that",
+        examine: "The light is being filtered through green glass of some kind.",
+        allIgnore: true
+      },
+      green: {
+        names: ["green", "greenness", "color", "colour"],
+        message: "You are now green",
+        examine: "It's bright green, and a little overwhelming.",
+        allIgnore: true
+      },
+      glass: {
+        names: ["glass"],
+        message: "It's in the wall",
+        examine: "It's tinted green."
+      }
+    },
+    light: true
   },
   blueCake: {
     name: "The Blue Cake room",
@@ -568,7 +729,44 @@ const rooms = {
       south: "redCake",
       southwest: "greenCake"
     },
-    items: ["blueCake"]
+    items: ["blueCake"],
+    disallowedTakes: {
+      lights: {
+        names: ["lights"],
+        message: "I'm not sure how you want me to accomplish that",
+        examine: "The light is being filtered through blue glass of some kind."
+      },
+      light: {
+        names: ["light"],
+        message: "I'm not sure how you want me to accomplish that",
+        examine: "The light is being filtered through blue glass of some kind.",
+        allIgnore: true
+      },
+      blue: {
+        names: ["blue", "blueness", "color", "colour"],
+        message: "You are now blue",
+        examine: "It's bright blue, and a little overwhelming.",
+        allIgnore: true
+      },
+      glass: {
+        names: ["glass"],
+        message: "It's in the wall",
+        examine: "It's tinted blue."
+      },
+      shades: {
+        names: ["shades"],
+        message: "You are now multiple shades",
+        examine: "Various shades of blue fill the room.",
+        allIgnore: true
+      },
+      shade: {
+        names: ["shade"],
+        message: "You are now a shade",
+        examine: "One of many shades of blue in the room.",
+        allIgnore: true
+      }
+    },
+    light: true
   },
   dusty: {
     name: "The Dusty room",
@@ -585,7 +783,11 @@ const rooms = {
     },
     items: [],
     disallowedTakes: {
-      "dust": "I'm not picking up dust!"
+      dust: {
+        names: ["dust"],
+        message: "I'm not picking up dust",
+        examine: "It's quite thick, suggesting it's been building up for quite some time."
+      }
     }
   },
   dust: {
@@ -603,7 +805,11 @@ const rooms = {
     },
     items: [],
     disallowedTakes: {
-      "dust": "I'm not picking up dust!"
+      dust: {
+        names: ["dust"],
+        message: "I'm not picking up dust",
+        examine: "It's quite thick, suggesting it's been building up for quite some time."
+      }
     }
   },
   nose: {

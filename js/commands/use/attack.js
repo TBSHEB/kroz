@@ -88,6 +88,7 @@ function handleAttack(item, target) {
       // Remove enemy and set flags
       if (target.combat.removeOnKill) {
         setRoomState("objects", target.id, false);
+        trackRoomChange(target.id, "object", false);
       }
       if (target.combat.setFlags) {
         for (const flag of target.combat.setFlags) {
@@ -102,6 +103,7 @@ function handleAttack(item, target) {
       if (target.combat.dropItems) {
         for (const item of target.combat.dropItems) {
           setRoomState("items", item);
+          trackRoomChange(item, "item");
         }
       }
       if (target.combat.giveItems) {
@@ -123,6 +125,7 @@ function handleAttack(item, target) {
   if (combat.turnCount === 1) {
     if (target.combat.removeOnKill) {
       setRoomState("objects", target.id, false);
+      trackRoomChange(target.id, "object", false);
     }
     if (target.combat.setFlags) {
       for (const flag of target.combat.setFlags) {
@@ -137,6 +140,7 @@ function handleAttack(item, target) {
     if (target.combat.dropItems) {
       for (const item of target.combat.dropItems) {
         setRoomState("items", item);
+        trackRoomChange(item, "item");
       }
     }
     if (target.combat.giveItems) {
@@ -147,6 +151,7 @@ function handleAttack(item, target) {
     if (target.combat.addObjects) {
       for (const object of target.combat.addObjects) {
         setRoomState("objects", object);
+        trackRoomChange(object, "object");
       }
     }
 
@@ -190,6 +195,7 @@ function handleAttack(item, target) {
   if (hitEnemy) {
     if (target.combat.removeOnKill) {
       setRoomState("objects", target.id, false);
+      trackRoomChange(target.id, "object", false);
     }
     if (target.combat.setFlags) {
       for (const flag of target.combat.setFlags) {
@@ -204,6 +210,7 @@ function handleAttack(item, target) {
     if (target.combat.dropItems) {
       for (const item of target.combat.dropItems) {
         setRoomState("items", item);
+        trackRoomChange(item, "item");
       }
     }
     if (target.combat.giveItems) {
@@ -214,6 +221,7 @@ function handleAttack(item, target) {
     if (target.combat.addObjects) {
       for (const object of target.combat.addObjects) {
         setRoomState("objects", object);
+        trackRoomChange(object, "object");
       }
     }
 

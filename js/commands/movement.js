@@ -125,7 +125,7 @@ function move(direction) {
       if (currentRoom.passages) {
         const directions = Object.keys(currentRoom.passages);
 
-        for (const direction of directions) {
+        for (let direction of directions) {
 
           if (currentRoom.mirrorDirections) {
             direction = flipDirection(direction);
@@ -169,7 +169,7 @@ function move(direction) {
       if (!foundDirection && currentRoom.restrictedPassages) {
         const directions = Object.keys(currentRoom.restrictedPassages);
 
-        for (const direction of directions) {
+        for (let direction of directions) {
 
           if (currentRoom.mirrorDirections) {
             direction = flipDirection(direction);

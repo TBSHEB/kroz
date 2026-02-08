@@ -472,6 +472,7 @@ function checkRiddleAnswer(potentialAnswer) {
 
         if (object.answer.removeOnAnswer) {
           setRoomState("objects", objectId, false);
+          trackRoomChange(objectId, "object", false);
         }
 
         return true;
