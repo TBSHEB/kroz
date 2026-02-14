@@ -55,23 +55,27 @@ const gameStateDisplay = document.getElementById('game-state-display');
 const roomStateDisplay = document.getElementById('room-state-display');
 const gameDisplay = outputElement.parentElement; // The scrollable container
 
+// Restore game state from save data
+function resetGameState(saveData) {
+    gameState.currentRoom = saveData.currentRoom;
+    gameState.previousRoom = saveData.previousRoom;
+    gameState.inventory = saveData.inventory;
+    gameState.flags = saveData.flags;
+    gameState.visitedRooms = saveData.visitedRooms;
+    gameState.combatState = saveData.combatState;
+    gameState.healthState = saveData.healthState;
+    gameState.poison = saveData.poison || 0;
+    gameState.itemCountdowns = saveData.itemCountdowns || {};
+    gameState.hazardState = saveData.hazardState || { room: "", count: 0 };
+    gameState.roomChanges = saveData.roomChanges;
+    gameState.lastCheckpoint = saveData.lastCheckpoint;
+}
+
 // Game initialization
 function initGame() {
     const autoSave = loadGame();
     if (autoSave) {
-        gameState.currentRoom = autoSave.currentRoom;
-        gameState.previousRoom = autoSave.previousRoom;
-        gameState.inventory = autoSave.inventory;
-        gameState.flags = autoSave.flags;
-        gameState.visitedRooms = autoSave.visitedRooms;
-        gameState.combatState = autoSave.combatState;
-        gameState.healthState = autoSave.healthState;
-        gameState.poison = autoSave.poison || 0;
-        gameState.itemCountdowns = autoSave.itemCountdowns || {};
-        gameState.hazardState = autoSave.hazardState || { room: "", count: 0 };
-        gameState.roomChanges = autoSave.roomChanges;
-        gameState.lastCheckpoint = autoSave.lastCheckpoint;
-
+        resetGameState(autoSave);
         console.log('Auto-save loaded');
     }
 
@@ -112,64 +116,8 @@ function handleCommand() {
         }
 
         // Handle disambiguation mode
-        if (gameState.disambiguationMatches.length > 0) {
-            // Check if user typed a valid command (exits disambiguation)
-            if (simpleCommands[mainCommand] || useAliases.includes(mainCommand) ||
-                complicatedCommands[mainCommand] || knownWords[mainCommand]) {
-                // Clear disambiguation state
-                gameState.disambiguationMatches = [];
-                gameState.disambiguationSearchName = "";
-                gameState.disambiguationOriginalCommand = "";
-                // Fall through to process as normal command
-            } else {
-                // Try to narrow down matches with user's input
-                const matches = gameState.disambiguationMatches;
-                const previousSearch = gameState.disambiguationSearchName;
-                const originalCommand = gameState.disambiguationOriginalCommand;
-
-                // Filter matches by checking if command matches any name (exact or word-based)
-                const narrowedMatches = matches.filter(match => {
-                    const itemData = items[match.id] || objects[match.id];
-                    if (!itemData || !itemData.names) return false;
-
-                    // Check if any name includes the command (exact match or as a word)
-                    return itemData.names.some(name => {
-                        if (name.includes(command)) return true;
-                        const words = name.split(' ');
-                        return words.includes(command);
-                    });
-                });
-
-                if (narrowedMatches.length === 0) {
-                    displayText(`You don't have the ${command} ${previousSearch}.`);
-                    gameState.disambiguationMatches = [];
-                    gameState.disambiguationSearchName = "";
-                    gameState.disambiguationOriginalCommand = "";
-                } else if (narrowedMatches.length === 1) {
-                    // Found it! Execute original command with specific item
-                    const item = narrowedMatches[0];
-                    gameState.disambiguationMatches = [];
-                    gameState.disambiguationSearchName = "";
-                    gameState.disambiguationOriginalCommand = "";
-
-                    // Execute the original command
-                    if (originalCommand === "take") {
-                        take([item.id]);
-                    } else if (originalCommand === "drop") {
-                        drop([item.id]);
-                    } else if (originalCommand === "examine") {
-                        examine([item.id]);
-                    }
-                } else {
-                    // Still ambiguous - update search name and ask again
-                    gameState.disambiguationMatches = narrowedMatches;
-                    gameState.disambiguationSearchName = `${command} ${previousSearch}`;
-                    displayText(`Which ${gameState.disambiguationSearchName}?`);
-                }
-
-                inputElement.value = '';
-                return; // Don't process as normal command, don't count time
-            }
+        if (handleDisambiguation(command, mainCommand)) {
+            return;
         }
 
         if (!gameState.partCommand) {
@@ -213,32 +161,14 @@ function handleCommand() {
                 displayText(simpleCommands[mainCommand].failedCommand(subject));
             } else if (useAliases.includes(mainCommand)) {
                 // Use command with args - extract and handle
-                let things = [];
-                const ignoreWords = ["the", "a", "an", "and"];
-
-                for (let i = 1; i < words.length; i++) {
-                    let word = words[i].replace(/[,\.;!?]+$/, "");
-
-                    if (word && !ignoreWords.includes(word)) {
-                        things.push(word);
-                    }
-                }
+                const things = parseThingsFromWords(words, 1);
                 handleUseCommand(mainCommand, things);
             } else if (complicatedCommands[mainCommand]) {
                 // If the user calls the say command, pass in everything else.
                 if (mainCommand === "say" || mainCommand === "speak" || mainCommand === "answer") {
                     say(rawCommand);
                 } else {
-                    let things = [];
-                    const ignoreWords = ["the", "a", "an", "and"];
-
-                    for (let i = 1; i < words.length; i++) {
-                        let word = words[i].replace(/[,\.;!?]+$/, "");
-
-                        if (word && !ignoreWords.includes(word)) {
-                            things.push(word);
-                        }
-                    }
+                    const things = parseThingsFromWords(words, 1);
                     if ((mainCommand === "take" || complicatedCommands[mainCommand] === complicatedCommands.take) && things.length === 1 && (things[0] === "all" || things[0] === "everything")) {
                         takeAll();
                     } else {
@@ -253,16 +183,7 @@ function handleCommand() {
             }
         } else {
             // In multi-step mode - continue the command
-            let things = [];
-            const ignoreWords = ["the", "a", "an", "and"];
-
-            for (let word of words) {
-                word = word.replace(/[,\.;!?]+$/, "");
-
-                if (word && !ignoreWords.includes(word)) {
-                    things.push(word);
-                }
-            }
+            const things = parseThingsFromWords(words);
 
             // Check if this is a use-system command
             if (aliasToAction[gameState.partCommand] !== undefined) {
@@ -296,56 +217,9 @@ function handleCommand() {
         }
         //reset room in case of movement
         currentRoom = rooms[gameState.currentRoom];
-        let skipHazCheck = false;
-
-        if (currentRoom?.hazard?.killIfInventory) {
-            for (const [item, message] of Object.entries(currentRoom.hazard.killIfInventory)) {
-                if (gameState.inventory.includes(item)) {
-                    gameState.healthState = 0;
-                    displayText(message);
-                    skipHazCheck = true;
-                }
-            }
-        }
-
-        // Check for hazard damage
-        if (gameState.currentRoom === oldRoom) {
-            if (currentRoom.hazard && !skipHazCheck) {
-                if ((currentRoom.hazard.unless && !gameState.flags.includes(currentRoom.hazard.unless)) || !currentRoom.hazard.unless) {
-                    //Recieve the hazard effects
-                    if (gameState.hazardState.room !== gameState.currentRoom) {
-                        gameState.hazardState.room = gameState.currentRoom;
-                        gameState.hazardState.count = 1;
-                    } else {
-                        gameState.hazardState.count += 1;
-                    }
-
-                    if (gameState.hazardState.count >= currentRoom.hazard.count) {
-                        gameState.hazardState.count = 0;
-                        if (currentRoom.hazard.message) {
-                            displayText(currentRoom.hazard.message);
-                        } else if (currentRoom.hazard.messages) {
-                            const randomMessage = currentRoom.hazard.messages[Math.floor(Math.random() * currentRoom.hazard.messages.length)];
-                            displayText(randomMessage);
-                        }
-                        if (currentRoom.hazard.damage) {
-                            gameState.healthState -= currentRoom.hazard.damage;
-                        }
-                    }
-
-                } else {
-                    // hazard is off
-                    gameState.hazardState.room = "";
-                    gameState.hazardState.count = 0;
-                }
-            } else {
-                // not in a room with a hazard, remove tracking
-                gameState.hazardState.room = "";
-                gameState.hazardState.count = 0;
-            }
-        } else {
-            gameState.hazardState.room = "";
-            gameState.hazardState.count = 0;
+        // Check hazards
+        if (!checkKillIfInventory(currentRoom)) {
+            processHazards(currentRoom, oldRoom);
         }
 
         // Update the turn count on command if there is combat in this room unless you have a part command going on
@@ -358,103 +232,8 @@ function handleCommand() {
             }
         }
 
-        // check for temporary items
-        for (const itemId of gameState.inventory) {
-
-            const tempConfig = typeof items[itemId]?.temporary === "function" ? items[itemId].temporary() : items[itemId]?.temporary;
-
-            if (tempConfig && gameState.itemCountdowns[itemId] === undefined) {
-                gameState.itemCountdowns[itemId] = 0;
-            }
-        }
-
-        // increment temporary items
-        for (const [item, count] of Object.entries(gameState.itemCountdowns)) {
-            const tempConfig = typeof items[item]?.temporary === "function" ? items[item].temporary() : items[item]?.temporary;
-
-            // if temporary is off, skip
-            if (!tempConfig) {
-                continue;
-            }
-
-            if (tempConfig.duration === count) {
-                // the item "expires" do the action
-                switch (tempConfig.onExpire) {
-                    case "destroy":
-                        // kill the player, and destroy all items in the room.
-                        if (currentRoom.items.includes(item) || gameState.inventory.includes(item)) {
-                            gameState.healthState = 0;
-                        }
-
-                        //  Delete the item and destroy objects
-                        for (const room of Object.keys(gameState.roomChanges)) {
-                            if (gameState.roomChanges[room]?.items?.added.includes(item)) {
-                                trackRoomChange(item, "item", false, room);
-                                setRoomState("items", item, false, room);
-                                if (rooms[room].objects) {
-                                    for (const object of rooms[room].objects) {
-                                        if (objects[object].destructible) {
-                                            setRoomState("objects", object, false, room)
-                                            trackRoomChange(object, "object", false, room);
-                                            if (objects[object].onDestruct) {
-                                                for (const flag of objects[object].onDestruct) {
-                                                    setGameState("flags", flag);
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-
-                        //display the appropriate message
-                        if (currentRoom.items.includes(item)) {
-                            displayText(tempConfig.onExpireMessage.floor);
-                        } else if (gameState.inventory.includes(item)) {
-                            displayText(tempConfig.onExpireMessage.inventory);
-                        } else {
-                            displayText(tempConfig.onExpireMessage.away);
-                        }
-                        break;
-
-                    case "extinguish":
-
-                        if (currentRoom.items.includes(item)) {
-                            displayText(tempConfig.onExpireMessage.floor);
-                        } else if (gameState.inventory.includes(item)) {
-                            displayText(tempConfig.onExpireMessage.inventory);
-                        }
-
-                        if (tempConfig.actionSetFlags) {
-                            for (const flag of tempConfig.actionSetFlags) {
-                                setGameState("flags", flag);
-                            }
-                        }
-                        if (tempConfig.actionUnsetFlags) {
-                            for (const flag of tempConfig.actionUnsetFlags) {
-                                setGameState("flags", flag, false);
-                            }
-                        }
-
-
-
-
-                }
-                delete gameState.itemCountdowns[item];
-            }
-            // check if the item has a message at this stage?
-            if (tempConfig.messages?.[count]) {
-                if (tempConfig.globalMessages || rooms[gameState.currentRoom].items.includes(item)) {
-                    displayText(tempConfig.messages[count]);
-                }
-            }
-
-            // increment the count
-            if (gameState.itemCountdowns[item] !== undefined) {
-                gameState.itemCountdowns[item]++;
-            }
-        }
-
+        // Process temporary items
+        processTemporaryItems(currentRoom);
 
         console.log('Command entered:', command);
 
@@ -468,17 +247,7 @@ function handleCommand() {
         updateDebugDisplays();
 
         // Update holding flags
-        for (const item in holdingFlags) {
-            if (gameState.inventory.includes(holdingFlags[item].item)) {
-                if (!gameState.flags.includes(holdingFlags[item].flag)) {
-                    setGameState("flags", holdingFlags[item].flag);
-                }
-            } else {
-                if (gameState.flags.includes(holdingFlags[item].flag)) {
-                    setGameState("flags", holdingFlags[item].flag, false);
-                }
-            }
-        };
+        updateHoldingFlags();
 
 
         // Give the enemy a turn if they aren't dead and are aggressive or in combat
@@ -596,18 +365,7 @@ function handlePlayerDeath() {
         const checkpointSave = loadGame("internal checkpoint");
 
         if (checkpointSave) {
-            gameState.currentRoom = checkpointSave.currentRoom;
-            gameState.previousRoom = checkpointSave.previousRoom;
-            gameState.inventory = checkpointSave.inventory;
-            gameState.flags = checkpointSave.flags;
-            gameState.visitedRooms = checkpointSave.visitedRooms;
-            gameState.combatState = checkpointSave.combatState;
-            gameState.healthState = checkpointSave.healthState;
-            gameState.poison = checkpointSave.poison || 0;
-            gameState.itemCountdowns = checkpointSave.itemCountdowns || {};
-            gameState.hazardState = checkpointSave.hazardState || { room: "", count: 0 };
-            gameState.roomChanges = checkpointSave.roomChanges;
-            gameState.lastCheckpoint = checkpointSave.lastCheckpoint;
+            resetGameState(checkpointSave);
 
             if (checkpointSave.roomChanges) {
                 applyRoomChanges(checkpointSave.roomChanges);

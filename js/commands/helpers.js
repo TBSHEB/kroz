@@ -1,5 +1,24 @@
 // ===== HELPER FUNCTIONS =====
 
+// Pick a random element from an array
+function pickRandom(array) {
+  return array[Math.floor(Math.random() * array.length)];
+}
+
+// Build alias-to-ID map from an array of item IDs
+function buildAliasMap(itemIds) {
+  const aliasToItemId = {};
+  for (const itemId of itemIds) {
+    const item = items[itemId];
+    if (item && item.names) {
+      for (const alias of item.names) {
+        aliasToItemId[alias.toLowerCase()] = itemId;
+      }
+    }
+  }
+  return aliasToItemId;
+}
+
 // Build a list of all things the player can currently interact with
 // Includes: room objects, room items, inventory items, generic disallowed items
 function buildInteractablesList() {
@@ -202,6 +221,22 @@ function clearUseState() {
   gameState.partCraftItems = [];
 }
 
+// Parse meaningful words from command input, filtering articles and punctuation
+function parseThingsFromWords(words, startIndex = 0) {
+  const ignoreWords = ["the", "a", "an", "and"];
+  const things = [];
+
+  for (let i = startIndex; i < words.length; i++) {
+    let word = words[i].replace(/[,\.;!?]+$/, "");
+
+    if (word && !ignoreWords.includes(word)) {
+      things.push(word);
+    }
+  }
+
+  return things;
+}
+
 function setGameState(field, data, adding = true) {
 
   if (adding === true) {
@@ -302,7 +337,7 @@ function processEnemyTurns() {
 
                 //Counter attack!
                 if (enemy.combat.counterAttackMessage) {
-                    const randomMessage = enemy.combat.counterAttackMessage[Math.floor(Math.random() * enemy.combat.counterAttackMessage.length)];
+                    const randomMessage = pickRandom(enemy.combat.counterAttackMessage);
                     displayText(randomMessage);
                 } else {
                     displayText(`The ${object} attacks!`);
@@ -313,7 +348,7 @@ function processEnemyTurns() {
 
                 if (dodge) {
                     if (enemy.combat.playerDodgeMessage) {
-                        const randomMessage = enemy.combat.playerDodgeMessage[Math.floor(Math.random() * enemy.combat.playerDodgeMessage.length)];
+                        const randomMessage = pickRandom(enemy.combat.playerDodgeMessage);
                         displayText(randomMessage);
                     } else {
                         displayText("You dodge");
@@ -339,17 +374,17 @@ function processEnemyTurns() {
                     }
 
                     if (enemy.combat.hitPlayerMessage) {
-                        const randomMessage = enemy.combat.hitPlayerMessage[Math.floor(Math.random() * enemy.combat.hitPlayerMessage.length)];
+                        const randomMessage = pickRandom(enemy.combat.hitPlayerMessage);
                         displayText(randomMessage);
                     } else {
                         displayText(`The ${object} hits you.`);
                     }
 
                     if (healthLost === 1) {
-                        const randomMessage = damageMessages.lowDamage[Math.floor(Math.random() * damageMessages.lowDamage.length)];
+                        const randomMessage = pickRandom(damageMessages.lowDamage);
                         displayText(randomMessage);
                     } else if (healthLost === 2) {
-                        const randomMessage = damageMessages.highDamage[Math.floor(Math.random() * damageMessages.highDamage.length)];
+                        const randomMessage = pickRandom(damageMessages.highDamage);
                         displayText(randomMessage);
                     } else {
                         displayText("You took a strange amount of damage");
@@ -640,4 +675,221 @@ function flipDirection(direction) {
     'se': 'nw'
   };
   return directionMap[direction] || direction;
+}
+
+
+// Check if player has items that cause instant death in hazard rooms
+function checkKillIfInventory(currentRoom) {
+    if (!currentRoom?.hazard?.killIfInventory) return false;
+
+    let killed = false;
+    for (const [item, message] of Object.entries(currentRoom.hazard.killIfInventory)) {
+        if (gameState.inventory.includes(item)) {
+            gameState.healthState = 0;
+            displayText(message);
+            killed = true;
+        }
+    }
+    return killed;
+}
+
+// Process environmental hazard damage
+function processHazards(currentRoom, oldRoom) {
+    if (gameState.currentRoom === oldRoom) {
+        if (currentRoom.hazard) {
+            if ((currentRoom.hazard.unless && !gameState.flags.includes(currentRoom.hazard.unless)) || !currentRoom.hazard.unless) {
+                //Recieve the hazard effects
+                if (gameState.hazardState.room !== gameState.currentRoom) {
+                    gameState.hazardState.room = gameState.currentRoom;
+                    gameState.hazardState.count = 1;
+                } else {
+                    gameState.hazardState.count += 1;
+                }
+
+                if (gameState.hazardState.count >= currentRoom.hazard.count) {
+                    gameState.hazardState.count = 0;
+                    if (currentRoom.hazard.message) {
+                        displayText(currentRoom.hazard.message);
+                    } else if (currentRoom.hazard.messages) {
+                        const randomMessage = pickRandom(currentRoom.hazard.messages);
+                        displayText(randomMessage);
+                    }
+                    if (currentRoom.hazard.damage) {
+                        gameState.healthState -= currentRoom.hazard.damage;
+                    }
+                }
+
+            } else {
+                // hazard is off
+                gameState.hazardState.room = "";
+                gameState.hazardState.count = 0;
+            }
+        } else {
+            // not in a room with a hazard, remove tracking
+            gameState.hazardState.room = "";
+            gameState.hazardState.count = 0;
+        }
+    } else {
+        gameState.hazardState.room = "";
+        gameState.hazardState.count = 0;
+    }
+}
+
+// Handle disambiguation when multiple items match
+// Returns true if input was consumed (caller should return early)
+function handleDisambiguation(command, mainCommand) {
+    if (gameState.disambiguationMatches.length === 0) return false;
+
+    const useAliases = Object.keys(aliasToAction);
+
+    if (simpleCommands[mainCommand] || useAliases.includes(mainCommand) ||
+        complicatedCommands[mainCommand] || knownWords[mainCommand]) {
+        gameState.disambiguationMatches = [];
+        gameState.disambiguationSearchName = "";
+        gameState.disambiguationOriginalCommand = "";
+        return false;
+    }
+
+    const matches = gameState.disambiguationMatches;
+    const previousSearch = gameState.disambiguationSearchName;
+    const originalCommand = gameState.disambiguationOriginalCommand;
+
+    const narrowedMatches = matches.filter(match => {
+        const itemData = items[match.id] || objects[match.id];
+        if (!itemData || !itemData.names) return false;
+
+        return itemData.names.some(name => {
+            if (name.includes(command)) return true;
+            const words = name.split(' ');
+            return words.includes(command);
+        });
+    });
+
+    if (narrowedMatches.length === 0) {
+        displayText(`You don't have the ${command} ${previousSearch}.`);
+        gameState.disambiguationMatches = [];
+        gameState.disambiguationSearchName = "";
+        gameState.disambiguationOriginalCommand = "";
+    } else if (narrowedMatches.length === 1) {
+        const item = narrowedMatches[0];
+        gameState.disambiguationMatches = [];
+        gameState.disambiguationSearchName = "";
+        gameState.disambiguationOriginalCommand = "";
+
+        if (originalCommand === "take") {
+            take([item.id]);
+        } else if (originalCommand === "drop") {
+            drop([item.id]);
+        } else if (originalCommand === "examine") {
+            examine([item.id]);
+        }
+    } else {
+        gameState.disambiguationMatches = narrowedMatches;
+        gameState.disambiguationSearchName = `${command} ${previousSearch}`;
+        displayText(`Which ${gameState.disambiguationSearchName}?`);
+    }
+
+    inputElement.value = '';
+    return true;
+}
+
+// Process temporary item countdowns and expiration
+function processTemporaryItems(currentRoom) {
+    for (const itemId of gameState.inventory) {
+        const tempConfig = typeof items[itemId]?.temporary === "function" ? items[itemId].temporary() : items[itemId]?.temporary;
+
+        if (tempConfig && gameState.itemCountdowns[itemId] === undefined) {
+            gameState.itemCountdowns[itemId] = 0;
+        }
+    }
+
+    for (const [item, count] of Object.entries(gameState.itemCountdowns)) {
+        const tempConfig = typeof items[item]?.temporary === "function" ? items[item].temporary() : items[item]?.temporary;
+
+        if (!tempConfig) {
+            continue;
+        }
+
+        if (tempConfig.duration === count) {
+            switch (tempConfig.onExpire) {
+                case "destroy":
+                    if (currentRoom.items.includes(item) || gameState.inventory.includes(item)) {
+                        gameState.healthState = 0;
+                    }
+
+                    for (const room of Object.keys(gameState.roomChanges)) {
+                        if (gameState.roomChanges[room]?.items?.added.includes(item)) {
+                            trackRoomChange(item, "item", false, room);
+                            setRoomState("items", item, false, room);
+                            if (rooms[room].objects) {
+                                for (const object of rooms[room].objects) {
+                                    if (objects[object].destructible) {
+                                        setRoomState("objects", object, false, room)
+                                        trackRoomChange(object, "object", false, room);
+                                        if (objects[object].onDestruct) {
+                                            for (const flag of objects[object].onDestruct) {
+                                                setGameState("flags", flag);
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    if (currentRoom.items.includes(item)) {
+                        displayText(tempConfig.onExpireMessage.floor);
+                    } else if (gameState.inventory.includes(item)) {
+                        displayText(tempConfig.onExpireMessage.inventory);
+                    } else {
+                        displayText(tempConfig.onExpireMessage.away);
+                    }
+                    break;
+
+                case "extinguish":
+
+                    if (currentRoom.items.includes(item)) {
+                        displayText(tempConfig.onExpireMessage.floor);
+                    } else if (gameState.inventory.includes(item)) {
+                        displayText(tempConfig.onExpireMessage.inventory);
+                    }
+
+                    if (tempConfig.actionSetFlags) {
+                        for (const flag of tempConfig.actionSetFlags) {
+                            setGameState("flags", flag);
+                        }
+                    }
+                    if (tempConfig.actionUnsetFlags) {
+                        for (const flag of tempConfig.actionUnsetFlags) {
+                            setGameState("flags", flag, false);
+                        }
+                    }
+            }
+            delete gameState.itemCountdowns[item];
+        }
+        if (tempConfig.messages?.[count]) {
+            if (tempConfig.globalMessages || rooms[gameState.currentRoom].items.includes(item)) {
+                displayText(tempConfig.messages[count]);
+            }
+        }
+
+        if (gameState.itemCountdowns[item] !== undefined) {
+            gameState.itemCountdowns[item]++;
+        }
+    }
+}
+
+// Sync inventory-dependent flags
+function updateHoldingFlags() {
+    for (const item in holdingFlags) {
+        if (gameState.inventory.includes(holdingFlags[item].item)) {
+            if (!gameState.flags.includes(holdingFlags[item].flag)) {
+                setGameState("flags", holdingFlags[item].flag);
+            }
+        } else {
+            if (gameState.flags.includes(holdingFlags[item].flag)) {
+                setGameState("flags", holdingFlags[item].flag, false);
+            }
+        }
+    }
 }

@@ -198,13 +198,13 @@ function handleOperate(verb, item) {
     combat.eatCount++;
 
     // Display eat message
-    const eatMsg = item.combat.eatMessage[Math.floor(Math.random() * item.combat.eatMessage.length)];
+    const eatMsg = pickRandom(item.combat.eatMessage);
     displayText(eatMsg);
 
     // Check if killed
     if (combat.eatCount >= item.combat.requiredEats) {
       // Kill enemy
-      const killMsg = item.combat.killMessage[Math.floor(Math.random() * item.combat.killMessage.length)];
+      const killMsg = pickRandom(item.combat.killMessage);
       displayText(killMsg);
 
       // Remove enemy and set flags

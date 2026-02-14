@@ -76,13 +76,13 @@ function handleAttack(item, target) {
     combat.eatCount++;
 
     // Display eat message
-    const eatMsg = target.combat.eatMessage[Math.floor(Math.random() * target.combat.eatMessage.length)];
+    const eatMsg = pickRandom(target.combat.eatMessage);
     displayText(eatMsg);
 
     // Check if killed
     if (combat.eatCount >= target.combat.requiredEats) {
       // Kill enemy
-      const killMsg = target.combat.killMessage[Math.floor(Math.random() * target.combat.killMessage.length)];
+      const killMsg = pickRandom(target.combat.killMessage);
       displayText(killMsg);
 
       // Remove enemy and set flags
@@ -156,7 +156,7 @@ function handleAttack(item, target) {
     }
 
 
-    const randomMessage = target.combat.instakillMessage[Math.floor(Math.random() * target.combat.instakillMessage.length)];
+    const randomMessage = pickRandom(target.combat.instakillMessage);
     displayText(randomMessage);
     delete gameState.combatState[target.id];
     return true;
@@ -170,7 +170,7 @@ function handleAttack(item, target) {
       hitEnemy = true;
     } else {
       if (target.combat.missMessage) {
-        const randomMessage = target.combat.missMessage[Math.floor(Math.random() * target.combat.missMessage.length)];
+        const randomMessage = pickRandom(target.combat.missMessage);
         displayText(randomMessage)
       } else {
         displayText(`The ${target.id} dodges.`);
@@ -184,7 +184,7 @@ function handleAttack(item, target) {
       hitEnemy = true;
     } else {
       if (target.combat.dodgeMessage) {
-        const randomMessage = target.combat.dodgeMessage[Math.floor(Math.random() * target.combat.dodgeMessage.length)];
+        const randomMessage = pickRandom(target.combat.dodgeMessage);
         displayText(randomMessage)
       } else {
         displayText(`The ${target.id} dodges.`);
@@ -226,7 +226,7 @@ function handleAttack(item, target) {
     }
 
 
-    const randomMessage = target.combat.killMessage[Math.floor(Math.random() * target.combat.killMessage.length)]; //make this random
+    const randomMessage = pickRandom(target.combat.killMessage);
     delete gameState.combatState[target.id];
     displayText(randomMessage);
   }

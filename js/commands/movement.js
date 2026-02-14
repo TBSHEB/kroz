@@ -1,5 +1,40 @@
 // ===== MOVEMENT COMMANDS =====
 
+// Handle room transition: entry messages, onExit flags, first-visit vs revisit
+function performRoomTransition(direction, targetRoom) {
+  const currentRoom = rooms[gameState.currentRoom];
+
+  if (currentRoom.entryMessages && currentRoom.entryMessages[direction]) {
+    displayText(currentRoom.entryMessages[direction]);
+  }
+
+  if (currentRoom.onExit && gameState.visitedRooms.includes(gameState.currentRoom)) {
+    if (currentRoom.onExit.setFlags) {
+      for (const flag of currentRoom.onExit.setFlags) {
+        if (!gameState.flags.includes(flag)) {
+          gameState.flags.push(flag);
+        }
+      }
+    }
+  }
+
+  gameState.previousRoom = gameState.currentRoom;
+  gameState.currentRoom = targetRoom;
+
+  if (!gameState.visitedRooms.includes(gameState.currentRoom)) {
+    gameState.visitedRooms.push(gameState.currentRoom);
+    initializeCombat();
+    look();
+    if (rooms[gameState.currentRoom].isCheckpoint) {
+      gameState.lastCheckpoint = gameState.currentRoom;
+      saveGame(gameState, "internal checkpoint");
+    }
+  } else {
+    const roomName = typeof rooms[gameState.currentRoom].name === "function" ? rooms[gameState.currentRoom].name() : rooms[gameState.currentRoom].name;
+    displayRoomTitle(roomName);
+  }
+}
+
 function move(direction) {
   const currentRoom = rooms[gameState.currentRoom];
 
@@ -10,33 +45,7 @@ function move(direction) {
     }
 
     if (currentRoom.passages && currentRoom.passages[direction]) {
-      if (currentRoom.entryMessages && currentRoom.entryMessages[direction]) {
-        displayText(currentRoom.entryMessages[direction]);
-      }
-      // Handle onExit actions
-      if (currentRoom.onExit && gameState.visitedRooms.includes(gameState.currentRoom)) {
-        if (currentRoom.onExit.setFlags) {
-          for (const flag of currentRoom.onExit.setFlags) {
-            if (!gameState.flags.includes(flag)) {
-              gameState.flags.push(flag);
-            }
-          }
-        }
-      }
-      gameState.previousRoom = gameState.currentRoom;
-      gameState.currentRoom = currentRoom.passages[direction];
-      if (!gameState.visitedRooms.includes(gameState.currentRoom)) {
-        gameState.visitedRooms.push(gameState.currentRoom);
-        initializeCombat();
-        look();
-        if (rooms[gameState.currentRoom].isCheckpoint) {
-          gameState.lastCheckpoint = gameState.currentRoom;
-          saveGame(gameState, "internal checkpoint");
-        }
-      } else {
-        const roomName = typeof rooms[gameState.currentRoom].name === "function" ? rooms[gameState.currentRoom].name() : rooms[gameState.currentRoom].name;
-        displayRoomTitle(roomName);
-      }
+      performRoomTransition(direction, currentRoom.passages[direction]);
       return;
     }
 
@@ -70,33 +79,7 @@ function move(direction) {
       }
 
       // All requirements met
-      if (currentRoom.entryMessages && currentRoom.entryMessages[direction]) {
-        displayText(currentRoom.entryMessages[direction]);
-      }
-      // Handle onExit actions
-      if (currentRoom.onExit && gameState.visitedRooms.includes(gameState.currentRoom)) {
-        if (currentRoom.onExit.setFlags) {
-          for (const flag of currentRoom.onExit.setFlags) {
-            if (!gameState.flags.includes(flag)) {
-              gameState.flags.push(flag);
-            }
-          }
-        }
-      }
-      gameState.previousRoom = gameState.currentRoom;
-      gameState.currentRoom = restrictedPassage.room;
-      if (!gameState.visitedRooms.includes(gameState.currentRoom)) {
-        gameState.visitedRooms.push(gameState.currentRoom);
-        initializeCombat();
-        look();
-        if (rooms[gameState.currentRoom].isCheckpoint) {
-          gameState.lastCheckpoint = gameState.currentRoom;
-          saveGame(gameState, "internal checkpoint");
-        }
-      } else {
-        const roomName = typeof rooms[gameState.currentRoom].name === "function" ? rooms[gameState.currentRoom].name() : rooms[gameState.currentRoom].name;
-        displayRoomTitle(roomName);
-      }
+      performRoomTransition(direction, restrictedPassage.room);
       return;
     }
 
@@ -132,34 +115,7 @@ function move(direction) {
           }
 
           if (currentRoom.passages[direction] === gameState.previousRoom) {
-            if (currentRoom.entryMessages && currentRoom.entryMessages[direction]) {
-              displayText(currentRoom.entryMessages[direction]);
-            }
-            // Handle onExit actions
-            if (currentRoom.onExit && gameState.visitedRooms.includes(gameState.currentRoom)) {
-              if (currentRoom.onExit.setFlags) {
-                for (const flag of currentRoom.onExit.setFlags) {
-                  if (!gameState.flags.includes(flag)) {
-                    gameState.flags.push(flag);
-                  }
-                }
-              }
-            }
-            gameState.previousRoom = gameState.currentRoom;
-            gameState.currentRoom = currentRoom.passages[direction];
-            if (!gameState.visitedRooms.includes(gameState.currentRoom)) {
-              gameState.visitedRooms.push(gameState.currentRoom);
-              initializeCombat();
-              look();
-              if (rooms[gameState.currentRoom].isCheckpoint) {
-                gameState.lastCheckpoint = gameState.currentRoom;
-                saveGame(gameState, "internal checkpoint");
-              }
-            } else {
-              const roomName = typeof rooms[gameState.currentRoom].name === "function" ? rooms[gameState.currentRoom].name() : rooms[gameState.currentRoom].name;
-        displayRoomTitle(roomName);
-            }
-            foundDirection = true;
+            performRoomTransition(direction, currentRoom.passages[direction]);
             return;
           }
         }
@@ -216,34 +172,7 @@ function move(direction) {
 
 
             // All requirements met
-            if (currentRoom.entryMessages && currentRoom.entryMessages[direction]) {
-              displayText(currentRoom.entryMessages[direction]);
-            }
-            // Handle onExit actions
-            if (currentRoom.onExit && gameState.visitedRooms.includes(gameState.currentRoom)) {
-              if (currentRoom.onExit.setFlags) {
-                for (const flag of currentRoom.onExit.setFlags) {
-                  if (!gameState.flags.includes(flag)) {
-                    gameState.flags.push(flag);
-                  }
-                }
-              }
-            }
-            gameState.previousRoom = gameState.currentRoom;
-            gameState.currentRoom = currentRoom.restrictedPassages[direction].room;
-            if (!gameState.visitedRooms.includes(gameState.currentRoom)) {
-              gameState.visitedRooms.push(gameState.currentRoom);
-              initializeCombat();
-              look();
-              if (rooms[gameState.currentRoom].isCheckpoint) {
-                gameState.lastCheckpoint = gameState.currentRoom;
-                saveGame(gameState, "internal checkpoint");
-              }
-            } else {
-              const roomName = typeof rooms[gameState.currentRoom].name === "function" ? rooms[gameState.currentRoom].name() : rooms[gameState.currentRoom].name;
-        displayRoomTitle(roomName);
-            }
-            foundDirection = true;
+            performRoomTransition(direction, currentRoom.restrictedPassages[direction].room);
             return;
           }
         }

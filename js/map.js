@@ -833,9 +833,27 @@ const rooms = {
     },
     items: [],
     disallowedTakes: {
-      "snot": "Although this room is shaped exactly like a standard nose, there's no snot here.",
-      "boogers": "Although this room is shaped exactly like a standard nose, there's no boogers here.",
-      "nose hairs": "Even if there were nose hairs here, I'm not going to touch those."
+      snot: {
+        names: ["snot", "boogers", "booger", "mucus"],
+        message: "Although this room is shaped exactly like a standard nose, there's no mucus here",
+        examine: "Fortunately, there's very little of that here!",
+        allIgnore: true
+      },
+      nosehairs: {
+        names: ["nose hairs", "nose hair", "nosehairs", "nosehair", "hairs", "hair"],
+        message: "Even if there were nose hairs here, I'm not going to touch those",
+        examine: "Thankfully, this isn't actually a giant nose, so there are no nose hairs."
+      },
+      nose: {
+        names: ["nose"],
+        message: "I've already got one of those. I don't need another one",
+        examine: "Just because it looks like a nose, doesn't mean it is one!"
+      },
+      hole: {
+        names: ["hole", "opening"],
+        message: "This hole is actually low enough I can touch it, but I still can't take holes",
+        examine: "Looking up through the hole, I can see a staircase above that ends here. I might be able to climb up, but it's just out of reach."
+      }
     }
   },
   topGlass: {
@@ -861,7 +879,14 @@ const rooms = {
       }
     },
     items: ["shovel"],
-    disallowedTakes: {},
+    disallowedTakes: {
+      shattered: {
+        names: ["shattered remains", "remains", "shards", "shattered glass", "broken glass"],
+        hiddenUnlessHasFlag: "glassBroken",
+        message: "I'd rather not cut my hands trying to pick it up",
+        examine: "Many tiny fragments of sharp glass. I probably shouldn't touch those."
+      }
+    },
     objects: ["glass"]
   },
   bottomGlass: {
@@ -889,7 +914,12 @@ const rooms = {
     },
     items: [],
     disallowedTakes: {
-      "glass": "I'd rather not cut myself thanks."
+      shattered: {
+        names: ["shattered remains", "remains", "shards", "shattered glass", "broken glass"],
+        hiddenUnlessHasFlag: "glassBroken",
+        message: "I'd rather not cut my hands trying to pick it up",
+        examine: "Many tiny fragments of sharp glass. I probably shouldn't touch those."
+      }
     },
     objects: ["glass"]
   },
@@ -902,7 +932,14 @@ const rooms = {
       south: "maze2",
       west: "maze2"
     },
-    items: []
+    items: [],
+    disallowedTakes: {
+      features: {
+        names: ["identifying features", "features", "feature"],
+        message: "Yeah there's none of those here",
+        examine: "I wish there was something to tell these rooms apart, but alas, there's not."
+      }
+    }
   },
   maze2: {
     name: "The Maze",
@@ -913,7 +950,14 @@ const rooms = {
       south: "maze3",
       west: "maze1"
     },
-    items: []
+    items: [],
+    disallowedTakes: {
+      features: {
+        names: ["identifying features", "features", "feature"],
+        message: "Yeah there's none of those here",
+        examine: "I wish there was something to tell these rooms apart, but alas, there's not."
+      }
+    }
   },
   maze3: {
     name: "The Maze",
@@ -924,7 +968,14 @@ const rooms = {
       south: "maze4",
       west: "maze4"
     },
-    items: []
+    items: [],
+    disallowedTakes: {
+      features: {
+        names: ["identifying features", "features", "feature"],
+        message: "Yeah there's none of those here",
+        examine: "I wish there was something to tell these rooms apart, but alas, there's not."
+      }
+    }
   },
   maze4: {
     name: "The Maze",
@@ -935,7 +986,14 @@ const rooms = {
       south: "maze3",
       west: "maze3"
     },
-    items: []
+    items: [],
+    disallowedTakes: {
+      features: {
+        names: ["identifying features", "features", "feature"],
+        message: "Yeah there's none of those here",
+        examine: "I wish there was something to tell these rooms apart, but alas, there's not."
+      }
+    }
   },
   maze5: {
     name: "The Maze",
@@ -946,7 +1004,14 @@ const rooms = {
       south: "maze6",
       west: "maze4"
     },
-    items: []
+    items: [],
+    disallowedTakes: {
+      features: {
+        names: ["identifying features", "features", "feature"],
+        message: "Yeah there's none of those here",
+        examine: "I wish there was something to tell these rooms apart, but alas, there's not."
+      }
+    }
   },
   maze6: {
     name: "The Maze",
@@ -957,7 +1022,14 @@ const rooms = {
       south: "maze5",
       west: "maze5"
     },
-    items: []
+    items: [],
+    disallowedTakes: {
+      features: {
+        names: ["identifying features", "features", "feature"],
+        message: "Yeah there's none of those here",
+        examine: "I wish there was something to tell these rooms apart, but alas, there's not."
+      }
+    }
   },
   maze7: {
     name: "The Maze",
@@ -968,7 +1040,14 @@ const rooms = {
       south: "maze6",
       west: "maze8"
     },
-    items: []
+    items: [],
+    disallowedTakes: {
+      features: {
+        names: ["identifying features", "features", "feature"],
+        message: "Yeah there's none of those here",
+        examine: "I wish there was something to tell these rooms apart, but alas, there's not."
+      }
+    }
   },
   maze8: {
     name: "The Maze",
@@ -979,7 +1058,14 @@ const rooms = {
       south: "maze7",
       west: "maze9"
     },
-    items: []
+    items: [],
+    disallowedTakes: {
+      features: {
+        names: ["identifying features", "features", "feature"],
+        message: "Yeah there's none of those here",
+        examine: "I wish there was something to tell these rooms apart, but alas, there's not."
+      }
+    }
   },
   maze9: {
     name: "The Maze",
@@ -991,7 +1077,14 @@ const rooms = {
       west: "maze8",
       northwest: "dirt"
     },
-    items: []
+    items: [],
+    disallowedTakes: {
+      features: {
+        names: ["identifying features", "features", "feature"],
+        message: "Yeah there's none of those here",
+        examine: "I wish there was something to tell these rooms apart, but alas, there's not."
+      }
+    }
   },
   maze10: {
     name: "The Maze",
@@ -1002,7 +1095,14 @@ const rooms = {
       south: "maze12",
       west: "maze7"
     },
-    items: []
+    items: [],
+    disallowedTakes: {
+      features: {
+        names: ["identifying features", "features", "feature"],
+        message: "Yeah there's none of those here",
+        examine: "I wish there was something to tell these rooms apart, but alas, there's not."
+      }
+    }
   },
   maze11: {
     name: "The Maze",
@@ -1013,7 +1113,14 @@ const rooms = {
       south: "deadEnd2",
       west: "maze11"
     },
-    items: []
+    items: [],
+    disallowedTakes: {
+      features: {
+        names: ["identifying features", "features", "feature"],
+        message: "Yeah there's none of those here",
+        examine: "I wish there was something to tell these rooms apart, but alas, there's not."
+      }
+    }
   },
   maze12: {
     name: "The Maze",
@@ -1024,7 +1131,14 @@ const rooms = {
       south: "maze10",
       west: "maze10"
     },
-    items: []
+    items: [],
+    disallowedTakes: {
+      features: {
+        names: ["identifying features", "features", "feature"],
+        message: "Yeah there's none of those here",
+        examine: "I wish there was something to tell these rooms apart, but alas, there's not."
+      }
+    }
   },
   maze13: {
     name: "The Maze",
@@ -1053,7 +1167,14 @@ const rooms = {
       north: "You slide down a hole, falling onto the hard stone floor of",
       west: "You slide down a hole, falling onto the hard stone floor of"
     },
-    items: []
+    items: [],
+    disallowedTakes: {
+      features: {
+        names: ["identifying features", "features", "feature"],
+        message: "Yeah there's none of those here",
+        examine: "I wish there was something to tell these rooms apart, but alas, there's not."
+      }
+    }
   },
   deadEnd2: {
     name: "Dead end",
@@ -1061,11 +1182,16 @@ const rooms = {
     passages: {west: "maze11"},
     items: [],
     disallowedTakes: {
-      "dead person": "I don't think I should touch it.",
-      "person": "I don't think I should touch it.",
-      "body": "I don't think I should touch it.",
-      "corpse": "I don't think I should touch it.",
-      "cadaver": "No.",
+      body: {
+        names: ["dead person", "person", "body", "corpse"],
+        message: "I don't think I should touch it",
+        examine: "He's been here quite a while, there's not much left of him."
+      },
+      cadaver: {
+        names: ["cadaver"],
+        message: "No",
+        examine: "I don't think this is the right situation to use that term."
+      }
     }
   },
   dirt: {
@@ -1082,9 +1208,6 @@ const rooms = {
       }
     },
     items: [],
-    disallowedTakes: {
-      "dirt": "There's too much."
-    },
     objects: ["dirt"]
   },
   small: {

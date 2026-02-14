@@ -64,18 +64,7 @@ function take(things, all = false) {
 
 
     // Build alias-to-itemId map for items in this room
-    const aliasToItemId = {};
-    if (currentRoom.items) {
-      for (const itemId of currentRoom.items) {
-        const item = items[itemId];
-        // Add all names for this item
-        if (item.names) {
-          for (const alias of item.names) {
-            aliasToItemId[alias.toLowerCase()] = itemId;
-          }
-        }
-      }
-    }
+    const aliasToItemId = currentRoom.items ? buildAliasMap(currentRoom.items) : {};
 
     // Build alias-to-key map for disallowedTakes (supports both string and object format)
     const disallowedAliasToKey = {};
@@ -235,18 +224,7 @@ function drop(things) {
     let feedback = "";
 
     // Build alias-to-itemId map for items in the inventory
-    const aliasToItemId = {};
-    if (gameState.inventory.length !== 0) {
-      for (const itemId of gameState.inventory) {
-        const item = items[itemId];
-        // Add all names for this item
-        if (item.names) {
-          for (const alias of item.names) {
-            aliasToItemId[alias.toLowerCase()] = itemId;
-          }
-        }
-      }
-    }
+    const aliasToItemId = buildAliasMap(gameState.inventory);
 
     if (things.length !== 1) {
       const dropped = new Set();
@@ -341,17 +319,7 @@ function examine(things) {
 
       // Check room items
       if (!found && currentRoom.items && currentRoom.items.length !== 0) {
-        const aliasToItemId = {};
-
-        for (const itemId of currentRoom.items) {
-          const item = items[itemId];
-
-          if (item.names) {
-            for (const alias of item.names) {
-              aliasToItemId[alias.toLowerCase()] = itemId;
-            }
-          }
-        }
+        const aliasToItemId = buildAliasMap(currentRoom.items);
 
         if (aliasToItemId[things[0]]) {
           const item = items[aliasToItemId[things[0]]];
@@ -368,17 +336,7 @@ function examine(things) {
 
       // Check inventory items
       if (!found && gameState.inventory && gameState.inventory.length !== 0) {
-        const aliasToItemId = {};
-
-        for (const itemId of gameState.inventory) {
-          const item = items[itemId];
-
-          if (item.names) {
-            for (const alias of item.names) {
-              aliasToItemId[alias.toLowerCase()] = itemId;
-            }
-          }
-        }
+        const aliasToItemId = buildAliasMap(gameState.inventory);
 
         if (aliasToItemId[things[0]]) {
           const item = items[aliasToItemId[things[0]]];
@@ -420,29 +378,8 @@ function examine(things) {
       }
     } else {
       // Build alias maps once, outside the loop
-      const roomItemAliases = {};
-      if (currentRoom.items && currentRoom.items.length !== 0) {
-        for (const itemId of currentRoom.items) {
-          const item = items[itemId];
-          if (item.names) {
-            for (const alias of item.names) {
-              roomItemAliases[alias.toLowerCase()] = itemId;
-            }
-          }
-        }
-      }
-
-      const inventoryAliases = {};
-      if (gameState.inventory && gameState.inventory.length !== 0) {
-        for (const itemId of gameState.inventory) {
-          const item = items[itemId];
-          if (item.names) {
-            for (const alias of item.names) {
-              inventoryAliases[alias.toLowerCase()] = itemId;
-            }
-          }
-        }
-      }
+      const roomItemAliases = currentRoom.items ? buildAliasMap(currentRoom.items) : {};
+      const inventoryAliases = buildAliasMap(gameState.inventory);
 
       // Check each thing against all categories
       for (const thing of things) {
