@@ -10,9 +10,11 @@ const objects = {
       grab: {
         allowedVerbs: ["use", "pull", "yank", "break", "take", "grab"],
         message: "You reach up and grab the chandelier. Unfortunately, the chains holding it up aren't strong. They break and the chandelier falls to the floor, shattering on impact. The chain, and part of the roof also collapse.\nThe dust clears. There is a hole in the roof, and the shattered remains of chain on the floor. Within the remains of the chain appears to be a key.",
-        dropItems: ["dungeonKey"],
-        setFlags: ["dungeonLampTaken"],
-        removeObject: true
+        effects: {
+          spawnItems: {items: ["dungeonKey"]},
+          setFlags: ["dungeonLampTaken"],
+          removeObjects: {objects: ["dungeonLamp"]}
+        }
       }
     },
     applyWith: {
@@ -32,15 +34,19 @@ const objects = {
         allowedVerbs: ["open", "lift"],
         message: "You open the trapdoor.",
         requireNotFlags: ["dungeonTrapdoorOpen"],
-        setFlags: ["dungeonTrapdoorOpen"],
-        failMessage: "The trapdoor is already open."
+        failMessage: "The trapdoor is already open.",
+        effects: {
+          setFlags: ["dungeonTrapdoorOpen"]
+        }
       },
       close: {
         allowedVerbs: ["close", "shut"],
         message: "You shut the trapdoor.",
         requireFlags: ["dungeonTrapdoorOpen"],
-        unsetFlags: ["dungeonTrapdoorOpen"],
-        failMessage: "The trapdoor is already closed."
+        failMessage: "The trapdoor is already closed.",
+        effects: {
+          unsetFlags: ["dungeonTrapdoorOpen"]
+        }
       }
     },
     applyWith: {
@@ -48,8 +54,10 @@ const objects = {
         requireFlags: ["dungeonWoodTaken"],
         message: "You unlock the trapdoor",
         failMessage: "What trapdoor?",
-        setFlags: ["dungeonTrapdoorUnlocked"],
-        consumeItem: true
+        effects: {
+          setFlags: ["dungeonTrapdoorUnlocked"],
+          removeItems: ["dungeonKey"]
+        }
       },
       _default: {
         message: "That doesn't work on the trapdoor."
@@ -63,7 +71,9 @@ const objects = {
     applyWith: {
       pick3: {
         message: "You chip away at the wall. A chunk of concrete falls to the ground.",
-        dropItems: ["concrete"]
+        effects: {
+          spawnItems: {items: ["concrete"]}
+        }
       },
       _default: {
         message: (item) => `You can't use the ${item.name} on the wall.`
@@ -126,8 +136,10 @@ const objects = {
       },
 
       //on kill
-      setFlags: ["trollGone"],
-      removeOnKill: true,
+      effects: {
+        setFlags: ["trollGone"],
+        removeObjects: {objects: ["troll"]}
+      },
     },
     applyWith: {
       _default: {
@@ -140,31 +152,36 @@ const objects = {
   cavein: {
     names: ["cavein", "cave-in", "blockage", "rubble", "rocks", "debris", "stones", "collapse"],
     examine: "A pile of rubble and broken rock blocks the passage. It looks like it could be cleared with the right tool.",
-    removeMessage: "\nHowever, the cavein is passable now.",
     applyWith: {
       pick1: {
         requireNotFlags: ["pick1UsedOnCavein"],
         message: "You chip away at the rubble. The frail pickaxe breaks.",
-        setFlags: ["pick1UsedOnCavein"],
-        consumeItem: true,
-        removeObjectIfAllFlags: ["pick1UsedOnCavein", "pick2UsedOnCavein"],
-        setFlagsIfAllFlags: {set: ["caveinRemoved"], required: ["pick1UsedOnCavein", "pick2UsedOnCavein"]}
+        effects: {
+          setFlags: ["pick1UsedOnCavein"],
+          removeItems: ["pick1"],
+          removeObjectsIfAllFlags: {required: ["pick1UsedOnCavein", "pick2UsedOnCavein"], objects: ["cavein"], message: "\nHowever, the cavein is passable now."},
+          setFlagsIfAllFlags: {set: ["caveinRemoved"], required: ["pick1UsedOnCavein", "pick2UsedOnCavein"]}
+        }
       },
       pick2: {
         requireNotFlags: ["pick2UsedOnCavein"],
         message: "You clear some of the rubble. Unfortunately, the pickaxe breaks.",
-        setFlags: ["pick2UsedOnCavein"],
-        consumeItem: true,
-        removeObjectIfAllFlags: ["pick1UsedOnCavein", "pick2UsedOnCavein"],
-        setFlagsIfAllFlags: {set: ["caveinRemoved"], required: ["pick1UsedOnCavein", "pick2UsedOnCavein"]}
+        effects: {
+          setFlags: ["pick2UsedOnCavein"],
+          removeItems: ["pick2"],
+          removeObjectsIfAllFlags: {required: ["pick1UsedOnCavein", "pick2UsedOnCavein"], objects: ["cavein"], message: "\nHowever, the cavein is passable now."},
+          setFlagsIfAllFlags: {set: ["caveinRemoved"], required: ["pick1UsedOnCavein", "pick2UsedOnCavein"]}
+        }
       },
       _combinations: [
         {
           items: ["pick1", "pick2"],
           message: "You use both of the pickaxes. Somehow, they both break in the process of clearing the rubble.",
-          consumeItems: ["pick1", "pick2"],
-          setFlags: ["caveinRemoved", "pick1UsedOnCavein", "pick2UsedOnCavein"],
-          removeObject: true
+          effects: {
+            removeItems: ["pick1", "pick2"],
+            setFlags: ["caveinRemoved", "pick1UsedOnCavein", "pick2UsedOnCavein"],
+            removeObjects: {objects: ["cavein"]}
+          }
         }
       ],
       _default: {
@@ -231,8 +248,10 @@ const objects = {
       ],
 
       //on kill
-      setFlags: ["ogreGone"],
-      removeOnKill: true,
+      effects: {
+        setFlags: ["ogreGone"],
+        removeObjects: {objects: ["ogre"]}
+      },
     },
     applyWith: {
       _default: {
@@ -282,15 +301,19 @@ const objects = {
     applyWith: {
       brick1: {
         message: "You throw the brick at the glass. It shatters.",
-        consumeItem: true,
-        setFlags: ["glassBroken"],
-        removeObject: true
+        effects: {
+          removeItems: ["brick1"],
+          setFlags: ["glassBroken"],
+          removeObjects: {objects: ["glass"]}
+        }
       },
       brick2: {
         message: "You throw the brick at the glass. It shatters.",
-        consumeItem: true,
-        setFlags: ["glassBroken"],
-        removeObject: true
+        effects: {
+          removeItems: ["brick2"],
+          setFlags: ["glassBroken"],
+          removeObjects: {objects: ["glass"]}
+        }
       },
       hammer: {
         message: "You swing the hammer at the glass. It bounces off without leaving a mark."
@@ -319,8 +342,10 @@ const objects = {
     applyWith: {
       shovel: {
         message: "You dig through the dirt, revealing a passage down.",
-        setFlags: ["holeDug"],
-        removeObject: true
+        effects: {
+          setFlags: ["holeDug"],
+          removeObjects: {objects: ["dirt"]}
+        }
       },
       sword: {
         message: "You stab at the dirt with your sword. This isn't an efficient way to dig."
@@ -341,9 +366,11 @@ const objects = {
       touch: {
         allowedVerbs: ["touch", "use", "enter", "step"],
         message: "You touch the mirror. It's cold.",
-        teleportMap: {
-          "mirror1": "mirror2",
-          "mirror2": "mirror1"
+        effects: {
+          teleportMap: {
+            "mirror1": "mirror2",
+            "mirror2": "mirror1"
+          }
         }
       }
     }
@@ -356,8 +383,10 @@ const objects = {
     applyWith: {
       concrete: {
         message: "You put the concrete into the grinder. It grinds it into fine powder.",
-        consumeItem: true,
-        giveItems: ["concretePowder"]
+        effects: {
+          removeItems: ["concrete"],
+          giveItems: ["concretePowder"]
+        }
       },
       _default: {
         message: "The grinder can't grind that."
@@ -372,7 +401,9 @@ const objects = {
     applyWith: {
       screwdriver: {
         message: "You use the screwdriver to push the button through the long pipe. The machine whirs to life.",
-        setFlags: ["machineOn"]
+        effects: {
+          setFlags: ["machineOn"]
+        }
       },
       wire: {
         message: "The wire is too flexible to push the button."
@@ -397,7 +428,7 @@ const objects = {
     description: "Light filters through the coloured glass skylight, casting patterns on the floor.",
     examine: function() {
       // Generate random color code if it doesn't exist
-      if (!gameState.colorCode) {
+      if (!gameState.sequences.colorCode) {
         const colors = ["red", "blue", "yellow", "green"];
         const sequence = [];
 
@@ -412,10 +443,10 @@ const objects = {
           [sequence[i], sequence[j]] = [sequence[j], sequence[i]];
         }
 
-        gameState.colorCode = sequence;
+        gameState.sequences.colorCode = sequence;
       }
 
-      return `Colored glass in the skylight casts shadows on the floor. The pattern shows: ${gameState.colorCode.join(", ")}.`;
+      return `Colored glass in the skylight casts shadows on the floor. The pattern shows: ${gameState.sequences.colorCode.join(", ")}.`;
     }
   },
 
@@ -431,7 +462,9 @@ const objects = {
     applyWith: {
       litDynamite: {
         message: "You place the lit dynamite at the base of the door.",
-        consumeItem: true,
+        effects: {
+          removeItems: ["litDynamite"]
+        }
       }
     },
     destructible: true,
@@ -451,8 +484,10 @@ const objects = {
     applyWith: {
       dynamite: {
         message: "You light the dynamite with the candle flame. The fuse begins to burn.",
-        consumeItem: true,
-        giveItems: ["litDynamite"]
+        effects: {
+          removeItems: ["dynamite"],
+          giveItems: ["litDynamite"]
+        }
       },
       _default: {
         message: "That doesn't need to be lit."
@@ -473,7 +508,9 @@ const objects = {
     applyWith: {
       wrench: {
         message: "You use the wrench to loosen the bolt. You hear a clanking sound from the south.",
-        setFlags: ["gateOpened"]
+        effects: {
+          setFlags: ["gateOpened"]
+        }
       },
       hammer: {
         message: "Hitting the bolt with a hammer won't loosen it."
@@ -524,13 +561,17 @@ const objects = {
     applyWith: {
       wood: {
         message: "You feed the wood into the chipper. It grinds it into sawdust.",
-        consumeItem: true,
-        giveItems: ["sawdust"]
+        effects: {
+          removeItems: ["wood"],
+          giveItems: ["sawdust"]
+        }
       },
       ladder: {
         message: "You feed the ladder into the chipper. It grinds it into sawdust.",
-        consumeItem: true,
-        giveItems: ["sawdust"]
+        effects: {
+          removeItems: ["ladder"],
+          giveItems: ["sawdust"]
+        }
       },
       dungeonWood: {
         message: "The chipper can't process that."
@@ -556,12 +597,21 @@ const objects = {
     operate: {
       push: {
         allowedVerbs: ["push", "press", "use"],
-        message: "You push the red button.",
-        buttonColor: "red",
-        checkSequence: true,
-        successMessage: "The ball flickers and vanishes. A glowing green key drops to the floor.",
-        failMessage: "Nothing happens.",
-        dropItems: ["greenKey7"]
+        message: () => gameState.sequences.colorCode ? "*click*" : "You push the red button.",
+        effects: {
+          checkSequence: {
+            solveOnce: true,
+            storeName: "buttonsPressed",
+            key: "red",
+            correctSequenceStore: "colorCode",
+            successMessage: "The ball flickers and vanishes. A glowing green key drops to the floor.",
+            failMessage: "Nothing happens.",
+            onSuccessEffects: {
+              spawnItems: {items: ["greenKey7"]},
+              setFlags: ["ballPuzzleSolved"]
+            }
+          }
+        }
       }
     }
   },
@@ -572,12 +622,21 @@ const objects = {
     operate: {
       push: {
         allowedVerbs: ["push", "press", "use"],
-        message: "You push the blue button.",
-        buttonColor: "blue",
-        checkSequence: true,
-        successMessage: "The ball flickers and vanishes. A glowing green key drops to the floor.",
-        failMessage: "Nothing happens.",
-        dropItems: ["greenKey7"]
+        message: () => gameState.sequences.colorCode ? "*click*" : "You push the blue button.",
+        effects: {
+          checkSequence: {
+            solveOnce: true,
+            storeName: "buttonsPressed",
+            key: "blue",
+            correctSequenceStore: "colorCode",
+            successMessage: "The ball flickers and vanishes. A glowing green key drops to the floor.",
+            failMessage: "Nothing happens.",
+            onSuccessEffects: {
+              spawnItems: {items: ["greenKey7"]},
+              setFlags: ["ballPuzzleSolved"]
+            }
+          }
+        }
       }
     }
   },
@@ -588,12 +647,21 @@ const objects = {
     operate: {
       push: {
         allowedVerbs: ["push", "press", "use"],
-        message: "You push the yellow button.",
-        buttonColor: "yellow",
-        checkSequence: true,
-        successMessage: "The ball flickers and vanishes. A glowing green key drops to the floor.",
-        failMessage: "Nothing happens.",
-        dropItems: ["greenKey7"]
+        message: () => gameState.sequences.colorCode ? "*click*" : "You push the yellow button.",
+        effects: {
+          checkSequence: {
+            solveOnce: true,
+            storeName: "buttonsPressed",
+            key: "yellow",
+            correctSequenceStore: "colorCode",
+            successMessage: "The ball flickers and vanishes. A glowing green key drops to the floor.",
+            failMessage: "Nothing happens.",
+            onSuccessEffects: {
+              spawnItems: {items: ["greenKey7"]},
+              setFlags: ["ballPuzzleSolved"]
+            }
+          }
+        }
       }
     }
   },
@@ -604,12 +672,21 @@ const objects = {
     operate: {
       push: {
         allowedVerbs: ["push", "press", "use"],
-        message: "You push the green button.",
-        buttonColor: "green",
-        checkSequence: true,
-        successMessage: "The ball flickers and vanishes. A glowing green key drops to the floor.",
-        failMessage: "Nothing happens.",
-        dropItems: ["greenKey7"]
+        message: () => gameState.sequences.colorCode ? "*click*" : "You push the green button.",
+        effects: {
+          checkSequence: {
+            solveOnce: true,
+            storeName: "buttonsPressed",
+            key: "green",
+            correctSequenceStore: "colorCode",
+            successMessage: "The ball flickers and vanishes. A glowing green key drops to the floor.",
+            failMessage: "Nothing happens.",
+            onSuccessEffects: {
+              spawnItems: {items: ["greenKey7"]},
+              setFlags: ["ballPuzzleSolved"]
+            }
+          }
+        }
       }
     }
   },
@@ -621,9 +698,11 @@ const objects = {
     applyWith: {
       purpleKey: {
         message: "You unlock the purple door with the glowing purple key. It swings open.",
-        consumeItem: true,
-        setFlags: ["purpleDoorUnlocked"],
-        removeObject: true
+        effects: {
+          removeItems: ["purpleKey"],
+          setFlags: ["purpleDoorUnlocked"],
+          removeObjects: {objects: ["purpleDoor"]}
+        }
       },
       _default: {
         message: "The door is locked."
@@ -637,9 +716,11 @@ const objects = {
     applyWith: {
       silverKey: {
         message: "You unlock the silver door with the silver key. It swings open.",
-        consumeItem: true,
-        setFlags: ["silverDoorUnlocked"],
-        removeObject: true
+        effects: {
+          removeItems: ["silverKey"],
+          setFlags: ["silverDoorUnlocked"],
+          removeObjects: {objects: ["silverDoor"]}
+        }
       },
       _default: {
         message: "That won't do much on the silver door."
@@ -653,9 +734,11 @@ const objects = {
     applyWith: {
       redKey: {
         message: "You unlock the glowing red door with the red key. It swings open.",
-        consumeItem: true,
-        setFlags: ["redDoorOpened"],
-        removeObject: true
+        effects: {
+          removeItems: ["redKey"],
+          setFlags: ["redDoorOpened"],
+          removeObjects: {objects: ["redDoor"]}
+        }
       },
       _default: {
         message: "That won't do much on the red door."
@@ -715,8 +798,10 @@ const objects = {
       },
 
       // On kill
-      setFlags: ["marshmallowGone"],
-      removeOnKill: true
+      effects: {
+        setFlags: ["marshmallowGone"],
+        removeObjects: {objects: ["marshmallow"]}
+      }
     },
     applyWith: {
       sword: {
@@ -735,15 +820,19 @@ const objects = {
     applyWith: {
       coal: {
         message: "You place the coal in the forge.",
-        consumeItem: true,
-        setFlags: ["coalInFurnace"]
+        effects: {
+          removeItems: ["coal"],
+          setFlags: ["coalInFurnace"]
+        }
       },
       crucibleSilver: {
         requireFlags: ["furnaceHeated"],
         message: "You place the crucible on the heated forge. The silver wire begins to melt.",
-        consumeItem: true,
-        addObjects: ["crucibleMelt"],
-        failMessage: "The forge needs to be heated first."
+        failMessage: "The forge needs to be heated first.",
+        effects: {
+          removeItems: ["crucibleSilver"],
+          spawnObjects: {objects: ["crucibleMelt"]}
+        }
       },
       _default: {
         message: "That doesn't belong in the forge."
@@ -759,8 +848,10 @@ const objects = {
         allowedVerbs: ["use", "pump", "operate"],
         requireFlags: ["coalInFurnace"],
         message: "You pump the bellows. The coal ignites and the furnace heats up.",
-        setFlags: ["furnaceHeated"],
-        failMessage: "There's no coal in the furnace."
+        failMessage: "There's no coal in the furnace.",
+        effects: {
+          setFlags: ["furnaceHeated"]
+        }
       }
     }
   },
@@ -772,9 +863,11 @@ const objects = {
     applyWith: {
       tongs: {
         message: "You carefully pick up the hot crucible with the tongs.",
-        consumeItem: true,
-        giveItems: ["crucibleTongs"],
-        removeObject: true
+        effects: {
+          removeItems: ["tongs"],
+          giveItems: ["crucibleTongs"],
+          removeObjects: {objects: ["crucibleMelt"]}
+        }
       },
       _default: {
         message: "It's too hot to handle without proper tools."
@@ -788,8 +881,10 @@ const objects = {
     applyWith: {
       crucibleTongs: {
         message: "You pour the molten silver into the mold. It begins to cool and take shape.",
-        consumeItem: true,
-        dropItems: ["silverMold"]
+        effects: {
+          removeItems: ["crucibleTongs"],
+          spawnItems: {items: ["silverMold"]}
+        }
       },
       _default: {
         message: "That won't fit in the mold."
@@ -803,8 +898,10 @@ const objects = {
     applyWith: {
       silverMold: {
         message: "You plunge the mold into the slack tub. The water hisses as the silver cools rapidly. A silver key falls out of the mold.",
-        consumeItem: true,
-        dropItems: ["silverKey"]
+        effects: {
+          removeItems: ["silverMold"],
+          spawnItems: {items: ["silverKey"]}
+        }
       },
       _default: {
         message: "That doesn't need to be cooled."
@@ -818,10 +915,12 @@ const objects = {
     applyWith: {
       extinguisher: {
         message: "You spray the fire extinguisher. The flames die down and extinguish.",
-        consumeItem: true,
-        giveItems: ["spentExtinguisher"],
-        setFlags: ["fireExtinguished"],
-        removeObject: true
+        effects: {
+          removeItems: ["extinguisher"],
+          giveItems: ["spentExtinguisher"],
+          setFlags: ["fireExtinguished"],
+          removeObjects: {objects: ["fire"]}
+        }
       },
       cup: {
         message: "The cup doesn't hold nearly enough water to extinguish this fire."
@@ -841,8 +940,10 @@ const objects = {
     applyWith: {
       sawdust: {
         message: "You drop the sawdust into the lake. There's so much, it completely fills and starts to float, creating a safe passage north.", // dont like fix
-        consumeItem: true,
-        setFlags: ["lakeFilled"]
+        effects: {
+          removeItems: ["sawdust"],
+          setFlags: ["lakeFilled"]
+        }
       },
       _default: {
         message: "That won't help with the lake."
@@ -858,7 +959,9 @@ const objects = {
       open: {
         allowedVerbs: ["open", "use"],
         message: "You open the hatbox. Inside is a hidden passage leading downwards.",
-        setFlags: ["hatboxOpened"]
+        effects: {
+          setFlags: ["hatboxOpened"]
+        }
       }
     }
   },
@@ -869,8 +972,10 @@ const objects = {
     sayTrigger: {
       word: "ulysses",
       message: "Upon hearing the name 'Ulysses', the cyclops panics and flees from the room!",
-      setFlags: ["cyclopsGone"],
-      removeObject: true
+      effects: {
+        setFlags: ["cyclopsGone"],
+        removeObjects: {objects: ["cyclops"]}
+      }
     },
     combat: {
       successfulWeapons: ["sword", "pick3"],
@@ -920,8 +1025,10 @@ const objects = {
       },
 
       // On kill
-      setFlags: ["cyclopsGone"],
-      removeOnKill: true
+      effects: {
+        setFlags: ["cyclopsGone"],
+        removeObjects: {objects: ["cyclops"]}
+      }
     },
     applyWith: {
       _default: {
@@ -937,7 +1044,9 @@ const objects = {
     applyWith: {
       brassHammer: {
         message: "You ring the bell with the brass hammer. The sound echoes loudly through the building. You hear the sound of shattering glass from elsewhere.",
-        triggerEffects: ["case"]
+        effects: {
+          triggerEffects: ["case"]
+        }
       },
       hammer: {
         message: "The regular hammer doesn't produce the right tone."
@@ -954,9 +1063,8 @@ const objects = {
     examine: "A glass trophy case. Contained inside is a glowing green key.",
     triggerEffects: {
       setFlags: ["caseShattered"],
-      dropItems: ["greenKey6"],
-      removeOnTrigger: true,
-      room: "case"
+      spawnItems: {items: ["greenKey6"], room: "case"},
+      removeObjects: {objects: ["case"], room: "case"}
     }
   },
 
@@ -966,9 +1074,11 @@ const objects = {
     applyWith: {
       blueKey: {
         message: "You unlock the blue door with the blue key. It swings open.",
-        consumeItem: true,
-        setFlags: ["blueDoorUnlocked"],
-        removeObject: true
+        effects: {
+          removeItems: ["blueKey"],
+          setFlags: ["blueDoorUnlocked"],
+          removeObjects: {objects: ["blueDoor"]}
+        }
       },
       _default: {
         message: "The door is locked."
@@ -983,16 +1093,20 @@ const objects = {
     applyWith: {
       coin: {
         message: "You insert the coin into the machine. A hamburger drops into the dispenser tray.",
-        consumeItem: true,
-        dropItems: ["hamburger"],
         requireNotFlags: ["vendingMachineUsed"],
-        setFlags: ["vendingMachineUsed"]
+        effects: {
+          removeItems: ["coin"],
+          spawnItems: {items: ["hamburger"]},
+          setFlags: ["vendingMachineUsed"]
+        }
       },
       pick3: {
         message: "You jam the pickaxe into the machine's mechanism. Something falls out, but it looks... questionable.",
-        dropItems: ["hamburgerPoisoned"],
         requireNotFlags: ["vendingMachineUsed"],
-        setFlags: ["vendingMachineUsed"]
+        effects: {
+          spawnItems: {items: ["hamburgerPoisoned"]},
+          setFlags: ["vendingMachineUsed"]
+        }
       },
       sword: {
         message: "Stabbing the vending machine won't get you a free snack."
@@ -1018,7 +1132,6 @@ const objects = {
   door: {
     names: ["door", "final door", "final-door", "eight door", "eight-door", "green door", "green-door"],
     examine: "A massive door adorned with intricate glowing green metalwork. Eight glowing keyholes are stacked vertically down the right hand side.",
-    removeMessage: "\nHowever, the door is now open.",
     applyWith: {
       _progressiveCombination: {
         items: ["greenKey1", "greenKey2", "greenKey3", "greenKey4", "greenKey5", "greenKey6", "greenKey7", "greenKey8"],

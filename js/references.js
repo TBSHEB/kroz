@@ -95,7 +95,7 @@ exampleRoom: {
                                                        // (useful for items hidden until discovered)
 
   // ===== DISALLOWED TAKES (scenery/flavor) =====
-  disallowedTakes: {
+  scenery: {
     "murals": "The murals are painted on the walls.",
     "walls": "I can't take the walls.",
     "shadows": "I can't take shadows.",

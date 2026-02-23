@@ -1,8 +1,8 @@
 // ===== OPERATE HANDLER =====
 
 function handleOperate(verb, item) {
-  // Check if this is a disallowedTake with operate error messages
-  if (item.type === 'disallowedTake' && item.operate) {
+  // Check if this is a scene with operate error messages
+  if (item.type === 'scene' && item.operate) {
     // operate is an object with verb: error message format
     let errorMessage = item.operate[verb];
     if (errorMessage) {
@@ -97,90 +97,16 @@ function handleOperate(verb, item) {
     }
   }
 
-  // Set flags for using the item
-  if (matchedAction.setFlags) {
-    for (const flag of matchedAction.setFlags) {
-      setGameState("flags", flag);
-    }
-  }
-
-  // Remove flags for using the item
-  if (matchedAction.unsetFlags) {
-    for (const flag of matchedAction.unsetFlags) {
-      setGameState("flags", flag, false);
-    }
-  }
-
-  // Drop any items in the room for using the item
-  if (matchedAction.dropItems) {
-    for (const item of matchedAction.dropItems) {
-      setRoomState("items", item);
-      trackRoomChange(item, "item");
-    }
-  }
-
-  // Give the player any items for using the item
-  if (matchedAction.giveItems) {
-    for (const item of matchedAction.giveItems) {
-      setGameState("inventory", item);
-    }
-  }
-
-  // Remove object from room
-  if (matchedAction.removeObject) {
-    setRoomState("objects", item.id, false);
-    trackRoomChange(item.id, "object", false);
-  }
-
-  // Remove item from player
-  if (matchedAction.removeItem) {
-    setGameState("inventory", item.id, false)
-  }
-
-  // Set player health
-  if (matchedAction.setHealth !== undefined) {
-    gameState.healthState = matchedAction.setHealth;
-  }
-
-  // Set any checkpoints and remove items
-  if (matchedAction.action) {
-    switch (matchedAction.action) {
-      case "setCheckpoint":
-        gameState.lastCheckpoint = gameState.currentRoom;
-        saveGame(gameState, "internal checkpoint");
-        break;
-      case "loseNonvitalItems":
-        if (gameState.inventory.length > 0) {
-          const itemsToLose = [];
-          for (const item of gameState.inventory) {
-            const isVital = typeof items[item].vital === 'function' ? items[item].vital() : items[item].vital;
-            if (!isVital) {
-              itemsToLose.push(item);
-            }
-          }
-          for (const item of itemsToLose) {
-            setGameState("inventory", item, false);
-            setRoomState("items", item, true, "hideout");
-            trackRoomChange(item, "item", true, "hideout");
-          }
-        }
-    }
-  }
-
   //Display message for successfully using the item in the intended manner
   if (matchedAction.message) {
-    displayText(matchedAction.message);
+    const msg = typeof matchedAction.message === 'function' ? matchedAction.message() : matchedAction.message;
+    displayText(msg);
   } else {
     displayText("You successfully used the item");
   }
 
-  // Handle teleportation
-  if (matchedAction.teleportMap) {
-    const newRoom = matchedAction.teleportMap[gameState.currentRoom];
-    if (newRoom) {
-      gameState.currentRoom = newRoom;
-    }
-  }
+  // Apply effects
+  applyEffects(matchedAction.effects);
 
   // Handle eat-to-kill enemies
   if (matchedAction.eatToKill && item.combat) {
@@ -207,92 +133,12 @@ function handleOperate(verb, item) {
       const killMsg = pickRandom(item.combat.killMessage);
       displayText(killMsg);
 
-      // Remove enemy and set flags
-      if (item.combat.removeOnKill) {
-        setRoomState("objects", item.id, false);
-        trackRoomChange(item.id, "object", false);
-      }
-      if (item.combat.setFlags) {
-        for (const flag of item.combat.setFlags) {
-          setGameState("flags", flag);
-        }
-      }
-      if (item.combat.unsetFlags) {
-        for (const flag of item.combat.unsetFlags) {
-          setGameState("flags", flag, false);
-        }
-      }
-      if (item.combat.dropItems) {
-        for (const dropItem of item.combat.dropItems) {
-          setRoomState("items", dropItem);
-          trackRoomChange(dropItem, "item");
-        }
-      }
-      if (item.combat.giveItems) {
-        for (const giveItem of item.combat.giveItems) {
-          setGameState("inventory", giveItem);
-        }
-      }
+      // Apply on-kill effects
+      applyEffects(item.combat.effects);
 
       delete gameState.combatState[item.id];
     }
 
     return;
-  }
-
-  // Handle button sequence checking
-  if (matchedAction.checkSequence && matchedAction.buttonColor) {
-    // Check if puzzle already solved
-    if (gameState.flags.includes("ballPuzzleSolved")) {
-      return;
-    }
-
-    // Initialize buttonsPressed if it doesn't exist
-    if (!gameState.buttonsPressed) {
-      gameState.buttonsPressed = [];
-    }
-
-    const color = matchedAction.buttonColor;
-
-    // Check if this color is already in the sequence
-    if (gameState.buttonsPressed.includes(color)) {
-      // Reset sequence and start with this color
-      gameState.buttonsPressed = [color];
-    } else {
-      // Add color to sequence
-      gameState.buttonsPressed.push(color);
-    }
-
-    // Check if we have 4 buttons pressed
-    if (gameState.buttonsPressed.length === 4) {
-      // Compare to the color code
-      const pressedSequence = gameState.buttonsPressed.join(" ");
-      const correctSequence = gameState.colorCode.join(" ");
-
-      if (pressedSequence === correctSequence) {
-        // Success!
-        displayText(matchedAction.successMessage);
-
-        // Drop items
-        if (matchedAction.dropItems) {
-          for (const dropItem of matchedAction.dropItems) {
-            setRoomState("items", dropItem);
-            trackRoomChange(dropItem, "item");
-          }
-        }
-
-        // Mark puzzle as solved
-        setGameState("flags", "ballPuzzleSolved");
-
-        // Clear sequence
-        gameState.buttonsPressed = [];
-      } else {
-        // Failure
-        displayText(matchedAction.failMessage);
-
-        // Reset sequence
-        gameState.buttonsPressed = [];
-      }
-    }
   }
 }

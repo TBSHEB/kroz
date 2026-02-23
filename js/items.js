@@ -67,18 +67,22 @@ const items = {
         allowedVerbs: ["light", "activate", "operate"],
         requireNotFlags: ["lanternLit", "lanternOut"],
         message: "You light the lantern. It glows brightly.",
-        setFlags: ["lanternLit"],
         failMessages: {
           lanternLit: "The lantern is already lit.",
           lanternOut: "It won't turn on."
+        },
+        effects: {
+          setFlags: ["lanternLit"]
         }
       },
       deactivate: {
         allowedVerbs: ["extinguish", "deactivate"],
         requireFlags: ["lanternLit"],
         message: "You extinguish the lantern.",
-        unsetFlags: ["lanternLit"],
-        failMessage: "The lantern is already off."
+        failMessage: "The lantern is already off.",
+        effects: {
+          unsetFlags: ["lanternLit"]
+        }
       }
     }
   },
@@ -163,15 +167,19 @@ const items = {
         allowedVerbs: ["equip", "wear", "use"],
         requireNotFlags: ["helmetEquipped"],
         message: "You put the helmet on.",
-        setFlags: ["helmetEquipped"],
-        failMessage: "You're already wearing the helmet."
+        failMessage: "You're already wearing the helmet.",
+        effects: {
+          setFlags: ["helmetEquipped"]
+        }
       },
       unequip:{
         allowedVerbs: ["unequip", "remove"],
         requireFlags: ["helmetEquipped"],
         message: "You take the helmet off.",
-        unsetFlags: ["helmetEquipped"],
-        failMessage: "You're not wearing the helmet."
+        failMessage: "You're not wearing the helmet.",
+        effects: {
+          unsetFlags: ["helmetEquipped"]
+        }
       }
     }
   },
@@ -187,8 +195,10 @@ const items = {
         allowedVerbs: ["equip", "wear", "use"],
         requireNotFlags: ["parachuteEquipped"],
         message: "You strap on the parachute.",
-        setFlags: ["parachuteEquipped"],
-        failMessage: "You're already wearing the parachute."
+        failMessage: "You're already wearing the parachute.",
+        effects: {
+          setFlags: ["parachuteEquipped"]
+        }
       },
     },
     vital: true,
@@ -206,7 +216,9 @@ const items = {
       eat: {
         allowedVerbs: ["eat", "consume", "bite", "taste", "lick", "swallow"],
         message: "You eat the red cake. It tastes sweet at first, then a searing pain erupts in your stomach. It feels like it's on fire! All of a sudden, you hear a loud *BANG*, and see your guts, or at least what's left of them, flop onto the floor before falling unconscious.",
-        setHealth: 0
+        effects: {
+          setHealth: 0
+        }
       }
     }
   },
@@ -221,9 +233,11 @@ const items = {
       eat: {
         allowedVerbs: ["eat", "consume", "bite", "taste", "lick", "swallow"],
         message: "You eat the green cake. It tastes amazing, and you feel a warm, soothing sensation spread through your body. Your wounds begin to heal, and you feel completely refreshed.",
-        action: "setCheckpoint",
-        removeItem: true,
-        setHealth: 4
+        effects: {
+          setCheckpoint: true,
+          removeItems: ["greenCake"],
+          setHealth: 4
+        }
       }
     }
   },
@@ -238,8 +252,10 @@ const items = {
       eat: {
         allowedVerbs: ["eat", "consume", "bite", "taste", "lick", "swallow"], // add more?
         message: "You eat the entirety of the blue cake. You pig! After such a big meal, you get rather sleepy, and feel like a little nap...\nUpon waking, you notice some of your possesions have been stolen whilst sleeping!",
-        action: "loseNonvitalItems",
-        removeItem: true
+        effects: {
+          loseNonvitalItems: true,
+          removeItems: ["blueCake"]
+        }
       }
     }
   },
@@ -347,7 +363,9 @@ const items = {
       eat: {
         allowedVerbs: ["eat", "consume", "bite", "taste", "lick", "swallow"],
         message: "For some incomprehensible reason, you put the old chewing gum in your mouth and start chewing. It tastes absolutely awful. So bad, in fact, you start retching, and accidentally swallow the gum. It gets caught in your throat, and you're forced to taste that awful flavor while contemplating your poor life choices as you asphyxiate.",
-        setHealth: 0,
+        effects: {
+          setHealth: 0
+        }
       }
     }
   },
@@ -532,8 +550,10 @@ const items = {
       eat: {
         allowedVerbs: ["eat", "consume", "bite", "taste", "devour"],
         message: "You eat the hamburger. Not bad for vending machine food.",
-        setFlags: ["hamburgerEaten"],
-        removeItem: true
+        effects: {
+          setFlags: ["hamburgerEaten"],
+          removeItems: ["hamburger"]
+        }
       }
     }
   },
@@ -547,8 +567,10 @@ const items = {
       eat: {
         allowedVerbs: ["eat", "consume", "bite", "taste", "devour"],
         message: "You eat the hamburger. It's awful - stale, rubbery, and tastes like it's been sitting there for weeks.",
-        setFlags: ["poisoned"],
-        removeItem: true
+        effects: {
+          setFlags: ["poisoned"],
+          removeItems: ["hamburgerPoisoned"]
+        }
       }
     }
   },
@@ -578,8 +600,10 @@ const items = {
       drink: {
         allowedVerbs: ["drink", "consume", "sip", "gulp", "swallow"],
         message: "You drink the water. It tastes strange, almost electric, and leaves your mouth feeling numb.",
-        setFlags: ["waterDrunk"],
-        removeItem: true
+        effects: {
+          setFlags: ["waterDrunk"],
+          removeItems: ["mineralWater"]
+        }
       }
     }
   },
@@ -604,33 +628,43 @@ const recipes = {
     requires: ["dungeonWood", "nails", "hammer"],
     retains: ["hammer"],
     message: "You make a ladder out of the hammer, nails and wood",
-    setFlags: ["oneHammerUse"],
+    effects: {
+      setFlags: []
+    }
   },
   map: {
     requires: ["skull", "hammer"],
     retains: ["hammer"],
     message: "You smash the skull with the hammer. Inside is a glowing purple map \nYou now have the glowing purple map",
-    setFlags: [],
+    effects: {
+      setFlags: []
+    }
   },
   crucibleSilver: {
     requires: ["crucible", "wire"],
     retains: [],
     message: "You put the silver wire in the crucible.",
-    setFlags: [],
+    effects: {
+      setFlags: []
+    }
   },
   mineralWater: {
     requires: ["concretePowder", "cup"],
     retains: [],
     message: "You sprinkle the concrete powder into the cup of water. It disolves instantly.",
-    setFlags: [],
+    effects: {
+      setFlags: []
+    }
   },
   spentBattery: {
     requires: ["lantern", "battery"],
     retains: ["lantern"],
     message: "You put the battery into the lantern. That should give it a bit more power.",
-    setFlags: ["batteryUsed"],
-    unsetFlags: ["lanternOut"],
-    resetCooldowns: ["lantern"]
+    effects: {
+      setFlags: ["batteryUsed"],
+      unsetFlags: ["lanternOut"],
+      resetCountdowns: ["lantern"]
+    }
   }
 }
 

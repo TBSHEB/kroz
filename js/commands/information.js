@@ -335,24 +335,7 @@ function load(name) {
     return;
   }
 
-  gameState.currentRoom = loadedState.currentRoom;
-  gameState.previousRoom = loadedState.previousRoom;
-  gameState.inventory = loadedState.inventory;
-  gameState.flags = loadedState.flags;
-  gameState.visitedRooms = loadedState.visitedRooms;
-  gameState.combatState = loadedState.combatState;
-  gameState.healthState = loadedState.healthState;
-  gameState.poison = loadedState.poison || 0;
-  gameState.itemCountdowns = loadedState.itemCountdowns || {};
-  gameState.hazardState = loadedState.hazardState || { room: "", count: 0 };
-  gameState.roomChanges = loadedState.roomChanges;
-  gameState.lastCheckpoint = loadedState.lastCheckpoint;
-
-  gameState.partCommand = "";
-  gameState.pendingAlias = "";
-  gameState.partApplyItems = [];
-  gameState.partAttackTarget = [];
-  gameState.partCraftItems = [];
+  resetGameState(loadedState);
 
   displayText(`Loaded save${saveName ? " \"" + saveName + "\"" : ""}.`);
   look();

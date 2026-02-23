@@ -2,8 +2,8 @@
 
 function handleAttack(item, target) {
 
-  // Check if target is a disallowedTake with attack interactions
-  if (target.type === 'disallowedTake' && target.attack) {
+  // Check if target is a scene with attack interactions
+  if (target.type === 'scene' && target.attack) {
     // attack is an object with item IDs as keys and error messages as values
     let errorMessage = target.attack[item.id];
     if (errorMessage) {
@@ -85,76 +85,19 @@ function handleAttack(item, target) {
       const killMsg = pickRandom(target.combat.killMessage);
       displayText(killMsg);
 
-      // Remove enemy and set flags
-      if (target.combat.removeOnKill) {
-        setRoomState("objects", target.id, false);
-        trackRoomChange(target.id, "object", false);
-      }
-      if (target.combat.setFlags) {
-        for (const flag of target.combat.setFlags) {
-          setGameState("flags", flag);
-        }
-      }
-      if (target.combat.unsetFlags) {
-        for (const flag of target.combat.unsetFlags) {
-          setGameState("flags", flag, false);
-        }
-      }
-      if (target.combat.dropItems) {
-        for (const item of target.combat.dropItems) {
-          setRoomState("items", item);
-          trackRoomChange(item, "item");
-        }
-      }
-      if (target.combat.giveItems) {
-        for (const item of target.combat.giveItems) {
-          setGameState("inventory", item);
-        }
-      }
+      // Apply on-kill effects
+      applyEffects(target.combat.effects);
 
       delete gameState.combatState[target.id];
       return true;
     }
 
-    // Enemy is still alive, process enemy turn
-    processEnemyTurns();
     return true;
   }
 
   // If this is the first turn to attack on
   if (combat.turnCount === 1) {
-    if (target.combat.removeOnKill) {
-      setRoomState("objects", target.id, false);
-      trackRoomChange(target.id, "object", false);
-    }
-    if (target.combat.setFlags) {
-      for (const flag of target.combat.setFlags) {
-        setGameState("flags", flag);
-      }
-    }
-    if (target.combat.unsetFlags) {
-      for (const flag of target.combat.unsetFlags) {
-        setGameState("flags", flag, false);
-      }
-    }
-    if (target.combat.dropItems) {
-      for (const item of target.combat.dropItems) {
-        setRoomState("items", item);
-        trackRoomChange(item, "item");
-      }
-    }
-    if (target.combat.giveItems) {
-      for (const item of target.combat.giveItems) {
-        setGameState("inventory", item);
-      }
-    }
-    if (target.combat.addObjects) {
-      for (const object of target.combat.addObjects) {
-        setRoomState("objects", object);
-        trackRoomChange(object, "object");
-      }
-    }
-
+    applyEffects(target.combat.effects);
 
     const randomMessage = pickRandom(target.combat.instakillMessage);
     displayText(randomMessage);
@@ -175,9 +118,6 @@ function handleAttack(item, target) {
       } else {
         displayText(`The ${target.id} dodges.`);
       }
-      if (!target.combat.aggressive) {
-        processEnemyTurns();
-      }
     }
   } else if (target.combat.dodgeChance) {
     if (randomNumber >= target.combat.dodgeChance) {
@@ -193,38 +133,7 @@ function handleAttack(item, target) {
   }
 
   if (hitEnemy) {
-    if (target.combat.removeOnKill) {
-      setRoomState("objects", target.id, false);
-      trackRoomChange(target.id, "object", false);
-    }
-    if (target.combat.setFlags) {
-      for (const flag of target.combat.setFlags) {
-        setGameState("flags", flag);
-      }
-    }
-    if (target.combat.unsetFlags) {
-      for (const flag of target.combat.unsetFlags) {
-        setGameState("flags", flag, false);
-      }
-    }
-    if (target.combat.dropItems) {
-      for (const item of target.combat.dropItems) {
-        setRoomState("items", item);
-        trackRoomChange(item, "item");
-      }
-    }
-    if (target.combat.giveItems) {
-      for (const item of target.combat.giveItems) {
-        setGameState("inventory", item);
-      }
-    }
-    if (target.combat.addObjects) {
-      for (const object of target.combat.addObjects) {
-        setRoomState("objects", object);
-        trackRoomChange(object, "object");
-      }
-    }
-
+    applyEffects(target.combat.effects);
 
     const randomMessage = pickRandom(target.combat.killMessage);
     delete gameState.combatState[target.id];

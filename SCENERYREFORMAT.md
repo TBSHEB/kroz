@@ -1,11 +1,11 @@
-# Reformatting disallowedTakes Instructions
+# Reformatting scenery Instructions
 
 ## Context
-You are helping reformat `disallowedTakes` in map.js from the old string format to the new object format. The new format supports multiple aliases, examine text, and verb-specific error messages.
+You are helping reformat `scenery` in map.js from the old string format to the new object format. The new format supports multiple aliases, examine text, and verb-specific error messages.
 
 ## Old Format
 ```javascript
-disallowedTakes: {
+scenery: {
   "moisture": "I can't take dampness.",
   "cave-in": "There's too much rubble to carry.",
   "cavein": "There's too much rubble to carry."
@@ -14,7 +14,7 @@ disallowedTakes: {
 
 ## New Format
 ```javascript
-disallowedTakes: {
+scenery: {
   moisture: {
     names: ["moisture", "dampness", "mildew", "damp"],
     message: "I can't take dampness",
@@ -61,7 +61,7 @@ disallowedTakes: {
 - `operate` is an object: `{ verb: "error message" }`
 - `apply` is an object: `{ itemId: "error message" }`
 - `attack` is an object: `{ itemId: "error message" }`
-- Most disallowedTakes won't need these - only add if it makes sense
+- Most scenery won't need these - only add if it makes sense
 
 ### Common Patterns
 

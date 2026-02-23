@@ -66,10 +66,10 @@ function take(things, all = false) {
     // Build alias-to-itemId map for items in this room
     const aliasToItemId = currentRoom.items ? buildAliasMap(currentRoom.items) : {};
 
-    // Build alias-to-key map for disallowedTakes (supports both string and object format)
+    // Build alias-to-key map for scenery (supports both string and object format)
     const disallowedAliasToKey = {};
-    if (currentRoom.disallowedTakes) {
-      Object.entries(currentRoom.disallowedTakes).forEach(([key, data]) => {
+    if (currentRoom.scenery) {
+      Object.entries(currentRoom.scenery).forEach(([key, data]) => {
         if (typeof data === 'string') {
           // Old format: key is the only alias
           disallowedAliasToKey[key] = key;
@@ -132,7 +132,7 @@ function take(things, all = false) {
           feedback += `${thing}: You've already taken that.\n`
         } else if (disallowedAliasToKey[thing]) {
           const key = disallowedAliasToKey[thing];
-          const data = currentRoom.disallowedTakes[key];
+          const data = currentRoom.scenery[key];
           let message = typeof data === 'string' ? data : data.message;
           if (typeof message === 'function') {
             message = message();
@@ -181,7 +181,7 @@ function take(things, all = false) {
         feedback += "Taken.";
       } else if (disallowedAliasToKey[things[0]]) {
         const key = disallowedAliasToKey[things[0]];
-        const data = currentRoom.disallowedTakes[key];
+        const data = currentRoom.scenery[key];
         let message = typeof data === 'string' ? data : data.message;
         if (typeof message === 'function') {
           message = message();
@@ -351,9 +351,9 @@ function examine(things) {
         }
       }
 
-      // Check disallowedTakes for examine text
-      if (!found && currentRoom.disallowedTakes) {
-        for (const [key, data] of Object.entries(currentRoom.disallowedTakes)) {
+      // Check scenery for examine text
+      if (!found && currentRoom.scenery) {
+        for (const [key, data] of Object.entries(currentRoom.scenery)) {
           if (typeof data === 'object' && data.names && data.names.includes(things[0]) && data.examine) {
             if (typeof data.examine === 'function') {
               feedback += data.examine();
@@ -424,9 +424,9 @@ function examine(things) {
           }
         }
 
-        // Check disallowedTakes for examine text
-        if (!found && currentRoom.disallowedTakes) {
-          for (const [key, data] of Object.entries(currentRoom.disallowedTakes)) {
+        // Check scenery for examine text
+        if (!found && currentRoom.scenery) {
+          for (const [key, data] of Object.entries(currentRoom.scenery)) {
             if (typeof data === 'object' && data.names && data.names.includes(thing) && data.examine) {
               let examineText = data.examine;
               if (typeof examineText === 'function') {
@@ -474,7 +474,7 @@ function takeAll() {
   const takesIds = takes.map(t => {
     if (t.names) {
       return t.names[0];  // Use first name/alias
-    } else if (t.type === "generic" || t.type === "disallowedTake") {
+    } else if (t.type === "generic" || t.type === "scene") {
       return t.id;
     }
   }).filter(id => id !== undefined);
@@ -536,18 +536,8 @@ function say(raw) {
             // Trigger matched!
             displayText(obj.sayTrigger.message);
 
-            // Set flags
-            if (obj.sayTrigger.setFlags) {
-              obj.sayTrigger.setFlags.forEach(flag => {
-                setGameState("flags", flag);
-              });
-            }
-
-            // Remove object
-            if (obj.sayTrigger.removeObject) {
-              setRoomState("objects", objectId, false);
-              trackRoomChange(objectId, "object", false);
-            }
+            // Apply effects
+            applyEffects(obj.sayTrigger.effects);
 
             clearUseState();
             return true;

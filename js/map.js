@@ -54,7 +54,7 @@ const rooms = {
     },
     items: ["dungeonWood"],
     objects: ["dungeonLamp", "dungeonTrapdoor"],
-    disallowedTakes: {
+    scenery: {
       chains: {
         names: ["chains", "chain", "chandelier chains"],
         message: () => {
@@ -100,7 +100,7 @@ const rooms = {
     look: "A damp cellar, mostly empty.",
     passages: {north: "start"},
     items: ["stepladder"],
-    disallowedTakes: {
+    scenery: {
       moisture: {
         names: ["moisture", "dampness", "damp", "wetness"],
         message: "It's everywhere, but not something I can pick up.",
@@ -145,7 +145,7 @@ const rooms = {
       }
     },
     items: [],
-    disallowedTakes: {
+    scenery: {
       shimmer: {
         names: ["shimmer", "shimmering", "glow", "glimmer"],
         message: () => {
@@ -170,7 +170,7 @@ const rooms = {
     look: "A small workshop.",
     passages: {southwest: "deadEnd1", southeast: "three"},
     items: ["hammer"],
-    disallowedTakes: {
+    scenery: {
       workshop: {
         names: ["workshop"],
         message: "I don't think the workshop would fit in my pocket.",
@@ -183,7 +183,7 @@ const rooms = {
     look: "It doesn't look like this path will take me any further.",
     passages: {south: "hammer1"},
     items: ["skull"],
-    disallowedTakes: {
+    scenery: {
       dead: {
         names: ["dead"],
         message: "Dead what?",
@@ -214,7 +214,7 @@ const rooms = {
     },
     passages: {west: "five", northeast: "pick1"},
     items: ["nails"],
-    disallowedTakes: {
+    scenery: {
       sand: {
         names: ["sand"],
         message: "If I pick that up, it will go all throughout my pocket, and I will never get rid of it.",
@@ -263,7 +263,7 @@ const rooms = {
     passages: {west: "sand", south: "five", east: "tall"},
     items: ["pick1"],
     failedBackText: "There's no hole in the roof?!",
-    disallowedTakes: {
+    scenery: {
       interest: {
         names: ["interest"],
         message: "While I say there is little of that here, what I mean is none.",
@@ -321,7 +321,7 @@ const rooms = {
       }
     },
     objects: ["cavein", "troll"],
-    disallowedTakes: {
+    scenery: {
       "cave-in": "There's too much rubble to carry.",
       "cavein": "There's too much rubble to carry.",
       bear: {
@@ -353,10 +353,10 @@ const rooms = {
       }
     },
     entryMessages: {
-      down: "Down\nyou\ngo\n...\n\nYou decide it's probably a good idea to open your parachute, so do that.\nAfter a long decent, you land on solid ground, and put the parachute back into the pack."
+      down: "Down\nyou\ngo\n.\n.\n.\n\nYou decide it's probably a good idea to open your parachute, so do that.\nAfter a long decent, you land on solid ground, and put the parachute back into the pack."
     },
     items: [],
-    disallowedTakes: {
+    scenery: {
       darkness: {
         names: ["darkness"],
         message: "That would require jumping down the hole. Not worth it in my opinion.",
@@ -384,7 +384,7 @@ const rooms = {
       }
     },
     items: ["sword"],
-    disallowedTakes: {
+    scenery: {
       things: {
         names: ["things"],
         message: "There aren't any here any more.",
@@ -407,7 +407,7 @@ const rooms = {
       }
     },
     objects: ["ogre"],
-    disallowedTakes: {
+    scenery: {
       entrance: {
         names: ["entrance"],
         message: "What do you mean? I can't just rip a doorway out of the wall like that!",
@@ -442,7 +442,7 @@ const rooms = {
         metDescription: "The stone door to the east has opened."
       }
     },
-    disallowedTakes: {
+    scenery: {
       texts: {
         names: ["texts", "ancient texts", "text", "writing", "writings"],
         message: "It's carved into the stone, and I don't have the tools to make a copy.",
@@ -469,7 +469,7 @@ const rooms = {
     passages: {west: "riddle1"},
     failedBackText: "I can't climb up that hole.",
     items: ["parachute"],
-    disallowedTakes: {
+    scenery: {
       shrine: {
         names: ["shrine"],
         message: "I can't pick up something while I'm inside of it",
@@ -494,7 +494,7 @@ const rooms = {
     look: "A foul-smelling cave littered with bones.",
     passages: {north: "magic"},
     items: ["pick2"],
-    disallowedTakes: {
+    scenery: {
       bones: {
         names: ["bones"],
         message: "I'd rather not touch those",
@@ -555,7 +555,7 @@ const rooms = {
     passages: {north: "magic"},
     failedBackText: "The hole in the roof closed up, somehow.",
     items: ["helmet"],
-    disallowedTakes: {
+    scenery: {
       weapons: {
         names: ["weapons"],
         message: "There are no weapons left to take",
@@ -604,7 +604,7 @@ const rooms = {
     },
     failedBackText: "There's no hole in the roof?..",
     items: [],
-    disallowedTakes: {
+    scenery: {
       hole: {
         names: ["hole", "opening"],
         message: "I can't take a hole",
@@ -627,7 +627,7 @@ const rooms = {
     passages: {south: "hub"},
     items: [],
     objects: ["sink"],
-    disallowedTakes: {
+    scenery: {
       porcelain: {
         names: ["porcelain"],
         message: "The porcelain is part of the sink",
@@ -649,7 +649,7 @@ const rooms = {
       southwest: "redCake",
     },
     items: ["redCake"],
-    disallowedTakes: {
+    scenery: {
       table: {
         names: ["table"],
         message: "It's stuck to the floor with... red paint",
@@ -689,7 +689,7 @@ const rooms = {
       east: "blueCake"
     },
     items: ["greenCake"],
-    disallowedTakes: {
+    scenery: {
       bench: {
         names: ["bench"],
         message: "It's stuck to the floor with... green paint",
@@ -730,7 +730,7 @@ const rooms = {
       southwest: "greenCake"
     },
     items: ["blueCake"],
-    disallowedTakes: {
+    scenery: {
       lights: {
         names: ["lights"],
         message: "I'm not sure how you want me to accomplish that",
@@ -782,7 +782,7 @@ const rooms = {
       northwest: "dust"
     },
     items: [],
-    disallowedTakes: {
+    scenery: {
       dust: {
         names: ["dust"],
         message: "I'm not picking up dust",
@@ -804,7 +804,7 @@ const rooms = {
       northwest: "dusty"
     },
     items: [],
-    disallowedTakes: {
+    scenery: {
       dust: {
         names: ["dust"],
         message: "I'm not picking up dust",
@@ -832,7 +832,7 @@ const rooms = {
       }
     },
     items: [],
-    disallowedTakes: {
+    scenery: {
       snot: {
         names: ["snot", "boogers", "booger", "mucus"],
         message: "Although this room is shaped exactly like a standard nose, there's no mucus here",
@@ -879,7 +879,7 @@ const rooms = {
       }
     },
     items: ["shovel"],
-    disallowedTakes: {
+    scenery: {
       shattered: {
         names: ["shattered remains", "remains", "shards", "shattered glass", "broken glass"],
         hiddenUnlessHasFlag: "glassBroken",
@@ -913,7 +913,7 @@ const rooms = {
       }
     },
     items: [],
-    disallowedTakes: {
+    scenery: {
       shattered: {
         names: ["shattered remains", "remains", "shards", "shattered glass", "broken glass"],
         hiddenUnlessHasFlag: "glassBroken",
@@ -933,7 +933,7 @@ const rooms = {
       west: "maze2"
     },
     items: [],
-    disallowedTakes: {
+    scenery: {
       features: {
         names: ["identifying features", "features", "feature"],
         message: "Yeah there's none of those here",
@@ -951,7 +951,7 @@ const rooms = {
       west: "maze1"
     },
     items: [],
-    disallowedTakes: {
+    scenery: {
       features: {
         names: ["identifying features", "features", "feature"],
         message: "Yeah there's none of those here",
@@ -969,7 +969,7 @@ const rooms = {
       west: "maze4"
     },
     items: [],
-    disallowedTakes: {
+    scenery: {
       features: {
         names: ["identifying features", "features", "feature"],
         message: "Yeah there's none of those here",
@@ -987,7 +987,7 @@ const rooms = {
       west: "maze3"
     },
     items: [],
-    disallowedTakes: {
+    scenery: {
       features: {
         names: ["identifying features", "features", "feature"],
         message: "Yeah there's none of those here",
@@ -1005,7 +1005,7 @@ const rooms = {
       west: "maze4"
     },
     items: [],
-    disallowedTakes: {
+    scenery: {
       features: {
         names: ["identifying features", "features", "feature"],
         message: "Yeah there's none of those here",
@@ -1023,7 +1023,7 @@ const rooms = {
       west: "maze5"
     },
     items: [],
-    disallowedTakes: {
+    scenery: {
       features: {
         names: ["identifying features", "features", "feature"],
         message: "Yeah there's none of those here",
@@ -1041,7 +1041,7 @@ const rooms = {
       west: "maze8"
     },
     items: [],
-    disallowedTakes: {
+    scenery: {
       features: {
         names: ["identifying features", "features", "feature"],
         message: "Yeah there's none of those here",
@@ -1059,7 +1059,7 @@ const rooms = {
       west: "maze9"
     },
     items: [],
-    disallowedTakes: {
+    scenery: {
       features: {
         names: ["identifying features", "features", "feature"],
         message: "Yeah there's none of those here",
@@ -1078,7 +1078,7 @@ const rooms = {
       northwest: "dirt"
     },
     items: [],
-    disallowedTakes: {
+    scenery: {
       features: {
         names: ["identifying features", "features", "feature"],
         message: "Yeah there's none of those here",
@@ -1096,7 +1096,7 @@ const rooms = {
       west: "maze7"
     },
     items: [],
-    disallowedTakes: {
+    scenery: {
       features: {
         names: ["identifying features", "features", "feature"],
         message: "Yeah there's none of those here",
@@ -1114,7 +1114,7 @@ const rooms = {
       west: "maze11"
     },
     items: [],
-    disallowedTakes: {
+    scenery: {
       features: {
         names: ["identifying features", "features", "feature"],
         message: "Yeah there's none of those here",
@@ -1132,7 +1132,7 @@ const rooms = {
       west: "maze10"
     },
     items: [],
-    disallowedTakes: {
+    scenery: {
       features: {
         names: ["identifying features", "features", "feature"],
         message: "Yeah there's none of those here",
@@ -1168,7 +1168,7 @@ const rooms = {
       west: "You slide down a hole, falling onto the hard stone floor of"
     },
     items: [],
-    disallowedTakes: {
+    scenery: {
       features: {
         names: ["identifying features", "features", "feature"],
         message: "Yeah there's none of those here",
@@ -1181,7 +1181,7 @@ const rooms = {
     look: "A dead end. A bit more dead than usual, as there is a dead person here. I guess he gave up.",
     passages: {west: "maze11"},
     items: [],
-    disallowedTakes: {
+    scenery: {
       body: {
         names: ["dead person", "person", "body", "corpse"],
         message: "I don't think I should touch it",
@@ -1239,7 +1239,7 @@ const rooms = {
     look: "An old brickworks, long abandoned.",
     passages: {southeast: "large"},
     items: ["brick1", "brick2"],
-    disallowedTakes: {
+    scenery: {
       "machine": "What's left is degraded so much I can't touch it without it crumbling.",
       "machinery": "What's left is degraded so much I can't touch it without it crumbling.",
     },
@@ -1255,7 +1255,7 @@ const rooms = {
     },
     failedBackText: "You walk face first into the mirror.",
     items: [],
-    disallowedTakes: {
+    scenery: {
       "mirror": "It's far too big!"
     },
     objects:["mirror"]
@@ -1287,7 +1287,7 @@ const rooms = {
       west: "ezam3"
     },
     items: [],
-    disallowedTakes: {
+    scenery: {
       "hoarding": "It's stuck to the wall. Besides, it would be pretty heavy."
     }
   },
@@ -1495,7 +1495,7 @@ const rooms = {
       northwest: "water"
     },
     items: [],
-    disallowedTakes: {
+    scenery: {
       "grain": "There's no grain left here, just the smell.",
       "mill": "The mill is far too large and heavy.",
       "stones": "The grinding stones are enormous and immovable.",
@@ -1509,7 +1509,7 @@ const rooms = {
     look: "A bare room. There's a table bolted to the floor. Something feels mysterious here.",
     passages: {north: "grinder"},
     items: ["cup"],
-    disallowedTakes: {
+    scenery: {
       "table": "It's bolted to the floor."
     },
     light: true
@@ -1531,7 +1531,7 @@ const rooms = {
       }
     },
     items: [],
-    disallowedTakes: {
+    scenery: {
       "pipes": "They're stuck fast to the wall.",
       "steam": "What steam?"
     },
@@ -1542,7 +1542,7 @@ const rooms = {
     look: "A massive skylight reveals it's daytime. This room is super bright.",
     passages: {north: "machine"},
     items: [],
-    disallowedTakes: {
+    scenery: {
       "skylight": "It's far too high.",
       "light": "As much as I'd love for there to be this much light everywhere, I'm not a wizard.",
       "glass": "It's too high to reach.",
@@ -1557,7 +1557,7 @@ const rooms = {
       west: "boring"
     },
     items: [],
-    disallowedTakes: {
+    scenery: {
       "time": "Not even here does time stay still long enough for me to grasp it.",
       "slowness": "The effect isn't something I can bring with me.",
       "effect": "Whatever causes this is beyond my understanding of physics."
@@ -1619,7 +1619,7 @@ const rooms = {
       southeast: "round"
     },
     items: ["purpleKey"],
-    disallowedTakes: {
+    scenery: {
       "banners": "I probably shouldn't touch those. It feels disrespectful.",
       "altar": "It's a bit heavy, plus the whole \"Don't touch the religious stuff\" feels relevant here.",
       "alter": "I can't find any alter here. There is an altar though, did you mean that?"
@@ -1632,7 +1632,7 @@ const rooms = {
     look: "This small closet seems to be the maintenance hub for the church.",
     passages: {south: "candle"},
     items: [],
-    disallowedTakes: {
+    scenery: {
       "broom": "The broom handle snapped off. Only the bristle head remains, wedged in a corner.",
       "mop": "The mop is tangled around a pipe. I can't free it without breaking something.",
       "bucket": "The bucket is stuck to the floor. Something spilled and dried like cement.",
@@ -1665,7 +1665,7 @@ const rooms = {
       }
     },
     items: [],
-    disallowedTakes: {
+    scenery: {
       "tablet": "The stone tablet is secured to the podium.",
       "podium": "The podium is connected to the floor.",
       "inscriptions": "They're carved into the stone itself.",
@@ -1691,7 +1691,7 @@ const rooms = {
       west: "You walk down a set of stairs. They end at a hole. You jump down."
     },
     items: ["greenKey3"],
-    disallowedTakes: {
+    scenery: {
       "decorations": "They're stuck to the wall."
     },
     light: true
@@ -1715,7 +1715,7 @@ const rooms = {
       }
     },
     items: [],
-    disallowedTakes: {
+    scenery: {
       "mirror": "In order to take the mirrors, I'd have to break them first. I don't want 7 years bad luck.",
     },
     objects: ["redDoor"]
@@ -1731,7 +1731,7 @@ workshop: {
     look: "An abandoned workshop. Benches and shelves line the walls, covered in dust and worn down by time.",
     passages: {north: "rorrim"},
     items: ["screwdriver", "wrench"],
-    disallowedTakes: {
+    scenery: {
       "vise": "The vise is bolted to the bench.",
       "vice": "The vise is bolted to the bench.",
       "shelves": "They're attached to the wall.",
@@ -1754,7 +1754,7 @@ workshop: {
     },
     passages: {west: "rorrim"},
     items: [],
-    disallowedTakes: {
+    scenery: {
       "ball": "Upon touching the ball, your hand is thrown back with great velocity.",
       "energy": "You stick your hand into the energy. You recieve a sharp zap. You pull your hand away.",
       "forcefield": "You touch the force field. It pulses, throwing you back.",
@@ -1787,7 +1787,7 @@ workshop: {
       }
     },
     items: [],
-    disallowedTakes: {
+    scenery: {
       "tablet": "The tablet is fixed firmly to the pedestal.",
       "pedestal": "The pedestal is built into the floor.",
       "inscriptions": "The inscriptions are part of the stone walls.",
@@ -1801,7 +1801,7 @@ workshop: {
     look: "A mouldy old woodworks. Most of the equipment here is too far gone to be useful.",
     passages: {northeast: "riddle3"},
     items: [],
-    disallowedTakes: {
+    scenery: {
       "equipment": "Most of it is too far gone to be useful.",
       "machinery": "It's rusted solid and would crumble if I tried to move it.",
       "saw": "The saw blade is completely rusted through."
@@ -1822,7 +1822,7 @@ workshop: {
       }
     },
     items: [],
-    disallowedTakes: {
+    scenery: {
       "fence": "Are you kidding! That thing is massive!"
     },
     light: true
@@ -1857,7 +1857,7 @@ workshop: {
       down: "annoying"
     },
     items: [],
-    disallowedTakes: {
+    scenery: {
       "annoyance": "You are already very annoyed.",
       "frustration": "The frustration is already yours."
     }
@@ -1872,7 +1872,7 @@ workshop: {
     },
     failedBackText: "You walk face first into the mirror.",
     items: [],
-    disallowedTakes: {
+    scenery: {
       "mirror": "It's far too big!"
     },
     objects:["mirror"]
@@ -1882,7 +1882,7 @@ workshop: {
     look: "A luxurious room, red velvet padding lines the walls. Deep mahogany forms the highlights.",
     passages: {west: "mirror2"},
     items: [],
-    disallowedTakes: {
+    scenery: {
       "velvet": "I don't want to spoil the splendor of this place!",
       "mahogany": "I'd have to destroy the room to take it. I'm not a vandal!",
       "padding": "The velvet padding is attached to the walls. I'd have to tear it off, and I'm not doing that."
@@ -1902,7 +1902,7 @@ workshop: {
     entryMessages: {
       northwest: "You fall down a short hole, landing in"
     },
-    disallowedTakes: {
+    scenery: {
       "grates": "But then I'd have nothing to stand on!",
       "smoke": "*cough cough* The only way to take this with me is within my lungs. I might be doing that involuntarily"
     },
@@ -1918,7 +1918,7 @@ workshop: {
       northwest: "dry"
     },
     items: [],
-    disallowedTakes: {
+    scenery: {
       "slime": "It's stuck to the walls"
     }
   },
@@ -1951,7 +1951,7 @@ workshop: {
     },
     failedBackText: "The hole in the roof closed up, somehow.",
     items: [],
-    disallowedTakes: {
+    scenery: {
       "vents": "They're built into the walls.",
       "vent": "It's built into the wall.",
       "moisture": "There isn't any. That's the whole point of this room."
@@ -1966,7 +1966,7 @@ workshop: {
       south: "battery"
     },
     items: [],
-    disallowedTakes: {
+    scenery: {
       "residue": "It's stuck fast to everything. I'd need a chisel to scrape it off.",
       "goop": "It's hardened into a crust. Not coming off without serious effort."
     },
@@ -1980,7 +1980,7 @@ workshop: {
       east: "tiny"
     },
     items: ["battery"],
-    disallowedTakes: {
+    scenery: {
       "servers": "The server racks are completely empty, save for a bit of marshmallow slime.",
       "racks": "They're mounted to the wall.",
       "tech": "There's none here.",
@@ -1999,7 +1999,7 @@ workshop: {
       west: "smith"
     },
     items: ["greenKey4"],
-    disallowedTakes: {
+    scenery: {
       "cramps": "You've already got those, unfortunately."
     }
   },
@@ -2011,7 +2011,7 @@ workshop: {
       south: "hideout"
     },
     items: ["tongs", "coal", "crucible"],
-    disallowedTakes: {
+    scenery: {
       "anvil": "That anvil must weigh at least a tonne. I'm not that strong.",
       "workbench": "It's built into the floor. Not going anywhere.",
       "bench": "It's built into the floor. Not going anywhere."
@@ -2028,7 +2028,7 @@ workshop: {
       south: "smith"
     },
     items: [], // You get items here when you eat the blue cake.
-    disallowedTakes: {
+    scenery: {
       "treasure": "It's clear someone still lives here. I'm quite OK with finding things, but I'm not a thief.",
       "coins": "It's clear someone still lives here. I'm quite OK with finding things, but I'm not a thief.",
       "jewels": "It's clear someone still lives here. I'm quite OK with finding things, but I'm not a thief.",
@@ -2044,7 +2044,7 @@ workshop: {
     look: "A derilect hair salon. It still has a few hair dryers, although I would seriously doubt they work.",
     passages: {west: "hideout"},
     items: ["brush"],
-    disallowedTakes: {
+    scenery: {
       "dryers": "They're mounted to the walls, and I doubt they work anyway.",
       "dryer": "It's mounted to the wall, and I doubt it works anyway.",
       "hair dryer": "It's mounted to the wall, and I doubt it works anyway.",
@@ -2083,7 +2083,7 @@ workshop: {
       killIfInventory: {dynamite: "As you walk into the incinerator, the dynamite you carry instantly blows up, taking you with it."}
     },
     items: [],
-    disallowedTakes: {
+    scenery: {
       "incinerator": "It's a room-sized installation. I can't just pick it up.",
       "grating": "The metal grating covers the ceiling. It's not coming down.",
       "grates": "The metal grating covers the ceiling. It's not coming down."
@@ -2115,7 +2115,7 @@ workshop: {
       west: "cyclops"
     },
     items: [],
-    disallowedTakes: {
+    scenery: {
       "spots": "They're a part of the wall.",
       "polkadots": "I'm not sure how you want me to accomplish that. I don't have a paint scraper."
     }
@@ -2134,7 +2134,7 @@ workshop: {
       }
     },
     items: [],
-    disallowedTakes: {
+    scenery: {
       "shelves": "They're attached to the walls.",
       "shelf": "It's attached to the wall.",
       "cloaks": "There are none left here. I've already checked thoroughly.",
@@ -2155,7 +2155,7 @@ workshop: {
       down: "hat"
     },
     items: [],
-    disallowedTakes: {
+    scenery: {
       "windows": "The windows are set into the stone. I'd need tools to remove them.",
       "window": "The window is set into the stone. I'd need tools to remove it.",
       "glass": "The stained glass is part of the windows. I can't remove it.",
@@ -2175,7 +2175,7 @@ workshop: {
     look: "A peaceful blue sanctuary. Stained glass windows filter the light into soothing blue hues.",
     passages: {west: "bell"},
     items: ["blueKey"],
-    disallowedTakes: {
+    scenery: {
       "windows": "The stained glass windows are set into the walls.",
       "window": "The stained glass window is set into the wall.",
       "glass": "The stained glass is part of the windows. I can't remove it.",
@@ -2189,7 +2189,7 @@ workshop: {
     look: "This small chapel is decorated entirely in green. Jade-tinted windows bathe everything in verdant light.",
     passages: {southwest: "bell"},
     items: ["greenKey5"],
-    disallowedTakes: {
+    scenery: {
       "windows": "The stained glass windows are set into the walls.",
       "window": "The stained glass window is set into the wall.",
       "glass": "The stained glass is part of the windows. I can't remove it.",
@@ -2203,7 +2203,7 @@ workshop: {
     look: "A beautiful sanctuary. Red stained glass windows cast crimson light across ornate decorations.",
     passages: {northeast: "bell"},
     items: ["redKey"],
-    disallowedTakes: {
+    scenery: {
       "windows": "The stained glass windows are set into the walls.",
       "window": "The stained glass window is set into the wall.",
       "glass": "The stained glass is part of the windows. I can't remove it.",
@@ -2226,7 +2226,7 @@ workshop: {
       }
     },
     items: ["dynamite"],
-    disallowedTakes: {
+    scenery: {
       "crates": "The other crates are nailed shut and far too heavy to carry.",
       "crate": "The other crates are nailed shut and far too heavy to carry.",
       "explosives": "The rest of the explosives are sealed in the other crates. I can't get to them.",
@@ -2245,7 +2245,7 @@ workshop: {
       east: "lake"
     },
     items: ["extinguisher"],
-    disallowedTakes: {
+    scenery: {
       "shelves": "They're bolted to the walls.",
       "shelf": "It's bolted to the wall."
     }
@@ -2264,7 +2264,7 @@ workshop: {
       }
     },
     items: [],
-    disallowedTakes: {
+    scenery: {
       "water": "I don't have anything to hold it in.",
       "lake": "I can't take an entire lake.",
       "peninsula": "It's made of rock and earth. I can't exactly take geography with me.",
@@ -2281,7 +2281,7 @@ workshop: {
       east: "lake"
     },
     items: ["brassHammer"],
-    disallowedTakes: {
+    scenery: {
       "benches": "The workbenches are massive and built into the floor.",
       "bench": "The workbench is massive and built into the floor.",
       "workbench": "It's massive and built into the floor.",
@@ -2296,7 +2296,7 @@ workshop: {
       south: "hammer2"
     },
     items: ["greenKey8"],
-    disallowedTakes: {
+    scenery: {
       "trim": "The green trim is inlaid into the stone. It's not coming out."
     }
   },
@@ -2314,7 +2314,7 @@ workshop: {
       }
     },
     items: [],
-    disallowedTakes: {
+    scenery: {
       "haze": "You grasp the haze. It slips through your fingers.",
       "stone": "The stone blocks are ancient and massive. I couldn't budge one.",
       "stones": "The stone blocks are ancient and massive. I couldn't budge one."
@@ -2333,7 +2333,7 @@ workshop: {
       west: "vendingMachine"
     },
     items: [],
-    disallowedTakes: {
+    scenery: {
       "table": "You grab one of the legs of the pool table. After straining yourself, you decide the table is going nowhere.",
       "pool table": "You grab one of the legs of the pool table. After straining yourself, you decide the table is going nowhere.",
       "pool-table": "You grab one of the legs of the pool table. After straining yourself, you decide the table is going nowhere.",
@@ -2362,7 +2362,7 @@ workshop: {
       west: "pool"
     },
     items: [],
-    disallowedTakes: {
+    scenery: {
       "clock": "Tick tock.",
       "clocks": "Tick tock.",
       "ticking": "Tick tock.",
@@ -2388,7 +2388,7 @@ workshop: {
       }
     },
     items: [],
-    disallowedTakes: {
+    scenery: {
       "ceiling": "The vaulted ceiling is magnificent, but I can't exactly take it with me.",
       "floor": "The polished stone floor is built into the structure.",
       "floors": "The polished stone floors are built into the structure.",
@@ -2399,11 +2399,17 @@ workshop: {
       "column": "The column is far too massive to move."
     },
     objects: ["door"],
+    entryMessages: {
+      east: () => `PLACEHOLDER: Ending message goes here. It took you ${gameState.commandCount} commands to escape.` // TODO: replace with ending text
+    },
+    onExit: {
+      east: { setFlags: ["gameOver"] }
+    },
     light: true
   },
   forrest: {
     name: "The Forest",
-    look: "", // I'm not sure how to end the game mechanically, so leaving this for now.
+    look: "PLACEHOLDER: Forest look description goes here.", // TODO: replace with forest description
     passages: {},
     items: [],
     light: true

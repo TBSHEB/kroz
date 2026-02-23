@@ -123,8 +123,8 @@ function buildInteractablesList() {
   });
 
   // Add room-specific disallowed items (things that exist but can't be taken)
-  if (currentRoom.disallowedTakes) {
-    Object.keys(currentRoom.disallowedTakes).forEach(itemId => {
+  if (currentRoom.scenery) {
+    Object.keys(currentRoom.scenery).forEach(itemId => {
       interactables.push({
         id: itemId,
         type: 'generic',
@@ -1292,7 +1292,7 @@ function take(things) {
       }
     }
 
-    const nonTakeableItems = currentRoom.disallowedTakes ? Object.keys(currentRoom.disallowedTakes) : [];
+    const nonTakeableItems = currentRoom.scenery ? Object.keys(currentRoom.scenery) : [];
 
     if (things.length !== 1) {
       for (const thing of things) {
@@ -1309,8 +1309,8 @@ function take(things) {
           setRoomState("items", itemId, false);
 
           feedback += `${thing}: Taken.\n`;
-        } else if (currentRoom.disallowedTakes && nonTakeableItems.includes(thing)) {
-          feedback += `${thing}: ${currentRoom.disallowedTakes[thing]}.\n`;
+        } else if (currentRoom.scenery && nonTakeableItems.includes(thing)) {
+          feedback += `${thing}: ${currentRoom.scenery[thing]}.\n`;
         } else if (genericDisallowedItems[thing]) {
           feedback += `${thing}: ${genericDisallowedItems[thing]}.\n`;
         } else {
@@ -1330,8 +1330,8 @@ function take(things) {
         setRoomState("items", itemId, false);
 
         feedback += "Taken.";
-      } else if (currentRoom.disallowedTakes && nonTakeableItems.includes(things[0])) {
-        feedback += currentRoom.disallowedTakes[things[0]];
+      } else if (currentRoom.scenery && nonTakeableItems.includes(things[0])) {
+        feedback += currentRoom.scenery[things[0]];
       } else if (genericDisallowedItems[things[0]]) {
         feedback += genericDisallowedItems[things[0]];
       } else {

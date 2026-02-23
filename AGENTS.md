@@ -68,7 +68,10 @@ Kroz/
 │   ├── game.js        # Core game logic and DOM handling
 │   ├── commands/      # Command system (modular)
 │   │   ├── actions.js      # Action commands (take, drop, use, etc.)
-│   │   ├── helpers.js      # Parsing and utility functions
+│   │   ├── helpers/        # Helper functions (split by domain)
+│   │   │   ├── environment.js  # State management, effects, room tracking, temp items, utilities
+│   │   │   ├── mechanics.js    # Combat, recipes, riddles, hazards, processTick
+│   │   │   └── parsing.js      # Input parsing, item lookup, disambiguation
 │   │   ├── information.js  # Info commands (look, examine, inventory)
 │   │   ├── movement.js     # Movement commands (north, south, etc.)
 │   │   ├── registry.js     # Command registration and aliases
@@ -95,25 +98,27 @@ Kroz/
 **IMPORTANT:** Scripts must load in this exact order in `index.html`:
 
 ```html
-<script src="js/map.js"></script>                    <!-- 1. Room definitions -->
-<script src="js/items.js"></script>                  <!-- 2. Item definitions -->
-<script src="js/objects.js"></script>                <!-- 3. Object definitions -->
-<script src="js/commands/helpers.js"></script>       <!-- 4. Command helpers -->
-<script src="js/commands/use/attack.js"></script>    <!-- 5. Use: attack handler -->
-<script src="js/commands/use/operate.js"></script>   <!-- 6. Use: operate handler -->
-<script src="js/commands/use/apply.js"></script>     <!-- 7. Use: apply handler -->
-<script src="js/commands/use/craft.js"></script>     <!-- 8. Use: craft handler -->
-<script src="js/commands/use/resolution.js"></script><!-- 9. Use: resolution/routing -->
-<script src="js/commands/use/use.js"></script>       <!-- 10. Use: main entry point -->
-<script src="js/commands/actions.js"></script>       <!-- 11. Action commands -->
-<script src="js/commands/movement.js"></script>      <!-- 12. Movement commands -->
-<script src="js/commands/information.js"></script>   <!-- 13. Info commands -->
-<script src="js/commands/registry.js"></script>      <!-- 14. Command registry -->
-<script src="js/game.js"></script>                   <!-- 15. Core game logic -->
-<script src="js/storage.js"></script>                <!-- 16. Save/load functions -->
+<script src="js/map.js"></script>                              <!-- 1. Room definitions -->
+<script src="js/items.js"></script>                            <!-- 2. Item definitions -->
+<script src="js/objects.js"></script>                          <!-- 3. Object definitions -->
+<script src="js/commands/helpers/environment.js"></script>     <!-- 4. Helpers: state, effects, utilities -->
+<script src="js/commands/helpers/mechanics.js"></script>       <!-- 5. Helpers: combat, hazards, processTick -->
+<script src="js/commands/helpers/parsing.js"></script>         <!-- 6. Helpers: parsing, item lookup -->
+<script src="js/commands/use/attack.js"></script>              <!-- 7. Use: attack handler -->
+<script src="js/commands/use/operate.js"></script>             <!-- 8. Use: operate handler -->
+<script src="js/commands/use/apply.js"></script>               <!-- 9. Use: apply handler -->
+<script src="js/commands/use/craft.js"></script>               <!-- 10. Use: craft handler -->
+<script src="js/commands/use/resolution.js"></script>          <!-- 11. Use: resolution/routing -->
+<script src="js/commands/use/use.js"></script>                 <!-- 12. Use: main entry point -->
+<script src="js/commands/actions.js"></script>                 <!-- 13. Action commands -->
+<script src="js/commands/movement.js"></script>                <!-- 14. Movement commands -->
+<script src="js/commands/information.js"></script>             <!-- 15. Info commands -->
+<script src="js/commands/registry.js"></script>                <!-- 16. Command registry -->
+<script src="js/game.js"></script>                             <!-- 17. Core game logic -->
+<script src="js/storage.js"></script>                          <!-- 18. Save/load functions -->
 ```
 
-Reason: `map.js` references items from `items.js` and objects from `objects.js`. The use command handlers must load before the main use.js entry point. All commands must load before `game.js`. `game.js` depends on all data and command definitions.
+Reason: `map.js` references items from `items.js` and objects from `objects.js`. Helper files load environment first (state setters used by all), then mechanics, then parsing. The use command handlers must load before the main use.js entry point. All commands must load before `game.js`. `game.js` depends on all data and command definitions.
 
 ## Code Style Guidelines
 
@@ -189,12 +194,15 @@ const rooms = {
       }
     },
     onExit: {                     // Flags set when leaving (optional)
-      setFlags: ["leftRoom"]
+      setFlags: ["leftRoom"]     // Any-exit format: fires on all exits
+      // OR direction-specific:
+      // east: { setFlags: ["gameOver"] }  // Only fires when leaving east
     },
     entryMessages: {              // Custom messages on entry (optional)
-      north: "You fall through a hole."
+      north: "You fall through a hole."  // String or function
+      // east: () => `Dynamic message: ${gameState.commandCount}`
     },
-    disallowedTakes: {            // Items that can't be taken
+    scenery: {            // Items that can't be taken
       "walls": "The walls are part of the structure."
     }
   }
@@ -292,7 +300,10 @@ const objects = {
 
 The command system is modular:
 
-- **helpers.js**: Parsing utilities (`parseActionCommand()`, `findMatchingItem()`, etc.)
+- **helpers/ directory**: Helper functions split by domain
+  - **environment.js**: State management (`setGameState`, `setRoomState`, `applyEffects`, `trackRoomChange`), temporary items, holding flags, utilities (`pickRandom`, `arraysMatchUnordered`)
+  - **mechanics.js**: Combat (`initializeCombat`, `processEnemyTurns`), hazards (`processHazards`, `checkKillIfInventory`), puzzles (`checkRiddleAnswer`, `findRecipeMatch`, `checkCombinations`), `processTick` (post-command game world tick)
+  - **parsing.js**: Input parsing (`parseActionCommand`, `parseThingsFromWords`), item lookup (`buildInteractablesList`, `findInteractable`, `disambiguateItem`), name resolution (`replaceSplitWordsWithFullName`, `matchItemPhrase`)
 - **use/ directory**: Modular "use" command system
   - **attack.js**: Handles attack/combat use interactions
   - **operate.js**: Handles operate verb (levers, switches, mechanisms)
@@ -338,6 +349,8 @@ Save format stored in localStorage under key `'kroz-save'`:
   itemCountdowns: {               // Temporary item countdowns
     itemId: 350
   },
+  sequences: {},                  // Puzzle sequence state (e.g., colorCode, buttonsPressed)
+  commandCount: 0,                // Total commands processed (used in ending)
   lastCheckpoint: "start",        // Respawn location
   timestamp: "ISO-8601 string"
 }
@@ -636,12 +649,17 @@ See `TODO.md` for current task list and priorities.
 - Checkpoint system (safe respawn points)
 - Infinite items (gum, dynamite with restrictions)
 - Ladder placement mechanics
-- Dynamic room text (function-based names/descriptions)
+- Dynamic room text (function-based names/descriptions/entryMessages)
 - Restricted passages with requirements
 - Mirror room (reversed directions)
+- Sequence puzzle system (generic checkSequence effect in applyEffects)
+- Game ending system (gameOver flag disables input, command counter tracks total commands)
+- Post-command tick system (processTick handles world state advancement)
+- Directional onExit support (direction-specific or any-exit flag setting)
 
 **Remaining Content:**
-- Riddle answers (riddle1 text, riddle2/3 answer arrays)
+- Door room ending text (placeholder)
+- Forrest room look description (placeholder)
 - Testing all implemented systems
 - Bug fixes (optional)
 

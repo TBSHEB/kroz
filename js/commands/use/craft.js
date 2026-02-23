@@ -64,31 +64,8 @@ function handleCraft(itemNames) {
       // Add result item to inventory
       setGameState("inventory", resultId);
 
-      // Set flags if specified
-      if (recipe.setFlags) {
-        recipe.setFlags.forEach(flag => {
-          if (!gameState.flags.includes(flag)) {
-            setGameState("flags", flag);
-          }
-        });
-      }
-
-      // Unset flags if specified
-      if (recipe.unsetFlags) {
-        recipe.unsetFlags.forEach(flag => {
-          if (gameState.flags.includes(flag)) {
-            setGameState("flags", flag, false);
-          }
-        })
-      }
-
-      if (recipe.resetCooldowns) {
-        recipe.resetCooldowns.forEach(itemId => {
-          if (gameState.itemCooldowns[itemId] !== undefined) {
-            gameState.itemCountdowns[itemId] = 0;
-          }
-        });
-      }
+      // Apply effects (setFlags, unsetFlags, resetCountdowns, etc.)
+      applyEffects(recipe.effects);
 
       // Display message
       displayText(recipe.message);

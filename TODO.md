@@ -9,7 +9,7 @@
 - [x] Added partial item name aliases to all items (keys, cakes, hammer, dynamite, cup, etc.)
 - [x] Fixed internal item ID exposure → display names in multi-step prompts (resolution.js)
 - [x] Fixed grammar typo → "Its mounting" not "It's mounting" (chandelier)
-- [x] Fixed dead enemies in disallowedTakes → removed troll and ogre entries
+- [x] Fixed dead enemies in scenery → removed troll and ogre entries
 - [x] Fixed debug display error → added null checks in updateDebugDisplays()
 - [x] Completely rewrote help command → added progressive goals system
 - [x] Added stackId system for interchangeable items (green keys, pickaxes)
@@ -53,18 +53,18 @@
 - [x] Add map item setFlag to enable hasMap flag in three room
 - [x] Fix bug with take all taking all forms of a thing
 - [x] Fix crafting duplication bug: items in room can be used for crafting without being consumed - require all craft components to be in inventory before allowing craft
-- [x] Fix double periods in messages (especially "take all" with disallowedTakes) - implement hybrid punctuation: auto-add period only if message doesn't end with ., !, or ?
+- [x] Fix double periods in messages (especially "take all" with scenery) - implement hybrid punctuation: auto-add period only if message doesn't end with ., !, or ?
 - [x] Fix items not responding to partial names (e.g., "take key" fails, requires "take green key") - expand names arrays with common shortened versions
 - [x] Fix single-word unrecognized commands giving no feedback - ensure error message displays for all unrecognized inputs, not just multi-word commands
 - [x] Fix take message format inconsistency - single item failures should use natural format ("You can't take the cave-in"), not colon format ("cave-in: ...") which is only for "take all"
-- [x] Fix dead enemies still having disallowedTakes - after killing troll/ogre/etc, "take troll" should say "I can't find a troll" not "I can't carry a troll" (remove/flag objects after combat death)
+- [x] Fix dead enemies still having scenery - after killing troll/ogre/etc, "take troll" should say "I can't find a troll" not "I can't carry a troll" (remove/flag objects after combat death)
 - [x] Fix hammer consumption in crafting - make hammer a reusable tool (don't consume it after crafting ladder/map)
 - [x] Fix fire room north passage hazard not killing player - debug existing restricted passages system to properly block/kill on unsafe passage (IMPLEMENTED with killIfInventory hazard feature for dynamite)
 - [x] Fix extinguisher not removing fire hazard - ensure "use extinguisher on fire" properly sets fireExtinguished flag and removes passage restriction
 - [x] Fix ambiguous item matching - when multiple items match (e.g., "take key" with greenKey, silverKey, dungeonKey present), ask "Which key?" without listing options (applies to take, use, drop, examine, all commands)
 - [ ] Fix missing punctuation across all messages - systematically add periods to examine responses, action feedback, and state messages:
   - items.js: boards examine, skull examine (if has examine property)
-  - objects.js: chandelier examine, dungeonTrapdoor examine message, chain examine in disallowedTakes
+  - objects.js: chandelier examine, dungeonTrapdoor examine message, chain examine in scenery
   - map.js genericExamines or room-specific examines: sand examine, walls examine, floor examine, compass examine
   - commands/actions.js: "Taken." messages, "Dropped." messages, trapdoor unlock message
   - commands/use/craft.js: ladder craft success message
@@ -74,8 +74,11 @@
   - Hole room down message: "The drop looks deadly. I need something to break my fall"
   - Pickaxe cave-in messages: "You chip away at the rubble. The frail pickaxe breaks" and "You clear some of the rubble. Unfortunately, the pickaxe breaks"
 - [ ] Verify and fix save/load functionality - double-check that saves are working properly, test save persistence and state restoration
+- [ ] Verify puzzle state persistence - check whether gameState.colorCode and gameState.buttonsPressed (ball room button puzzle) survive save/reload. If not, add them to saveGame/loadGame/resetGameState
 
 ## Code Quality
+- [ ] Consider splitting helpers.js into focused files (e.g. combat.js, environment.js, parsing.js) - currently 896 lines covering 30+ unrelated functions
+- [ ] Consider refactoring handleCommand() in game.js - 180-line nested if/else dispatcher, post-command step ordering is implicit and fragile
 - [x] Fix look() function - replace "typeof room.look == object" with === (lines 50, 70, 72)
 - [x] Implement natural language verb support - add parser-level recognition for verbs like eat, drink, unlock, wear, attack, etc. that route to appropriate use command handlers
 - [x] Complete softlock removal - audit and fix all possible softlock scenarios in the game
@@ -85,7 +88,7 @@
 - [x] Implement all missing room names (cyclops, extinguisher, door)
 - [x] Implement all missing room descriptions (14 rooms)
 - [x] Complete all incomplete room descriptions (hideout, hammer2, pool, bell)
-- [x] Add comprehensive disallowedTakes to all rooms (20+ rooms updated)
+- [x] Add comprehensive scenery to all rooms (20+ rooms updated)
 - [x] Complete fire room look parts and metDescription
 - [x] Complete lake room metDescription
 - [x] Update REQUIREDMAPDATA.md with all items and objects from lines 1251-1670
@@ -219,4 +222,5 @@
 - [ ] Update cyclops room restricted passage unmet description
 
 ## Deferred Items
-- [ ] Forrest room look description (final room, game ending mechanics need to be determined first)
+- [ ] Replace door room entryMessages.east placeholder with ending text (map.js, door room) - function receives gameState.commandCount
+- [ ] Replace forrest room look placeholder with forest description (map.js, forrest room)

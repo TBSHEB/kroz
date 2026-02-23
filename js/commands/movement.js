@@ -5,12 +5,14 @@ function performRoomTransition(direction, targetRoom) {
   const currentRoom = rooms[gameState.currentRoom];
 
   if (currentRoom.entryMessages && currentRoom.entryMessages[direction]) {
-    displayText(currentRoom.entryMessages[direction]);
+    const message = typeof currentRoom.entryMessages[direction] === 'function' ? currentRoom.entryMessages[direction]() : currentRoom.entryMessages[direction];
+    displayText(message);
   }
 
   if (currentRoom.onExit && gameState.visitedRooms.includes(gameState.currentRoom)) {
-    if (currentRoom.onExit.setFlags) {
-      for (const flag of currentRoom.onExit.setFlags) {
+    const exitData = currentRoom.onExit[direction] || currentRoom.onExit;
+    if (exitData.setFlags) {
+      for (const flag of exitData.setFlags) {
         if (!gameState.flags.includes(flag)) {
           gameState.flags.push(flag);
         }
@@ -30,8 +32,14 @@ function performRoomTransition(direction, targetRoom) {
       saveGame(gameState, "internal checkpoint");
     }
   } else {
-    const roomName = typeof rooms[gameState.currentRoom].name === "function" ? rooms[gameState.currentRoom].name() : rooms[gameState.currentRoom].name;
-    displayRoomTitle(roomName);
+    const newRoom = rooms[gameState.currentRoom];
+    if (!newRoom.light && !gameState.flags.includes("lanternLit")) {
+      displayRoomTitle("A dark room");
+      displayText("It's too dark to see!");
+    } else {
+      const roomName = typeof newRoom.name === "function" ? newRoom.name() : newRoom.name;
+      displayRoomTitle(roomName);
+    }
   }
 }
 

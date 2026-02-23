@@ -19,6 +19,8 @@ function saveGame(gameState, saveName = null) {
             itemCountdowns: gameState.itemCountdowns,
             hazardState: gameState.hazardState,
             roomChanges: gameState.roomChanges,
+            sequences: gameState.sequences,
+            commandCount: gameState.commandCount,
             lastCheckpoint: gameState.lastCheckpoint,
             timestamp: new Date().toISOString()
         };

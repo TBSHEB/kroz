@@ -2,11 +2,6 @@
 
 // Handle applying items to objects/targets
 function handleApply(item, target) {
-  console.log("DEBUG handleApply:");
-  console.log("  item:", item);
-  console.log("  target:", target);
-  console.log("  target.type:", target?.type);
-  console.log("  target.applyWith:", target?.applyWith);
   // Special case: ladder placement on floor/ground
   if ((item.id === 'stepladder' || item.id === 'ladder') && (target.id === 'floor' || target.id === 'ground')) {
     setRoomState("items", item.id);
@@ -22,8 +17,8 @@ function handleApply(item, target) {
     return handleOperate('use', item);
   }
 
-  // Check if target is a disallowedTake with apply interactions
-  if (target.type === 'disallowedTake' && target.apply) {
+  // Check if target is a scene with apply interactions
+  if (target.type === 'scene' && target.apply) {
     // apply is an object with item IDs as keys and error messages as values
     let errorMessage = target.apply[item.id];
     if (errorMessage) {
@@ -112,124 +107,8 @@ function handleApply(item, target) {
       : interaction.message;
     displayText(message);
 
-    // Set flags
-    if (interaction.setFlags) {
-      interaction.setFlags.forEach(flag => {
-        if (!gameState.flags.includes(flag)) {
-          setGameState("flags", flag);
-        }
-      });
-    }
-
-    // Set flags if all flags already set
-    if (interaction.setFlagsIfAllFlags && interaction.setFlagsIfAllFlags.required.every(f => gameState.flags.includes(f))) {
-      interaction.setFlagsIfAllFlags.set.forEach(flag => {
-        if (!gameState.flags.includes(flag)) {
-          setGameState("flags", flag);
-        }
-      })
-    }
-
-    // Unset flags
-    if (interaction.unsetFlags) {
-      interaction.unsetFlags.forEach(flag => {
-        setGameState("flags", flag, false)
-      });
-    }
-
-    // Consume item
-    if (interaction.consumeItem) {
-      setGameState("inventory", item.id, false)
-    }
-
-    // Give items to inventory
-    if (interaction.giveItems) {
-      interaction.giveItems.forEach(itemId => {
-        setGameState("inventory", itemId);
-      });
-    }
-
-    // Drop items in room
-    const currentRoom = rooms[gameState.currentRoom];
-    if (interaction.dropItems) {
-      if (!currentRoom.items) currentRoom.items = [];
-      interaction.dropItems.forEach(itemId => {
-        setRoomState("items", itemId);
-        trackRoomChange(itemId, "item");
-      });
-    }
-
-    // Add objects to room
-    if (interaction.addObjects) {
-      interaction.addObjects.forEach(objectId => {
-        setRoomState("objects", objectId);
-        trackRoomChange(objectId, "object");
-      });
-    }
-
-    // Remove object from room
-    if (interaction.removeObject && currentRoom.objects) {
-      setRoomState("objects", target.id, false);
-      trackRoomChange(target.id, "object", false);
-    }
-
-    // Conditional removal (removeObjectIfAllFlags)
-    if (interaction.removeObjectIfAllFlags && interaction.removeObjectIfAllFlags.every(f => gameState.flags.includes(f))) {
-      if (currentRoom.objects) {
-        setRoomState("objects", target.id, false);
-        trackRoomChange(target.id, "object", false);
-        if (objects[target.id] && objects[target.id].removeMessage) {
-          displayText(objects[target.id].removeMessage);
-        }
-      }
-    }
-
-
-
-    // Trigger effects on other objects
-    if (interaction.triggerEffects) {
-      interaction.triggerEffects.forEach(objectId => {
-        const affectedObj = objects[objectId];
-        if (affectedObj && affectedObj.triggerEffects) {
-          const effect = affectedObj.triggerEffects;
-
-          // Set flags
-          if (effect.setFlags) {
-            effect.setFlags.forEach(flag => {
-              if (!gameState.flags.includes(flag)) {
-                setGameState("flags", flag);
-              }
-            });
-          }
-
-          // Drop items
-          if (effect.dropItems) {
-            if (effect.room) {
-              effect.dropItems.forEach(itemId => {
-                setRoomState("items", itemId, true, effect.room);
-                trackRoomChange(itemId, "item", true, effect.room);
-              });
-            } else {
-              effect.dropItems.forEach(itemId => {
-                setRoomState("items", itemId);
-                trackRoomChange(itemId, "item");
-              });
-            }
-          }
-
-          // Remove object from its room
-          if (effect.removeOnTrigger) {
-            if (effect.room) {
-              setRoomState("objects", objectId, false, effect.room);
-              trackRoomChange(objectId, "object", false, effect.room);
-            } else {
-              setRoomState("objects", objectId, false);
-              trackRoomChange(objectId, "object", false);
-            }
-          }
-        }
-      });
-    }
+    // Apply effects
+    applyEffects(interaction.effects);
 
     return true;
   }
@@ -242,14 +121,8 @@ function handleApply(item, target) {
 function handleCombination(items, target) {
 
   // This has already been checked, so should always work, but we'll double check to be safe
-  console.log("DEBUG handleCombination:");
-  console.log("  items:", items);
-  console.log("  target:", target);
-  console.log("  target.type:", target?.type);
-  console.log("  target.applyWith:", target?.applyWith);
-
-  // Check if target is a disallowedTake with apply interactions
-  if (target.type === 'disallowedTake' && target.apply) {
+  // Check if target is a scene with apply interactions
+  if (target.type === 'scene' && target.apply) {
     // Check if any of the items have a specific error message
     for (const itemId of items) {
       let errorMessage = target.apply[itemId];
@@ -375,108 +248,8 @@ function handleCombination(items, target) {
     displayText(message);
 
 
-    // Set flags
-    if (interaction.setFlags) {
-      interaction.setFlags.forEach(flag => {
-        if (!gameState.flags.includes(flag)) {
-          setGameState("flags", flag);
-        }
-      });
-    }
-
-    // Unset flags
-    if (interaction.unsetFlags) {
-      interaction.unsetFlags.forEach(flag => {
-        setGameState("flags", flag, false)
-      });
-    }
-
-    // Consume items
-    if (interaction.consumeItems) {
-      interaction.consumeItems.forEach(item => {
-        setGameState("inventory", item, false);
-      })
-    }
-
-    // Give items to inventory
-    if (interaction.giveItems) {
-      interaction.giveItems.forEach(itemId => {
-        setGameState("inventory", itemId);
-      });
-    }
-
-    // Drop items in room
-    const currentRoom = rooms[gameState.currentRoom];
-    if (interaction.dropItems) {
-      if (!currentRoom.items) currentRoom.items = [];
-      interaction.dropItems.forEach(itemId => {
-        setRoomState("items", itemId);
-        trackRoomChange(itemId, "item");
-      });
-    }
-
-    // Add objects to room
-    if (interaction.addObjects) {
-      interaction.addObjects.forEach(objectId => {
-        setRoomState("objects", objectId);
-        trackRoomChange(objectId, "object");
-      });
-    }
-
-    // Remove object from room
-    if (interaction.removeObject && currentRoom.objects) {
-      setRoomState("objects", target.id, false);
-      trackRoomChange(target.id, "object", false);
-    }
-
-    if (target.removeMessage) {
-      displayText(target.removeMessage);
-    }
-
-    // Trigger effects on other objects
-    if (interaction.triggerEffects) {
-      interaction.triggerEffects.forEach(objectId => {
-        const affectedObj = objects[objectId];
-        if (affectedObj && affectedObj.triggerEffects) {
-          const effect = affectedObj.triggerEffects;
-
-          // Set flags
-          if (effect.setFlags) {
-            effect.setFlags.forEach(flag => {
-              if (!gameState.flags.includes(flag)) {
-                setGameState("flags", flag);
-              }
-            });
-          }
-
-          // Drop items
-          if (effect.dropItems) {
-            if (effect.room) {
-              effect.dropItems.forEach(itemId => {
-                setRoomState("items", itemId, true, effect.room);
-                trackRoomChange(itemId, "item", true, effect.room);
-              });
-            } else {
-              effect.dropItems.forEach(itemId => {
-                setRoomState("items", itemId);
-                trackRoomChange(itemId, "item");
-              });
-            }
-          }
-
-          // Remove object from its room
-          if (effect.removeOnTrigger) {
-            if (effect.room) {
-              setRoomState("objects", objectId, false, effect.room);
-              trackRoomChange(objectId, "object", false, effect.room);
-            } else {
-              setRoomState("objects", objectId, false);
-              trackRoomChange(objectId, "object", false);
-            }
-          }
-        }
-      });
-    }
+    // Apply effects
+    applyEffects(interaction.effects);
 
     return true;
   }
