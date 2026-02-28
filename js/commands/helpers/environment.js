@@ -38,11 +38,13 @@ function evaluateCanTake(conditions) {
 
 // Resolve {{gameState.x.y}} templates in a string
 function resolveTemplates(text) {
+  const roots = { gameState };
   return text.replace(/\{\{(.+?)\}\}/g, (match, path) => {
     const parts = path.split('.');
-    let val = window;
-    for (const part of parts) {
-      val = val?.[part];
+    let val = roots[parts[0]];
+    if (val === undefined) return match;
+    for (let i = 1; i < parts.length; i++) {
+      val = val?.[parts[i]];
       if (val === undefined) return match;
     }
     return Array.isArray(val) ? val.join(', ') : val;
