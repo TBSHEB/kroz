@@ -5,27 +5,48 @@ const rooms = {
     look: {
       base: "You stand in a dimly lit stone chamber.",
       parts: [
-        { text: "A hole gapes in the ceiling where the chandelier once hung, debris scattered on the floor below.", if: ["dungeonLampTaken"] },
-        { text: "An ornate chandelier hangs from chains above, casting flickering shadows across the walls.", unless: ["dungeonLampTaken"] },
+        {
+          text: "A hole gapes in the ceiling where the chandelier once hung, debris scattered on the floor below.",
+          if: ["dungeonLampTaken"]
+        },
+        {
+          text: "An ornate chandelier hangs from chains above, casting flickering shadows across the walls.",
+          unless: ["dungeonLampTaken"]
+        },
         { text: "The trapdoor lies open, revealing darkness below.", if: ["dungeonWoodTaken", "dungeonTrapdoorOpen"] },
         { text: "A trapdoor is set into the stone floor.", if: ["dungeonWoodTaken"], unless: ["dungeonTrapdoorOpen"] },
         { text: "The floor is covered with loose wooden boards.", unless: ["dungeonWoodTaken"] },
-        { text: "The chamber's thick walls are ancient and weathered, crumbling to a coarse, granular texture.", if: ["dungeonLampTaken", "dungeonWoodTaken"] }
+        {
+          text: "The chamber's thick walls are ancient and weathered, crumbling to a coarse, granular texture.",
+          if: ["dungeonLampTaken", "dungeonWoodTaken"]
+        }
       ]
     },
     restrictedPassages: {
       up: {
         requirements: [
-          {roomItems: ["stepladder", "ladder"], failMessage: "I can't reach that high without something to stand on.", unmetDescription: ""}
+          {
+            roomItems: ["stepladder", "ladder"],
+            failMessage: "I can't reach that high without something to stand on.",
+            unmetDescription: ""
+          }
         ],
         room: "five",
         metDescription: "The ladder reaches up to the hole in the ceiling."
       },
       down: {
         requirements: [
-          {flag: "dungeonWoodTaken", failMessage: "There's no way down."},
-          {flag: "dungeonTrapdoorUnlocked", failMessage: "The trapdoor is locked.", unmetDescription: "There's a locked trapdoor in the floor."},
-          {flag: "dungeonTrapdoorOpen", failMessage: "The trapdoor is closed.", unmetDescription: "There is a closed trapdoor in the floor."}
+          { flag: "dungeonWoodTaken", failMessage: "There's no way down." },
+          {
+            flag: "dungeonTrapdoorUnlocked",
+            failMessage: "The trapdoor is locked.",
+            unmetDescription: "There's a locked trapdoor in the floor."
+          },
+          {
+            flag: "dungeonTrapdoorOpen",
+            failMessage: "The trapdoor is closed.",
+            unmetDescription: "There is a closed trapdoor in the floor."
+          }
         ],
         room: "cellar",
         metDescription: "An unlocked trapdoor leads down."
@@ -38,14 +59,20 @@ const rooms = {
         names: ["chains", "chain", "chandelier chains"],
         message: {
           parts: [
-            { text: "The shattered remains of the chain lie scattered on the floor, bits of twisted metal too small or sharp to bother messing with.", if: ["dungeonLampTaken"] },
+            {
+              text: "The shattered remains of the chain lie scattered on the floor, bits of twisted metal too small or sharp to bother messing with.",
+              if: ["dungeonLampTaken"]
+            },
             { text: "The chains are firmly anchored to the ceiling.", unless: ["dungeonLampTaken"] }
           ]
         },
         examine: {
           parts: [
             { text: "Broken links of rusted iron, twisted and scattered where they fell.", if: ["dungeonLampTaken"] },
-            { text: "Heavy iron chains suspend the ornate chandelier, links darkened with age.", unless: ["dungeonLampTaken"] }
+            {
+              text: "Heavy iron chains suspend the ornate chandelier, links darkened with age.",
+              unless: ["dungeonLampTaken"]
+            }
           ]
         },
         apply: {
@@ -77,7 +104,7 @@ const rooms = {
   cellar: {
     name: "The Cellar",
     look: "A damp cellar, mostly empty.",
-    passages: {north: "start"},
+    passages: { north: "start" },
     items: ["stepladder"],
     scenery: {
       moisture: {
@@ -92,7 +119,8 @@ const rooms = {
       },
       smell: {
         names: ["smell", "odour", "odor", "stench", "mustiness", "mould", "mold", "mouldy smell", "moldy smell"],
-        message: "It's a bit tricky to take the mouldy smell, unless you include the scent in my nose. That smell is coming with me anyway.",
+        message:
+          "It's a bit tricky to take the mouldy smell, unless you include the scent in my nose. That smell is coming with me anyway.",
         examine: "A mouldy, wet odour that is not altogether unpleasant. That being said, it doesn't smell great."
       }
     },
@@ -101,7 +129,7 @@ const rooms = {
   five: {
     name: "The room with five passages",
     look: "A circular room with five passages leading in different directions.",
-    passages: {northwest: "start", north: "sand", east: "pick1", southeast: "three", south: "three"},
+    passages: { northwest: "start", north: "sand", east: "pick1", southeast: "three", south: "three" },
     items: ["lantern", "compass"],
     light: true
   },
@@ -109,15 +137,13 @@ const rooms = {
     name: "The room with three passages",
     look: {
       base: "A triangular room with three visible passages.",
-      parts: [
-        {text: "The southern wall shimmers faintly, as if hiding something.", if: ["hasMap"]}
-      ]
+      parts: [{ text: "The southern wall shimmers faintly, as if hiding something.", if: ["hasMap"] }]
     },
-    passages: {northwest: "hammer1", north: "five", northeast: "five"},
+    passages: { northwest: "hammer1", north: "five", northeast: "five" },
     restrictedPassages: {
       south: {
         requirements: [
-          {item: "map", failMessage: "There's a wall there.", backFailMessage: "I can't go back without the map."}
+          { item: "map", failMessage: "There's a wall there.", backFailMessage: "I can't go back without the map." }
         ],
         room: "magic",
         hidden: true
@@ -147,7 +173,7 @@ const rooms = {
   hammer1: {
     name: "The Hammer room",
     look: "A small workshop.",
-    passages: {southwest: "deadEnd1", southeast: "three"},
+    passages: { southwest: "deadEnd1", southeast: "three" },
     items: ["hammer"],
     scenery: {
       workshop: {
@@ -160,7 +186,7 @@ const rooms = {
   deadEnd1: {
     name: "A Dead end",
     look: "It doesn't look like this path will take me any further.",
-    passages: {south: "hammer1"},
+    passages: { south: "hammer1" },
     items: ["skull"],
     scenery: {
       dead: {
@@ -187,11 +213,11 @@ const rooms = {
     name: "The Sandy room",
     look: {
       parts: [
-        {text: "This room is full of sand.", if: ["nailsTaken"]},
-        {text: "This room is full of sand, shining in the light of my lantern.", unless: ["nailsTaken"]}
+        { text: "This room is full of sand.", if: ["nailsTaken"] },
+        { text: "This room is full of sand, shining in the light of my lantern.", unless: ["nailsTaken"] }
       ]
     },
-    passages: {west: "five", northeast: "pick1"},
+    passages: { west: "five", northeast: "pick1" },
     items: ["nails"],
     scenery: {
       sand: {
@@ -199,7 +225,8 @@ const rooms = {
         message: "If I pick that up, it will go all throughout my pocket, and I will never get rid of it.",
         examine: "Soft white sand. Exactly the sort that sticks to everything.",
         apply: {
-          shovel: "You dig in the sand. It's quite shallow, revealing a stone floor beneath. You fill up the hole, can't forget about saftey!"
+          shovel:
+            "You dig in the sand. It's quite shallow, revealing a stone floor beneath. You fill up the hole, can't forget about saftey!"
         }
       },
       shine: {
@@ -207,13 +234,19 @@ const rooms = {
         message: {
           parts: [
             { text: "I can't find that.", if: ["nailsTaken"] },
-            { text: "I can't take the shine itself, but I could probably find what it's glinting off.", unless: ["nailsTaken"] }
+            {
+              text: "I can't take the shine itself, but I could probably find what it's glinting off.",
+              unless: ["nailsTaken"]
+            }
           ]
         },
         examine: {
           parts: [
             { text: "I can't find that.", if: ["nailsTaken"] },
-            { text: "Taking a closer look at the sand reveals it is full of nails! That would be what is glinting in the light.", unless: ["nailsTaken"] }
+            {
+              text: "Taking a closer look at the sand reveals it is full of nails! That would be what is glinting in the light.",
+              unless: ["nailsTaken"]
+            }
           ]
         },
         allIgnore: true
@@ -223,13 +256,19 @@ const rooms = {
         message: {
           parts: [
             { text: "I can't find that.", if: ["nailsTaken"] },
-            { text: "I've already got the lantern, and the sand isn't producing any light. Just reflecting it.", unless: ["nailsTaken"] }
+            {
+              text: "I've already got the lantern, and the sand isn't producing any light. Just reflecting it.",
+              unless: ["nailsTaken"]
+            }
           ]
         },
         examine: {
           parts: [
             { text: "I can't find that.", if: ["nailsTaken"] },
-            { text: "Why does light always seem brighter when reflecting off of something shiny?", unless: ["nailsTaken"] }
+            {
+              text: "Why does light always seem brighter when reflecting off of something shiny?",
+              unless: ["nailsTaken"]
+            }
           ]
         },
         allIgnore: true
@@ -239,7 +278,7 @@ const rooms = {
   pick1: {
     name: "The Pickaxe room",
     look: "A bare room with little of interest.",
-    passages: {west: "sand", south: "five", east: "tall"},
+    passages: { west: "sand", south: "five", east: "tall" },
     items: ["pick1"],
     failedBackText: "There's no hole in the roof?!",
     scenery: {
@@ -252,7 +291,8 @@ const rooms = {
       bear: {
         names: ["bear"],
         message: "While this is the room that would contain bears, unfortunately, they seem to have left.",
-        examine: "Any of a family (Ursidae of the order Carnivora) of large heavy mammals of the Americas and Eurasia that have long shaggy hair, short tails, and plantigrade feet with nonretractile claws and that are mainly omnivorous but include some that are primarily carnivorous (as the polar bear) or herbivorous (as the giant panda).",
+        examine:
+          "Any of a family (Ursidae of the order Carnivora) of large heavy mammals of the Americas and Eurasia that have long shaggy hair, short tails, and plantigrade feet with nonretractile claws and that are mainly omnivorous but include some that are primarily carnivorous (as the polar bear) or herbivorous (as the giant panda).",
         allIgnore: true
       }
     }
@@ -260,40 +300,52 @@ const rooms = {
   tall: {
     name: "The Tall room",
     look: "A very tall room, with a roof so high you can't make it out.",
-    passages: {west: "pick1"},
+    passages: { west: "pick1" },
     restrictedPassages: {
       up: {
         requirements: [
-          {roomItems: ["ladder"], failMessage: "The hole is too high to reach", unmetDescription: "A hole can be seen far above."}
+          {
+            roomItems: ["ladder"],
+            failMessage: "The hole is too high to reach",
+            unmetDescription: "A hole can be seen far above."
+          }
         ],
         room: "sword",
         metDescription: "A tall ladder stands here, reaching up to a hole in the wall."
       }
     },
-    items: [],
+    items: []
   },
   magic: {
     name: "The Magical room",
     look: "A plain room with bare stone walls. Nothing here suggests anything magical.",
-    passages: {southwest: "drop"},
+    passages: { southwest: "drop" },
     restrictedPassages: {
       east: {
         requirements: [
-          {item: "map", failMessage: "There's a wall there.", backFailMessage: "I can't go back without the map."}
+          { item: "map", failMessage: "There's a wall there.", backFailMessage: "I can't go back without the map." }
         ],
         room: "three",
         hidden: true
       },
       west: {
         requirements: [
-          {flag: "caveinRemoved", failMessage: "The passage west is blocked by rubble", unmetDescription: "The western passage is blocked by a cave-in."}
+          {
+            flag: "caveinRemoved",
+            failMessage: "The passage west is blocked by rubble",
+            unmetDescription: "The western passage is blocked by a cave-in."
+          }
         ],
         room: "armory",
         metDescription: "The western passage is clear."
       },
       southeast: {
         requirements: [
-          {flag: "trollGone", failMessage: "A troll blocks the southeastern passage", unmetDescription: "A troll is standing in front of the southeastern passage."}
+          {
+            flag: "trollGone",
+            failMessage: "A troll blocks the southeastern passage",
+            unmetDescription: "A troll is standing in front of the southeastern passage."
+          }
         ],
         room: "pick2",
         metDescription: "A passage to the southeast leads over the troll's corpse."
@@ -302,11 +354,12 @@ const rooms = {
     objects: ["cavein", "troll"],
     scenery: {
       "cave-in": "There's too much rubble to carry.",
-      "cavein": "There's too much rubble to carry.",
+      cavein: "There's too much rubble to carry.",
       bear: {
         names: ["bear"],
         message: "While this is the room that would contain bears, unfortunately, they seem to have left.",
-        examine: "Any of a family (Ursidae of the order Carnivora) of large heavy mammals of the Americas and Eurasia that have long shaggy hair, short tails, and plantigrade feet with nonretractile claws and that are mainly omnivorous but include some that are primarily carnivorous (as the polar bear) or herbivorous (as the giant panda).",
+        examine:
+          "Any of a family (Ursidae of the order Carnivora) of large heavy mammals of the Americas and Eurasia that have long shaggy hair, short tails, and plantigrade feet with nonretractile claws and that are mainly omnivorous but include some that are primarily carnivorous (as the polar bear) or herbivorous (as the giant panda).",
         allIgnore: true
       },
       magical: {
@@ -321,11 +374,11 @@ const rooms = {
   drop: {
     name: "The Hole room",
     look: "The path ends at a gaping hole in the floor. Peering down, you see nothing but darkness far below.",
-    passages: {north: "magic"},
+    passages: { north: "magic" },
     restrictedPassages: {
       down: {
         requirements: [
-          {flag: "parachuteEquipped", failMessage: "The drop looks deadly. I need something to break my fall"}
+          { flag: "parachuteEquipped", failMessage: "The drop looks deadly. I need something to break my fall" }
         ],
         room: "hub",
         metDescription: "With the parachute equipped, I could safely jump down the hole."
@@ -344,7 +397,8 @@ const rooms = {
       },
       hole: {
         names: ["hole", "gap", "pit"],
-        message: "As much as I would love to place a hole on the ground and jump through any floor I want, this isn't a cartoon.",
+        message:
+          "As much as I would love to place a hole on the ground and jump through any floor I want, this isn't a cartoon.",
         examine: "It's very deep, and doesn't seem like a good idea to check exactly how deep."
       }
     }
@@ -352,11 +406,15 @@ const rooms = {
   sword: {
     name: "The Sword room",
     look: "A very small room. Looks like it used to store things.",
-    passages: {west: "tall"},
+    passages: { west: "tall" },
     restrictedPassages: {
       south: {
         requirements: [
-          {flag: "helmetEquipped", failMessage: "Those sounds are terrifying! I don't want to go that way without proper protection.", unmetDescription: "Ominous grunting and heavy footsteps echo from the south."}
+          {
+            flag: "helmetEquipped",
+            failMessage: "Those sounds are terrifying! I don't want to go that way without proper protection.",
+            unmetDescription: "Ominous grunting and heavy footsteps echo from the south."
+          }
         ],
         room: "ogre",
         metDescription: "A passage to the south leads toward the ogre."
@@ -375,11 +433,15 @@ const rooms = {
   ogre: {
     name: "The Ogre room",
     look: "The entrance to what appears to be a temple.",
-    passages: {north: "sword"},
+    passages: { north: "sword" },
     restrictedPassages: {
       east: {
         requirements: [
-          {flag: "ogreGone", failMessage: "I doubt the ogre would allow that.", unmetDescription: "A huge ogre is here glaring at me, menacingly. He starts charging."}
+          {
+            flag: "ogreGone",
+            failMessage: "I doubt the ogre would allow that.",
+            unmetDescription: "A huge ogre is here glaring at me, menacingly. He starts charging."
+          }
         ],
         room: "riddle1",
         metDescription: "The eastern passage is clear now that the ogre is dead."
@@ -411,11 +473,15 @@ const rooms = {
   riddle1: {
     name: "The Riddle room",
     look: "Ancient texts cover the walls. There's a podium in the middle of the room, with a stone tablet secured on top.",
-    passages: {west: "ogre"},
+    passages: { west: "ogre" },
     restrictedPassages: {
       east: {
         requirements: [
-          {flag: "firstRiddleSolved", failMessage: "I'm not getting through that door until it opens.", unmetDescription: "A heavy stone door is barring the eastern passage."}
+          {
+            flag: "firstRiddleSolved",
+            failMessage: "I'm not getting through that door until it opens.",
+            unmetDescription: "A heavy stone door is barring the eastern passage."
+          }
         ],
         room: "parachute",
         metDescription: "The stone door to the east has opened."
@@ -435,7 +501,8 @@ const rooms = {
       tablet: {
         names: ["tablet", "stone tablet"],
         message: "Something's giving me the feeling I shouldn't move this...",
-        examine: "The stone tablet says: \"Two men are lying in the desert. They both have backpacks on. One of them is dead. What is in the backpack?\""
+        examine:
+          'The stone tablet says: "Two men are lying in the desert. They both have backpacks on. One of them is dead. What is in the backpack?"'
       }
     },
     items: [],
@@ -445,7 +512,7 @@ const rooms = {
   parachute: {
     name: "The Parachute room",
     look: "This room looks like a sort of shrine, with a pedestal in the middle. There's a hole in the roof.",
-    passages: {west: "riddle1"},
+    passages: { west: "riddle1" },
     failedBackText: "I can't climb up that hole.",
     items: ["parachute"],
     scenery: {
@@ -471,13 +538,14 @@ const rooms = {
   pick2: {
     name: "The Troll's Den",
     look: "A foul-smelling cave littered with bones.",
-    passages: {north: "magic"},
+    passages: { north: "magic" },
     items: ["pick2"],
     scenery: {
       bones: {
         names: ["bones"],
         message: "I'd rather not touch those",
-        examine: "They are a variety of sizes, and as such likely come from a variety of sources... That's a nice thought."
+        examine:
+          "They are a variety of sizes, and as such likely come from a variety of sources... That's a nice thought."
       },
       bone: {
         names: ["bone"],
@@ -488,17 +556,20 @@ const rooms = {
       corpse: {
         names: ["corpse", "body", "remains"],
         message: "I don't know what these bones belonged to, but I'm not touching them",
-        examine: "An old set of bones, scraps of old skin holding them in shape. I don't recognize the creature it used to be."
+        examine:
+          "An old set of bones, scraps of old skin holding them in shape. I don't recognize the creature it used to be."
       },
       skeleton: {
         names: ["skeleton"],
         message: "Best left alone",
-        examine: "Thankfully, it doesn't seem to be human, although it's been mauled badly enough that I guess it could be?"
+        examine:
+          "Thankfully, it doesn't seem to be human, although it's been mauled badly enough that I guess it could be?"
       },
       cave: {
         names: ["cave", "den"],
         message: "The cave is rather large to carry",
-        examine: "A small cave, fashioned as a home. I don't think the resident will be making an appearance for a while."
+        examine:
+          "A small cave, fashioned as a home. I don't think the resident will be making an appearance for a while."
       },
       debris: {
         names: ["debris", "rubble", "refuse"],
@@ -531,7 +602,7 @@ const rooms = {
   armory: {
     name: "The Armory",
     look: "An armory, once filled with weapons of war, now mostly empty.",
-    passages: {north: "magic"},
+    passages: { north: "magic" },
     failedBackText: "The hole in the roof closed up, somehow.",
     items: ["helmet"],
     scenery: {
@@ -556,10 +627,10 @@ const rooms = {
         message: "It's bolted to the wall",
         examine: "It's empty."
       }
-    },
+    }
   },
   hub: {
-    name :"The Hub",
+    name: "The Hub",
     look: "A large circular shaped room, passages branching in many directions. There's a hole in the roof.",
     passages: {
       west: "toilet",
@@ -567,12 +638,12 @@ const rooms = {
       east: "maze1",
       southeast: "blueCake",
       south: "greenCake",
-      southwest: "redCake",
+      southwest: "redCake"
     },
     restrictedPassages: {
       north: {
         requirements: [
-          {item: "map", failMessage: "There's a wall there.", backFailMessage: "I can't go back without the map."}
+          { item: "map", failMessage: "There's a wall there.", backFailMessage: "I can't go back without the map." }
         ],
         room: "pick1",
         showAsNormal: true
@@ -596,14 +667,14 @@ const rooms = {
   toilet: {
     name: "The Lavatory",
     look: "A small room, with a toilet front and centre.",
-    passages: {east: "hub"},
+    passages: { east: "hub" },
     items: [],
     objects: ["toilet"]
   },
   sink: {
     name: "The Washroom",
     look: "A small room with a sink. Good thing to have around.",
-    passages: {south: "hub"},
+    passages: { south: "hub" },
     items: [],
     objects: ["sink"],
     scenery: {
@@ -625,7 +696,7 @@ const rooms = {
       east: "redCake",
       southeast: "redCake",
       south: "blueCake",
-      southwest: "redCake",
+      southwest: "redCake"
     },
     items: ["redCake"],
     scenery: {
@@ -804,13 +875,16 @@ const rooms = {
     restrictedPassages: {
       up: {
         requirements: [
-          {roomItems: ["stepladder"], failMessage: "I am dubious about my getting up that way.", unmetDescription: "There's a hole in the ceiling, but it looks like it's for coming not going."}
+          {
+            roomItems: ["stepladder"],
+            failMessage: "I am dubious about my getting up that way.",
+            unmetDescription: "There's a hole in the ceiling, but it looks like it's for coming not going."
+          }
         ],
         room: "greenKey1",
         metDescription: "There's a stepladder placed here, with some scrambling I reckon I could get up."
       }
     },
-    items: [],
     scenery: {
       snot: {
         names: ["snot", "boogers", "booger", "mucus"],
@@ -831,7 +905,8 @@ const rooms = {
       hole: {
         names: ["hole", "opening"],
         message: "This hole is actually low enough I can touch it, but I still can't take holes",
-        examine: "Looking up through the hole, I can see a staircase above that ends here. I might be able to climb up, but it's just out of reach."
+        examine:
+          "Looking up through the hole, I can see a staircase above that ends here. I might be able to climb up, but it's just out of reach."
       }
     }
   },
@@ -840,8 +915,8 @@ const rooms = {
     look: {
       base: "I'm in the northern half of a large rectangular room.",
       parts: [
-        {text: "A large glass wall separates me from the southern side.", unless: ["glassBroken"]},
-        {text: "There used to be a glass wall here, now there's just shattered remains.", if: ["glassBroken"]}
+        { text: "A large glass wall separates me from the southern side.", unless: ["glassBroken"] },
+        { text: "There used to be a glass wall here, now there's just shattered remains.", if: ["glassBroken"] }
       ]
     },
     passages: {
@@ -851,7 +926,11 @@ const rooms = {
     restrictedPassages: {
       south: {
         requirements: [
-          {flag: "glassBroken", failMessage: "I'm not getting through that without tearing myself to shreds.", unmetDescription: "There's a glass wall to the south, I could go there if I could break it."}
+          {
+            flag: "glassBroken",
+            failMessage: "I'm not getting through that without tearing myself to shreds.",
+            unmetDescription: "There's a glass wall to the south, I could go there if I could break it."
+          }
         ],
         room: "bottomGlass",
         metDescription: "I can probably pick my way around the shattered glass to the south."
@@ -871,21 +950,25 @@ const rooms = {
   bottomGlass: {
     name: "The Bottom Glass room",
     look: {
-      base: "I'm in the southern half of a large rectangular room." ,
+      base: "I'm in the southern half of a large rectangular room.",
       parts: [
-        {text: "A large glass wall separates me from the northern side.", unless: ["glassBroken"]},
-        {text: "There used to be a glass wall here, now there's just shattered remains.", if: ["glassBroken"]}
+        { text: "A large glass wall separates me from the northern side.", unless: ["glassBroken"] },
+        { text: "There used to be a glass wall here, now there's just shattered remains.", if: ["glassBroken"] }
       ]
     },
     passages: {
       west: "smoke",
       east: "mirror2",
-      south: "smoke",
+      south: "smoke"
     },
     restrictedPassages: {
       north: {
         requirements: [
-          {flag: "glassBroken", failMessage: "I'm not getting through that without tearing myself to shreds.", unmetDescription: "There's a glass wall to the north, I could go there if I could break it."}
+          {
+            flag: "glassBroken",
+            failMessage: "I'm not getting through that without tearing myself to shreds.",
+            unmetDescription: "There's a glass wall to the north, I could go there if I could break it."
+          }
         ],
         room: "topGlass",
         metDescription: "I can probably pick my way around the shattered glass to the north."
@@ -1128,16 +1211,12 @@ const rooms = {
     },
     restrictedPassages: {
       north: {
-        requirements: [
-          {item: "map", failMessage: "A shimmering purple energy blocks your path."}
-        ],
+        requirements: [{ item: "map", failMessage: "A shimmering purple energy blocks your path." }],
         room: "parachute",
         showAsNormal: true
       },
       west: {
-        requirements: [
-          {item: "map", failMessage: "A shimmering purple energy blocks your path."}
-        ],
+        requirements: [{ item: "map", failMessage: "A shimmering purple energy blocks your path." }],
         room: "parachute",
         showAsNormal: true
       }
@@ -1158,7 +1237,7 @@ const rooms = {
   deadEnd2: {
     name: "Dead end",
     look: "A dead end. A bit more dead than usual, as there is a dead person here. I guess he gave up.",
-    passages: {west: "maze11"},
+    passages: { west: "maze11" },
     items: [],
     scenery: {
       body: {
@@ -1176,11 +1255,15 @@ const rooms = {
   dirt: {
     name: "The Dirt room",
     look: "A small, cramped, dark room. The floor here's made of dirt as opposed to the usual stone.",
-    passages: {south: "maze9"},
+    passages: { south: "maze9" },
     restrictedPassages: {
       down: {
         requirements: [
-          {flag: "holeDug", failMessage: "Although the floor here is dirt, it's still pretty firm", unmetDescription: "With the proper tool, I reckon I could dig down."}
+          {
+            flag: "holeDug",
+            failMessage: "Although the floor here is dirt, it's still pretty firm",
+            unmetDescription: "With the proper tool, I reckon I could dig down."
+          }
         ],
         room: "small",
         metDescription: "There's a hole in the ground here."
@@ -1216,13 +1299,12 @@ const rooms = {
   bricks: {
     name: "The Brickworks",
     look: "An old brickworks, long abandoned.",
-    passages: {southeast: "large"},
+    passages: { southeast: "large" },
     items: ["brick1", "brick2"],
     scenery: {
-      "machine": "What's left is degraded so much I can't touch it without it crumbling.",
-      "machinery": "What's left is degraded so much I can't touch it without it crumbling.",
-    },
-
+      machine: "What's left is degraded so much I can't touch it without it crumbling.",
+      machinery: "What's left is degraded so much I can't touch it without it crumbling."
+    }
   },
   mirror1: {
     name: "The Mirror room",
@@ -1235,9 +1317,9 @@ const rooms = {
     failedBackText: "You walk face first into the mirror.",
     items: [],
     scenery: {
-      "mirror": "It's far too big!"
+      mirror: "It's far too big!"
     },
-    objects:["mirror"]
+    objects: ["mirror"]
   },
   cross: {
     name: "The Cross room",
@@ -1253,7 +1335,7 @@ const rooms = {
   gum: {
     name: "The Chewing gum room",
     look: "The walls here are plastered with old, hardened chewing gum. It's disgusting.",
-    passages: {east: "cross"},
+    passages: { east: "cross" },
     items: ["gum"]
   },
   construction: {
@@ -1267,7 +1349,7 @@ const rooms = {
     },
     items: [],
     scenery: {
-      "hoarding": "It's stuck to the wall. Besides, it would be pretty heavy."
+      hoarding: "It's stuck to the wall. Besides, it would be pretty heavy."
     }
   },
   big: {
@@ -1286,7 +1368,7 @@ const rooms = {
     passages: {
       north: "large",
       southeast: "big",
-      southwest: "ezam7",
+      southwest: "ezam7"
     },
     items: ["wire"]
   },
@@ -1306,7 +1388,7 @@ const rooms = {
     passages: {
       north: "construction",
       east: "ezam4",
-      west: "ezam6",
+      west: "ezam6"
     },
     items: []
   },
@@ -1366,7 +1448,7 @@ const rooms = {
     look: "A small, twisty room. Very confusing.",
     passages: {
       north: "ezam8",
-      east: "big",
+      east: "big"
     },
     items: []
   },
@@ -1475,21 +1557,21 @@ const rooms = {
     },
     items: [],
     scenery: {
-      "grain": "There's no grain left here, just the smell.",
-      "mill": "The mill is far too large and heavy.",
-      "stones": "The grinding stones are enormous and immovable.",
-      "wheel": "The grinding wheel is massive and stuck in place.",
-      "wheat": "Any wheat that was here turned to dust centuries ago."
+      grain: "There's no grain left here, just the smell.",
+      mill: "The mill is far too large and heavy.",
+      stones: "The grinding stones are enormous and immovable.",
+      wheel: "The grinding wheel is massive and stuck in place.",
+      wheat: "Any wheat that was here turned to dust centuries ago."
     },
     objects: ["grinder"]
   },
   water: {
     name: "",
     look: "A bare room. There's a table bolted to the floor. Something feels mysterious here.",
-    passages: {north: "grinder"},
+    passages: { north: "grinder" },
     items: ["cup"],
     scenery: {
-      "table": "It's bolted to the floor."
+      table: "It's bolted to the floor."
     },
     light: true
   },
@@ -1503,7 +1585,11 @@ const rooms = {
     restrictedPassages: {
       southwest: {
         requirements: [
-          {flag: "machineOn", failMessage: "The door is closed.", unmetDescription: "There's a heavy iron door to the southwest. It doesn't have a visible keyhole."}
+          {
+            flag: "machineOn",
+            failMessage: "The door is closed.",
+            unmetDescription: "There's a heavy iron door to the southwest. It doesn't have a visible keyhole."
+          }
         ],
         room: "code",
         metDescription: "There's an open doorway to the southwest."
@@ -1511,20 +1597,20 @@ const rooms = {
     },
     items: [],
     scenery: {
-      "pipes": "They're stuck fast to the wall.",
-      "steam": "What steam?"
+      pipes: "They're stuck fast to the wall.",
+      steam: "What steam?"
     },
     objects: ["machine"]
   },
   code: {
     name: "The Code room",
     look: "A massive skylight reveals it's daytime. This room is super bright.",
-    passages: {north: "machine"},
+    passages: { north: "machine" },
     items: [],
     scenery: {
-      "skylight": "It's far too high.",
-      "light": "As much as I'd love for there to be this much light everywhere, I'm not a wizard.",
-      "glass": "It's too high to reach.",
+      skylight: "It's far too high.",
+      light: "As much as I'd love for there to be this much light everywhere, I'm not a wizard.",
+      glass: "It's too high to reach."
     },
     objects: ["code"]
   },
@@ -1537,9 +1623,9 @@ const rooms = {
     },
     items: [],
     scenery: {
-      "time": "Not even here does time stay still long enough for me to grasp it.",
-      "slowness": "The effect isn't something I can bring with me.",
-      "effect": "Whatever causes this is beyond my understanding of physics."
+      time: "Not even here does time stay still long enough for me to grasp it.",
+      slowness: "The effect isn't something I can bring with me.",
+      effect: "Whatever causes this is beyond my understanding of physics."
     }
   },
   boring: {
@@ -1574,8 +1660,13 @@ const rooms = {
     },
     restrictedPassages: {
       southwest: {
-        requirements: [ // change this to a barricaded wooden door.
-          {flag: "roundExplosion", failMessage: "There's a barricaded wooden door in the way.", unmetDescription: "There's also a passage to the southwest, but it's blocked by a barricaded wooden door."},
+        requirements: [
+          // change this to a barricaded wooden door.
+          {
+            flag: "roundExplosion",
+            failMessage: "There's a barricaded wooden door in the way.",
+            unmetDescription: "There's also a passage to the southwest, but it's blocked by a barricaded wooden door."
+          }
         ],
         room: "rorrim",
         metDescription: "The barricade to the southwest has been cleared by dynamite, so is passable."
@@ -1598,9 +1689,9 @@ const rooms = {
     },
     items: ["purpleKey"],
     scenery: {
-      "banners": "I probably shouldn't touch those. It feels disrespectful.",
-      "altar": "It's a bit heavy, plus the whole \"Don't touch the religious stuff\" feels relevant here.",
-      "alter": "I can't find any alter here. There is an altar though, did you mean that?"
+      banners: "I probably shouldn't touch those. It feels disrespectful.",
+      altar: "It's a bit heavy, plus the whole \"Don't touch the religious stuff\" feels relevant here.",
+      alter: "I can't find any alter here. There is an altar though, did you mean that?"
     },
     objects: ["candle"],
     light: true
@@ -1608,14 +1699,14 @@ const rooms = {
   bolt: {
     name: "The Bolt room",
     look: "This small closet seems to be the maintenance hub for the church.",
-    passages: {south: "candle"},
+    passages: { south: "candle" },
     items: [],
     scenery: {
-      "broom": "The broom handle snapped off. Only the bristle head remains, wedged in a corner.",
-      "mop": "The mop is tangled around a pipe. I can't free it without breaking something.",
-      "bucket": "The bucket is stuck to the floor. Something spilled and dried like cement.",
-      "rags": "The rags are so filthy I don't want to touch them.",
-      "supplies": "The bottles have all leaked together into an unidentifiable sludge. I'm not touching that."
+      broom: "The broom handle snapped off. Only the bristle head remains, wedged in a corner.",
+      mop: "The mop is tangled around a pipe. I can't free it without breaking something.",
+      bucket: "The bucket is stuck to the floor. Something spilled and dried like cement.",
+      rags: "The rags are so filthy I don't want to touch them.",
+      supplies: "The bottles have all leaked together into an unidentifiable sludge. I'm not touching that."
     },
     objects: ["bolt"],
     light: true
@@ -1629,15 +1720,25 @@ const rooms = {
     },
     look: {
       parts: [
-        { text: "Ancient symbols are etched into every surface. A third riddle awaits on a stone pedestal.", if: ["visitedRiddle3"] },
-        { text: "Ancient symbols are etched into every surface. A second riddle awaits on a stone pedestal.", unless: ["visitedRiddle3"] }
+        {
+          text: "Ancient symbols are etched into every surface. A third riddle awaits on a stone pedestal.",
+          if: ["visitedRiddle3"]
+        },
+        {
+          text: "Ancient symbols are etched into every surface. A second riddle awaits on a stone pedestal.",
+          unless: ["visitedRiddle3"]
+        }
       ]
     },
-    passages: {east: "round"},
+    passages: { east: "round" },
     restrictedPassages: {
       northwest: {
         requirements: [
-          {flag: "secondRiddleSolved", failMessage: "There's a solid stone wall that way.", unmetDescription: "The stone wall to the northwest seems different to the rest."}
+          {
+            flag: "secondRiddleSolved",
+            failMessage: "There's a solid stone wall that way.",
+            unmetDescription: "The stone wall to the northwest seems different to the rest."
+          }
         ],
         room: "greenKey1",
         metDescription: "There's a stone doorway to the northwest."
@@ -1645,10 +1746,10 @@ const rooms = {
     },
     items: [],
     scenery: {
-      "tablet": "The stone tablet is secured to the podium.",
-      "podium": "The podium is connected to the floor.",
-      "inscriptions": "They're carved into the stone itself.",
-      "symbols": "I can't take what's carved into the walls."
+      tablet: "The stone tablet is secured to the podium.",
+      podium: "The podium is connected to the floor.",
+      inscriptions: "They're carved into the stone itself.",
+      symbols: "I can't take what's carved into the walls."
     },
     objects: ["riddle2"],
     light: true
@@ -1656,11 +1757,15 @@ const rooms = {
   greenKey1: {
     name: "The Key room",
     look: "This room is lined with ornate, green decorations.",
-    passages: {west: "nose"},
+    passages: { west: "nose" },
     restrictedPassages: {
       east: {
         requirements: [
-          {flag: "secondRiddleSolved", failMessage: "There's a solid stone wall that way.", unmetDescription: "The stone wall to the east is missing the lining characterizing the rest of the room."}
+          {
+            flag: "secondRiddleSolved",
+            failMessage: "There's a solid stone wall that way.",
+            unmetDescription: "The stone wall to the east is missing the lining characterizing the rest of the room."
+          }
         ],
         room: "riddle2",
         metDescription: "There's a stone doorway to the east."
@@ -1671,11 +1776,12 @@ const rooms = {
     },
     items: ["greenKey3"],
     scenery: {
-      "decorations": "They're stuck to the wall."
+      decorations: "They're stuck to the wall."
     },
     light: true
   },
-  rorrim: { // Oaky, for this room, I want something special. Every command needs to be flipped. If the command is north, they go to the south room. Vise versa for east and west. However, the back command is interesting. As going back takes you in the direction that should take you back, it also needs to be flipped. So coming from the round room, "back" needs to take you south.
+  rorrim: {
+    // Oaky, for this room, I want something special. Every command needs to be flipped. If the command is north, they go to the south room. Vise versa for east and west. However, the back command is interesting. As going back takes you in the direction that should take you back, it also needs to be flipped. So coming from the round room, "back" needs to take you south.
     name: "The rorriM room",
     look: "All of the walls here are made of shiny mirrors! It's really offputting.",
     mirrorDirections: true,
@@ -1687,7 +1793,11 @@ const rooms = {
     restrictedPassages: {
       east: {
         requirements: [
-          {flag: "redDoorOpened", failMessage: "There's a glowing red door in the way.", unmetDescription: "There's a locked, glowing red door to the east."}
+          {
+            flag: "redDoorOpened",
+            failMessage: "There's a glowing red door in the way.",
+            unmetDescription: "There's a locked, glowing red door to the east."
+          }
         ],
         room: "ball",
         metDescription: "There's an open glowing red door to the east."
@@ -1695,32 +1805,32 @@ const rooms = {
     },
     items: [],
     scenery: {
-      "mirror": "In order to take the mirrors, I'd have to break them first. I don't want 7 years bad luck.",
+      mirror: "In order to take the mirrors, I'd have to break them first. I don't want 7 years bad luck."
     },
     objects: ["redDoor"]
   },
   pick3: {
     name: "The Pickaxe shed",
     look: "A small, corrugated metal shed.",
-    passages: {north: "rorrim"},
+    passages: { north: "rorrim" },
     items: ["pick3"]
   },
-workshop: {
+  workshop: {
     name: "The Workshop",
     look: "An abandoned workshop. Benches and shelves line the walls, covered in dust and worn down by time.",
-    passages: {north: "rorrim"},
+    passages: { north: "rorrim" },
     items: ["screwdriver", "wrench"],
     scenery: {
-      "vise": "The vise is bolted to the bench.",
-      "vice": "The vise is bolted to the bench.",
-      "shelves": "They're attached to the wall.",
-      "bench": "It's far too heavy to move.",
-      "saw": "The saw is rusted into its mount. I can't budge it.",
-      "drill": "The drill has seized up and is stuck to the bench.",
-      "chisel": "Someone glued this chisel down. Why would they do that?",
-      "file": "The file is welded to the workbench, bizarrely enough.",
-      "pliers": "The pliers are stuck in a vise that's rusted shut.",
-      "toolbox": "The toolbox is nailed to the shelf."
+      vise: "The vise is bolted to the bench.",
+      vice: "The vise is bolted to the bench.",
+      shelves: "They're attached to the wall.",
+      bench: "It's far too heavy to move.",
+      saw: "The saw is rusted into its mount. I can't budge it.",
+      drill: "The drill has seized up and is stuck to the bench.",
+      chisel: "Someone glued this chisel down. Why would they do that?",
+      file: "The file is welded to the workbench, bizarrely enough.",
+      pliers: "The pliers are stuck in a vise that's rusted shut.",
+      toolbox: "The toolbox is nailed to the shelf."
     }
   },
   ball: {
@@ -1728,15 +1838,18 @@ workshop: {
     look: {
       base: "A domed, high-tech room.",
       parts: [
-        {text: "There's a floating ball in the middle of the room. It's reflective, and refractive at the same time. You can see a green light originating from inside.", unless: ["codeInput"]},
+        {
+          text: "There's a floating ball in the middle of the room. It's reflective, and refractive at the same time. You can see a green light originating from inside.",
+          unless: ["ballPuzzleSolved"]
+        }
       ]
     },
-    passages: {west: "rorrim"},
+    passages: { west: "rorrim" },
     items: [],
     scenery: {
-      "ball": "Upon touching the ball, your hand is thrown back with great velocity.",
-      "energy": "You stick your hand into the energy. You recieve a sharp zap. You pull your hand away.",
-      "forcefield": "You touch the force field. It pulses, throwing you back.",
+      ball: "Upon touching the ball, your hand is thrown back with great velocity.",
+      energy: "You stick your hand into the energy. You recieve a sharp zap. You pull your hand away.",
+      forcefield: "You touch the force field. It pulses, throwing you back.",
       "force-field": "You touch the force field. It pulses, throwing you back.",
       "force field": "You touch the force field. It pulses, throwing you back."
     },
@@ -1752,15 +1865,25 @@ workshop: {
     },
     look: {
       parts: [
-        { text: "Ancient symbols are etched into every surface. A third riddle awaits on a stone pedestal.", if: ["visitedRiddle2"] },
-        { text: "Ancient symbols are etched into every surface. A second riddle awaits on a stone pedestal.", unless: ["visitedRiddle2"] }
+        {
+          text: "Ancient symbols are etched into every surface. A third riddle awaits on a stone pedestal.",
+          if: ["visitedRiddle2"]
+        },
+        {
+          text: "Ancient symbols are etched into every surface. A second riddle awaits on a stone pedestal.",
+          unless: ["visitedRiddle2"]
+        }
       ]
     },
-    passages: {north: "round"},
+    passages: { north: "round" },
     restrictedPassages: {
       south: {
         requirements: [
-          {flag: "thirdRiddleSolved", failMessage: "There's a heavy door in the way.", unmetDescription: "The southern wall houses a heavy looking door."}
+          {
+            flag: "thirdRiddleSolved",
+            failMessage: "There's a heavy door in the way.",
+            unmetDescription: "The southern wall houses a heavy looking door."
+          }
         ],
         room: "chipper",
         metDescription: "The heavy door to the south is open."
@@ -1768,10 +1891,10 @@ workshop: {
     },
     items: [],
     scenery: {
-      "tablet": "The tablet is fixed firmly to the pedestal.",
-      "pedestal": "The pedestal is built into the floor.",
-      "inscriptions": "The inscriptions are part of the stone walls.",
-      "symbols": "I can't take what's etched into the stone."
+      tablet: "The tablet is fixed firmly to the pedestal.",
+      pedestal: "The pedestal is built into the floor.",
+      inscriptions: "The inscriptions are part of the stone walls.",
+      symbols: "I can't take what's etched into the stone."
     },
     objects: ["riddle3"],
     light: true
@@ -1779,23 +1902,27 @@ workshop: {
   chipper: {
     name: "The Woodworks",
     look: "A mouldy old woodworks. Most of the equipment here is too far gone to be useful.",
-    passages: {northeast: "riddle3"},
+    passages: { northeast: "riddle3" },
     items: [],
     scenery: {
-      "equipment": "Most of it is too far gone to be useful.",
-      "machinery": "It's rusted solid and would crumble if I tried to move it.",
-      "saw": "The saw blade is completely rusted through."
+      equipment: "Most of it is too far gone to be useful.",
+      machinery: "It's rusted solid and would crumble if I tried to move it.",
+      saw: "The saw blade is completely rusted through."
     },
     objects: ["chipper"]
   },
   gate: {
     name: "The Gateway",
     look: "A rather posh looking place, with a massive fence covering the southern half of the room.",
-    passages: {east: "round"},
+    passages: { east: "round" },
     restrictedPassages: {
       south: {
         requirements: [
-          {flag: "gateOpened", failMessage: "The gate is shut, and reaches all the way to the roof. I'm not getting over it.", unmetDescription: "There's a gate in the centre of the fence."}
+          {
+            flag: "gateOpened",
+            failMessage: "The gate is shut, and reaches all the way to the roof. I'm not getting over it.",
+            unmetDescription: "There's a gate in the centre of the fence."
+          }
         ],
         room: "wood",
         metDescription: "An open gate leads southwards."
@@ -1803,7 +1930,7 @@ workshop: {
     },
     items: [],
     scenery: {
-      "fence": "Are you kidding! That thing is massive!"
+      fence: "Are you kidding! That thing is massive!"
     },
     light: true
   },
@@ -1811,8 +1938,11 @@ workshop: {
     name: "The Wooden room",
     look: {
       parts: [
-        {text: "Everything here is lined with wood. Walls, floor, even the ceiling. It's a wonder there aren't termites here.", unless: ["woodTaken"]},
-        {text: "The room has been stripped bare. There's really not much here anymore.", if: ["woodTaken"]}
+        {
+          text: "Everything here is lined with wood. Walls, floor, even the ceiling. It's a wonder there aren't termites here.",
+          unless: ["woodTaken"]
+        },
+        { text: "The room has been stripped bare. There's really not much here anymore.", if: ["woodTaken"] }
       ]
     },
     passages: {
@@ -1838,8 +1968,8 @@ workshop: {
     },
     items: [],
     scenery: {
-      "annoyance": "You are already very annoyed.",
-      "frustration": "The frustration is already yours."
+      annoyance: "You are already very annoyed.",
+      frustration: "The frustration is already yours."
     }
   },
   mirror2: {
@@ -1853,19 +1983,19 @@ workshop: {
     failedBackText: "You walk face first into the mirror.",
     items: [],
     scenery: {
-      "mirror": "It's far too big!"
+      mirror: "It's far too big!"
     },
-    objects:["mirror"]
+    objects: ["mirror"]
   },
   case: {
     name: "The Case room",
     look: "A luxurious room, red velvet padding lines the walls. Deep mahogany forms the highlights.",
-    passages: {west: "mirror2"},
+    passages: { west: "mirror2" },
     items: [],
     scenery: {
-      "velvet": "I don't want to spoil the splendor of this place!",
-      "mahogany": "I'd have to destroy the room to take it. I'm not a vandal!",
-      "padding": "The velvet padding is attached to the walls. I'd have to tear it off, and I'm not doing that."
+      velvet: "I don't want to spoil the splendor of this place!",
+      mahogany: "I'd have to destroy the room to take it. I'm not a vandal!",
+      padding: "The velvet padding is attached to the walls. I'd have to tear it off, and I'm not doing that."
     },
     objects: ["case"]
   },
@@ -1883,8 +2013,8 @@ workshop: {
       northwest: "You fall down a short hole, landing in"
     },
     scenery: {
-      "grates": "But then I'd have nothing to stand on!",
-      "smoke": "*cough cough* The only way to take this with me is within my lungs. I might be doing that involuntarily"
+      grates: "But then I'd have nothing to stand on!",
+      smoke: "*cough cough* The only way to take this with me is within my lungs. I might be doing that involuntarily"
     },
     light: true
   },
@@ -1899,7 +2029,7 @@ workshop: {
     },
     items: [],
     scenery: {
-      "slime": "It's stuck to the walls"
+      slime: "It's stuck to the walls"
     }
   },
   dry: {
@@ -1912,15 +2042,17 @@ workshop: {
     },
     restrictedPassages: {
       north: {
-        requirements: [
-          {item: "map", failMessage: "A shimmering purple energy blocks your path."}
-        ],
+        requirements: [{ item: "map", failMessage: "A shimmering purple energy blocks your path." }],
         room: "armory",
         showAsNormal: true
       },
       west: {
         requirements: [
-          {flag: "purpleDoorUnlocked", failMessage: "The glowing purple door is closed.", unmetDescription: "There's a glowing purple door to the west. It's locked."}
+          {
+            flag: "purpleDoorUnlocked",
+            failMessage: "The glowing purple door is closed.",
+            unmetDescription: "There's a glowing purple door to the west. It's locked."
+          }
         ],
         room: "mmmm",
         metDescription: "A glowing purple door set in the western wall is ajar."
@@ -1932,9 +2064,9 @@ workshop: {
     failedBackText: "The hole in the roof closed up, somehow.",
     items: [],
     scenery: {
-      "vents": "They're built into the walls.",
-      "vent": "It's built into the wall.",
-      "moisture": "There isn't any. That's the whole point of this room."
+      vents: "They're built into the walls.",
+      vent: "It's built into the wall.",
+      moisture: "There isn't any. That's the whole point of this room."
     },
     objects: ["purpleDoor"]
   },
@@ -1947,8 +2079,8 @@ workshop: {
     },
     items: [],
     scenery: {
-      "residue": "It's stuck fast to everything. I'd need a chisel to scrape it off.",
-      "goop": "It's hardened into a crust. Not coming off without serious effort."
+      residue: "It's stuck fast to everything. I'd need a chisel to scrape it off.",
+      goop: "It's hardened into a crust. Not coming off without serious effort."
     },
     objects: ["marshmallow"]
   },
@@ -1961,14 +2093,14 @@ workshop: {
     },
     items: ["battery"],
     scenery: {
-      "servers": "The server racks are completely empty, save for a bit of marshmallow slime.",
-      "racks": "They're mounted to the wall.",
-      "tech": "There's none here.",
-      "goop": "I'd rather not touch that. It looks quite old, and very crusty.",
-      "slime": "I'd rather not touch that. It looks quite old, and very crusty.",
-      "residue": "I'd rather not touch that. It looks quite old, and very crusty.",
-      "marshmallow": "I'd rather not touch that. It looks quite old, and very crusty.",
-      "crust": "I'd rather not touch that. It looks quite old, and very crusty."
+      servers: "The server racks are completely empty, save for a bit of marshmallow slime.",
+      racks: "They're mounted to the wall.",
+      tech: "There's none here.",
+      goop: "I'd rather not touch that. It looks quite old, and very crusty.",
+      slime: "I'd rather not touch that. It looks quite old, and very crusty.",
+      residue: "I'd rather not touch that. It looks quite old, and very crusty.",
+      marshmallow: "I'd rather not touch that. It looks quite old, and very crusty.",
+      crust: "I'd rather not touch that. It looks quite old, and very crusty."
     }
   },
   tiny: {
@@ -1980,7 +2112,7 @@ workshop: {
     },
     items: ["greenKey4"],
     scenery: {
-      "cramps": "You've already got those, unfortunately."
+      cramps: "You've already got those, unfortunately."
     }
   },
   smith: {
@@ -1992,9 +2124,9 @@ workshop: {
     },
     items: ["tongs", "coal", "crucible"],
     scenery: {
-      "anvil": "That anvil must weigh at least a tonne. I'm not that strong.",
-      "workbench": "It's built into the floor. Not going anywhere.",
-      "bench": "It's built into the floor. Not going anywhere."
+      anvil: "That anvil must weigh at least a tonne. I'm not that strong.",
+      workbench: "It's built into the floor. Not going anywhere.",
+      bench: "It's built into the floor. Not going anywhere."
     },
     objects: ["forge", "mold", "bellows", "slackTub"],
     light: true
@@ -2009,47 +2141,52 @@ workshop: {
     },
     items: [], // You get items here when you eat the blue cake.
     scenery: {
-      "treasure": "It's clear someone still lives here. I'm quite OK with finding things, but I'm not a thief.",
-      "coins": "It's clear someone still lives here. I'm quite OK with finding things, but I'm not a thief.",
-      "jewels": "It's clear someone still lives here. I'm quite OK with finding things, but I'm not a thief.",
-      "trinkets": "It's clear someone still lives here. I'm quite OK with finding things, but I'm not a thief.",
-      "gold": "It's clear someone still lives here. I'm quite OK with finding things, but I'm not a thief.",
-      "loot": "Taking someone else's collection would make me just as bad as them.",
-      "valuables": "I'm not a thief, even if the owner might be."
+      treasure: "It's clear someone still lives here. I'm quite OK with finding things, but I'm not a thief.",
+      coins: "It's clear someone still lives here. I'm quite OK with finding things, but I'm not a thief.",
+      jewels: "It's clear someone still lives here. I'm quite OK with finding things, but I'm not a thief.",
+      trinkets: "It's clear someone still lives here. I'm quite OK with finding things, but I'm not a thief.",
+      gold: "It's clear someone still lives here. I'm quite OK with finding things, but I'm not a thief.",
+      loot: "Taking someone else's collection would make me just as bad as them.",
+      valuables: "I'm not a thief, even if the owner might be."
     },
     isCheckpoint: true
   },
   brush: {
     name: "The Hair Salon",
     look: "A derilect hair salon. It still has a few hair dryers, although I would seriously doubt they work.",
-    passages: {west: "hideout"},
+    passages: { west: "hideout" },
     items: ["brush"],
     scenery: {
-      "dryers": "They're mounted to the walls, and I doubt they work anyway.",
-      "dryer": "It's mounted to the wall, and I doubt it works anyway.",
+      dryers: "They're mounted to the walls, and I doubt they work anyway.",
+      dryer: "It's mounted to the wall, and I doubt it works anyway.",
       "hair dryer": "It's mounted to the wall, and I doubt it works anyway.",
       "hair dryers": "They're mounted to the walls, and I doubt they work anyway.",
       "hair-dryers": "They're mounted to the walls, and I doubt they work anyway.",
-      "mirrors": "The salon mirrors are built into the wall.",
-      "mirror": "The salon mirror is built into the wall.",
-      "chair": "The styling chair is bolted down.",
-      "chairs": "The styling chairs are bolted down."
+      mirrors: "The salon mirrors are built into the wall.",
+      mirror: "The salon mirror is built into the wall.",
+      chair: "The styling chair is bolted down.",
+      chairs: "The styling chairs are bolted down."
     }
   },
-  fire: { // This room, you need to lose 1 health every two commands you have in the room.
+  fire: {
+    // This room, you need to lose 1 health every two commands you have in the room.
     name: "The Incinerator",
     look: {
       base: "This appears to be an industrial incinerator. The walls are blackened from years of use.",
       parts: [
-        {text: "The room is incredibly hot, I shouldn't stay here for too long.", unless: ["fireExtinguished"]},
-        {text: "Now that the fire's out, I can breathe easier and the heat has dissipated.", if: ["fireExtinguished"]}
+        { text: "The room is incredibly hot, I shouldn't stay here for too long.", unless: ["fireExtinguished"] },
+        { text: "Now that the fire's out, I can breathe easier and the heat has dissipated.", if: ["fireExtinguished"] }
       ]
     },
-    passages: {southeast: "hideout"},
+    passages: { southeast: "hideout" },
     restrictedPassages: {
       north: {
         requirements: [
-          {flag: "fireExtinguished", failMessage: "You try running through the burning fire. It doesn't go too well.", unmetDescription: "I think I can make out an exit to the north, but it's blocked by fire."}
+          {
+            flag: "fireExtinguished",
+            failMessage: "You try running through the burning fire. It doesn't go too well.",
+            unmetDescription: "I think I can make out an exit to the north, but it's blocked by fire."
+          }
         ],
         room: "cyclops",
         metDescription: "The northern exit is no longer blocked by flames."
@@ -2059,14 +2196,21 @@ workshop: {
       count: 2,
       unless: "fireExtinguished",
       damage: 1,
-      messages:  ["You are burned by the heat.", "The flames burn you.", "You feel a searing sensation on your skin.", "The fire is hot! Ouch!"],
-      killIfInventory: {dynamite: "As you walk into the incinerator, the dynamite you carry instantly blows up, taking you with it."}
+      messages: [
+        "You are burned by the heat.",
+        "The flames burn you.",
+        "You feel a searing sensation on your skin.",
+        "The fire is hot! Ouch!"
+      ],
+      killIfInventory: {
+        dynamite: "As you walk into the incinerator, the dynamite you carry instantly blows up, taking you with it."
+      }
     },
     items: [],
     scenery: {
-      "incinerator": "It's a room-sized installation. I can't just pick it up.",
-      "grating": "The metal grating covers the ceiling. It's not coming down.",
-      "grates": "The metal grating covers the ceiling. It's not coming down."
+      incinerator: "It's a room-sized installation. I can't just pick it up.",
+      grating: "The metal grating covers the ceiling. It's not coming down.",
+      grates: "The metal grating covers the ceiling. It's not coming down."
     },
     objects: ["fire"],
     light: true
@@ -2074,11 +2218,15 @@ workshop: {
   cyclops: {
     name: "The Cyclops's Lair",
     look: "A dark cave with rough-hewn walls.",
-    passages: {southwest: "fire"},
+    passages: { southwest: "fire" },
     restrictedPassages: {
       south: {
         requirements: [
-          {flag: "cyclopsGone", failMessage: "There's a huge cyclops in the way. I don't think he'd let me past.", unmetDescription: "A large cyclops stands, guarding the southern passage. "}
+          {
+            flag: "cyclopsGone",
+            failMessage: "There's a huge cyclops in the way. I don't think he'd let me past.",
+            unmetDescription: "A large cyclops stands, guarding the southern passage. "
+          }
         ],
         room: "spotty",
         metDescription: "With the cyclops no longer here, I can go through the southern passage."
@@ -2096,18 +2244,18 @@ workshop: {
     },
     items: [],
     scenery: {
-      "spots": "They're a part of the wall.",
-      "polkadots": "I'm not sure how you want me to accomplish that. I don't have a paint scraper."
+      spots: "They're a part of the wall.",
+      polkadots: "I'm not sure how you want me to accomplish that. I don't have a paint scraper."
     }
   },
   hat: {
     name: "The Cloak room",
     look: "A small enclosure, shelves line the walls. Unfortunately, there's no cloaks left here. I've always loved cloaks.",
-    passages: {northwest: "spotty"},
+    passages: { northwest: "spotty" },
     restrictedPassages: {
       down: {
         requirements: [
-          {flag: "hatBoxOpen", failMessage: "I'm not sure how you want me to go down.", unmetDescription: ""}
+          { flag: "hatboxOpened", failMessage: "I'm not sure how you want me to go down.", unmetDescription: "" }
         ],
         room: "bell",
         metDescription: "There's a false bottom in the hat box in the middle of the room, hiding a secret tunnel."
@@ -2115,10 +2263,10 @@ workshop: {
     },
     items: [],
     scenery: {
-      "shelves": "They're attached to the walls.",
-      "shelf": "It's attached to the wall.",
-      "cloaks": "There are none left here. I've already checked thoroughly.",
-      "cloak": "There are none left here. I've already checked thoroughly."
+      shelves: "They're attached to the walls.",
+      shelf: "It's attached to the wall.",
+      cloaks: "There are none left here. I've already checked thoroughly.",
+      cloak: "There are none left here. I've already checked thoroughly."
     },
     objects: ["hatbox"]
   },
@@ -2126,8 +2274,14 @@ workshop: {
     name: "The Bell Tower",
     look: {
       parts: [
-        { text: "Apparently, I'm at the spire of the church. Through the decorative arched windows, I can see vast barren plains and distant forests stretching to the horizon.", if: ["visitedCandle"] },
-        { text: "Apparently, I'm at the spire of a church. Through the decorative arched windows, I can see vast barren plains and distant forests stretching to the horizon.", unless: ["visitedCandle"] }
+        {
+          text: "Apparently, I'm at the spire of the church. Through the decorative arched windows, I can see vast barren plains and distant forests stretching to the horizon.",
+          if: ["visitedCandle"]
+        },
+        {
+          text: "Apparently, I'm at the spire of a church. Through the decorative arched windows, I can see vast barren plains and distant forests stretching to the horizon.",
+          unless: ["visitedCandle"]
+        }
       ]
     },
     passages: {
@@ -2138,16 +2292,16 @@ workshop: {
     },
     items: [],
     scenery: {
-      "windows": "The windows are set into the stone. I'd need tools to remove them.",
-      "window": "The window is set into the stone. I'd need tools to remove it.",
-      "glass": "The stained glass is part of the windows. I can't remove it.",
-      "beams": "The timber beams are massive and firmly anchored.",
-      "beam": "The timber beam is massive and firmly anchored.",
-      "timber": "The timber beams are massive and firmly anchored.",
-      "plains": "They're outside, far below. I can only see them from here.",
-      "forests": "They're outside, far in the distance.",
-      "forest": "It's outside, far in the distance.",
-      "view": "I can admire it, but I can't take it with me."
+      windows: "The windows are set into the stone. I'd need tools to remove them.",
+      window: "The window is set into the stone. I'd need tools to remove it.",
+      glass: "The stained glass is part of the windows. I can't remove it.",
+      beams: "The timber beams are massive and firmly anchored.",
+      beam: "The timber beam is massive and firmly anchored.",
+      timber: "The timber beams are massive and firmly anchored.",
+      plains: "They're outside, far below. I can only see them from here.",
+      forests: "They're outside, far in the distance.",
+      forest: "It's outside, far in the distance.",
+      view: "I can admire it, but I can't take it with me."
     },
     objects: ["bell"],
     light: true
@@ -2155,53 +2309,57 @@ workshop: {
   blueKey: {
     name: "The Blue Sanctuary",
     look: "A peaceful blue sanctuary. Stained glass windows filter the light into soothing blue hues.",
-    passages: {west: "bell"},
+    passages: { west: "bell" },
     items: ["blueKey"],
     scenery: {
-      "windows": "The stained glass windows are set into the walls.",
-      "window": "The stained glass window is set into the wall.",
-      "glass": "The stained glass is part of the windows. I can't remove it.",
-      "decorations": "The decorations are attached to the walls.",
-      "decoration": "The decoration is attached to the wall."
+      windows: "The stained glass windows are set into the walls.",
+      window: "The stained glass window is set into the wall.",
+      glass: "The stained glass is part of the windows. I can't remove it.",
+      decorations: "The decorations are attached to the walls.",
+      decoration: "The decoration is attached to the wall."
     },
     light: true
   },
   greenKey2: {
     name: "The Green Sanctuary",
     look: "This small chapel is decorated entirely in green. Jade-tinted windows bathe everything in verdant light.",
-    passages: {southwest: "bell"},
+    passages: { southwest: "bell" },
     items: ["greenKey5"],
     scenery: {
-      "windows": "The stained glass windows are set into the walls.",
-      "window": "The stained glass window is set into the wall.",
-      "glass": "The stained glass is part of the windows. I can't remove it.",
-      "decorations": "The decorations are attached to the walls.",
-      "decoration": "The decoration is attached to the wall."
+      windows: "The stained glass windows are set into the walls.",
+      window: "The stained glass window is set into the wall.",
+      glass: "The stained glass is part of the windows. I can't remove it.",
+      decorations: "The decorations are attached to the walls.",
+      decoration: "The decoration is attached to the wall."
     },
     light: true
   },
   redKey: {
     name: "The Red Sanctuary",
     look: "A beautiful sanctuary. Red stained glass windows cast crimson light across ornate decorations.",
-    passages: {northeast: "bell"},
+    passages: { northeast: "bell" },
     items: ["redKey"],
     scenery: {
-      "windows": "The stained glass windows are set into the walls.",
-      "window": "The stained glass window is set into the wall.",
-      "glass": "The stained glass is part of the windows. I can't remove it.",
-      "decorations": "The ornate decorations are attached to the walls.",
-      "decoration": "The ornate decoration is attached to the wall."
+      windows: "The stained glass windows are set into the walls.",
+      window: "The stained glass window is set into the wall.",
+      glass: "The stained glass is part of the windows. I can't remove it.",
+      decorations: "The ornate decorations are attached to the walls.",
+      decoration: "The ornate decoration is attached to the wall."
     },
     light: true
   },
   dynamite: {
     name: "The Explosives Storehouse",
     look: "An old military storehouse. Crates marked 'EXPLOSIVES - HANDLE WITH CARE' are stacked against the walls.",
-    passages: {northwest: "round"},
+    passages: { northwest: "round" },
     restrictedPassages: {
       east: {
         requirements: [
-          {flag: "silverDoorOpen", failMessage: "The door is locked.", unmetDescription: "There's a tarnished silver door in the eastern wall."}
+          {
+            flag: "silverDoorUnlocked",
+            failMessage: "The door is locked.",
+            unmetDescription: "There's a tarnished silver door in the eastern wall."
+          }
         ],
         room: "extinguisher",
         metDescription: "There's an open silver door to the east."
@@ -2209,13 +2367,13 @@ workshop: {
     },
     items: ["dynamite"],
     scenery: {
-      "crates": "The other crates are nailed shut and far too heavy to carry.",
-      "crate": "The other crates are nailed shut and far too heavy to carry.",
-      "explosives": "The rest of the explosives are sealed in the other crates. I can't get to them.",
-      "warning": "The warning signs are painted on. Can't take those.",
-      "warnings": "The warning signs are painted on. Can't take those.",
-      "signs": "They're attached to the walls.",
-      "sign": "It's attached to the wall."
+      crates: "The other crates are nailed shut and far too heavy to carry.",
+      crate: "The other crates are nailed shut and far too heavy to carry.",
+      explosives: "The rest of the explosives are sealed in the other crates. I can't get to them.",
+      warning: "The warning signs are painted on. Can't take those.",
+      warnings: "The warning signs are painted on. Can't take those.",
+      signs: "They're attached to the walls.",
+      sign: "It's attached to the wall."
     },
     objects: ["silverDoor"]
   },
@@ -2228,30 +2386,35 @@ workshop: {
     },
     items: ["extinguisher"],
     scenery: {
-      "shelves": "They're bolted to the walls.",
-      "shelf": "It's bolted to the wall."
+      shelves: "They're bolted to the walls.",
+      shelf: "It's bolted to the wall."
     }
   },
   lake: {
     name: "The Lake",
     look: "I'm standing on a peninsula that protrudes into the centre of a massive underground lake.",
-    passages: {south: "extinguisher"},
+    passages: { south: "extinguisher" },
     restrictedPassages: {
       north: {
         requirements: [
-          {flag: "lakeFilled", failMessage: "I can't swim!", unmetDescription: "On the northen bank of the lake, I can see a passage."}
+          {
+            flag: "lakeFilled",
+            failMessage: "I can't swim!",
+            unmetDescription: "On the northen bank of the lake, I can see a passage."
+          }
         ],
         room: "hammer2",
-        metDescription: "Enough sawdust has been dumped into the lake to form a makeshift causeway, extending to the northern shore."
+        metDescription:
+          "Enough sawdust has been dumped into the lake to form a makeshift causeway, extending to the northern shore."
       }
     },
     items: [],
     scenery: {
-      "water": "I don't have anything to hold it in.",
-      "lake": "I can't take an entire lake.",
-      "peninsula": "It's made of rock and earth. I can't exactly take geography with me.",
-      "shore": "I can't take a shoreline.",
-      "bank": "I'm not sure money I withdraw from these banks would be worth anything."
+      water: "I don't have anything to hold it in.",
+      lake: "I can't take an entire lake.",
+      peninsula: "It's made of rock and earth. I can't exactly take geography with me.",
+      shore: "I can't take a shoreline.",
+      bank: "I'm not sure money I withdraw from these banks would be worth anything."
     },
     objects: ["lake"]
   },
@@ -2264,10 +2427,10 @@ workshop: {
     },
     items: ["brassHammer"],
     scenery: {
-      "benches": "The workbenches are massive and built into the floor.",
-      "bench": "The workbench is massive and built into the floor.",
-      "workbench": "It's massive and built into the floor.",
-      "workbenches": "They're massive and built into the floor."
+      benches: "The workbenches are massive and built into the floor.",
+      bench: "The workbench is massive and built into the floor.",
+      workbench: "It's massive and built into the floor.",
+      workbenches: "They're massive and built into the floor."
     }
   },
   greenKey3: {
@@ -2279,17 +2442,22 @@ workshop: {
     },
     items: ["greenKey8"],
     scenery: {
-      "trim": "The green trim is inlaid into the stone. It's not coming out."
+      trim: "The green trim is inlaid into the stone. It's not coming out."
     }
   },
   stone: {
     name: "The Stone room",
     look: "This room, made entirely of stone. It feels intimidating, as though time itself was staring you down in this ancient room.",
-    passages: {north: "greenKey3"},
+    passages: { north: "greenKey3" },
     restrictedPassages: {
       east: {
         requirements: [
-          {flag: "blueDoorUnlocked", failMessage: "Although the wall is glowing blue, it's just as solid as the others.", unmetDescription: "The eastern wall is entirely covered in an ethereal, glowing blue haze. There is a small, key-shaped hole in the centre."}
+          {
+            flag: "blueDoorUnlocked",
+            failMessage: "Although the wall is glowing blue, it's just as solid as the others.",
+            unmetDescription:
+              "The eastern wall is entirely covered in an ethereal, glowing blue haze. There is a small, key-shaped hole in the centre."
+          }
         ],
         room: "pool",
         metDescription: "The glowing blue wall to the east has split, leaving a clean passage."
@@ -2297,9 +2465,9 @@ workshop: {
     },
     items: [],
     scenery: {
-      "haze": "You grasp the haze. It slips through your fingers.",
-      "stone": "The stone blocks are ancient and massive. I couldn't budge one.",
-      "stones": "The stone blocks are ancient and massive. I couldn't budge one."
+      haze: "You grasp the haze. It slips through your fingers.",
+      stone: "The stone blocks are ancient and massive. I couldn't budge one.",
+      stones: "The stone blocks are ancient and massive. I couldn't budge one."
     },
     objects: ["blueDoor"],
     isCheckpoint: true,
@@ -2316,23 +2484,26 @@ workshop: {
     },
     items: [],
     scenery: {
-      "table": "You grab one of the legs of the pool table. After straining yourself, you decide the table is going nowhere.",
-      "pool table": "You grab one of the legs of the pool table. After straining yourself, you decide the table is going nowhere.",
-      "pool-table": "You grab one of the legs of the pool table. After straining yourself, you decide the table is going nowhere.",
-      "felt": "The felt is attached to the table. I'd have to tear it off.",
-      "chalk": "There's no chalk here. It's long since been used up or lost."
+      table:
+        "You grab one of the legs of the pool table. After straining yourself, you decide the table is going nowhere.",
+      "pool table":
+        "You grab one of the legs of the pool table. After straining yourself, you decide the table is going nowhere.",
+      "pool-table":
+        "You grab one of the legs of the pool table. After straining yourself, you decide the table is going nowhere.",
+      felt: "The felt is attached to the table. I'd have to tear it off.",
+      chalk: "There's no chalk here. It's long since been used up or lost."
     }
   },
   coin: {
     name: "The Coin room",
     look: "A narrow alcove that looks like it was meant for storage.",
-    passages: {north: "pool"},
+    passages: { north: "pool" },
     items: ["coin"]
   },
   vendingMachine: {
     name: "The Vending Machine room",
     look: "This looks like it was once a rest area for workers. It's pretty sparse now.",
-    passages: {north: "pool"},
+    passages: { north: "pool" },
     items: [],
     objects: ["vendingMachine"]
   },
@@ -2345,25 +2516,30 @@ workshop: {
     },
     items: [],
     scenery: {
-      "clock": "Tick tock.",
-      "clocks": "Tick tock.",
-      "ticking": "Tick tock.",
-      "hands": "Tock tick.",
-      "pendulum": "Tick tock.",
-      "gears": "Tock tick.",
-      "wall": "Tick tock.",
-      "walls": "Tick tock.",
-      "time": "If only I could borrow time from this place. It has plenty of its own."
+      clock: "Tick tock.",
+      clocks: "Tick tock.",
+      ticking: "Tick tock.",
+      hands: "Tock tick.",
+      pendulum: "Tick tock.",
+      gears: "Tock tick.",
+      wall: "Tick tock.",
+      walls: "Tick tock.",
+      time: "If only I could borrow time from this place. It has plenty of its own."
     }
   },
   door: {
     name: "The Antechamber",
     look: "A magnificent hall with a vaulted ceiling and polished stone floors. The architecture here is far grander than anywhere else I've been.",
-    passages: {west: "clock"},
+    passages: { west: "clock" },
     restrictedPassages: {
       east: {
         requirements: [
-          {flag: "doorOpened", failMessage: "If there's any door I'm not getting through without keys, it's this one.", unmetDescription: "A massive door, adorned with glowing green, ornate metal designs and housing eight glowing green keyholes fills the east wall. Through the door sill, you can see slight glimmers of light."}
+          {
+            flag: "doorUnlocked",
+            failMessage: "If there's any door I'm not getting through without keys, it's this one.",
+            unmetDescription:
+              "A massive door, adorned with glowing green, ornate metal designs and housing eight glowing green keyholes fills the east wall. Through the door sill, you can see slight glimmers of light."
+          }
         ],
         room: "forrest",
         metDescription: "The massive door to the east is open. Sunlight is streaming through."
@@ -2371,14 +2547,14 @@ workshop: {
     },
     items: [],
     scenery: {
-      "ceiling": "The vaulted ceiling is magnificent, but I can't exactly take it with me.",
-      "floor": "The polished stone floor is built into the structure.",
-      "floors": "The polished stone floors are built into the structure.",
-      "architecture": "The architectural features are part of the building itself.",
-      "pillars": "The pillars are far too massive to move.",
-      "pillar": "The pillar is far too massive to move.",
-      "columns": "The columns are far too massive to move.",
-      "column": "The column is far too massive to move."
+      ceiling: "The vaulted ceiling is magnificent, but I can't exactly take it with me.",
+      floor: "The polished stone floor is built into the structure.",
+      floors: "The polished stone floors are built into the structure.",
+      architecture: "The architectural features are part of the building itself.",
+      pillars: "The pillars are far too massive to move.",
+      pillar: "The pillar is far too massive to move.",
+      columns: "The columns are far too massive to move.",
+      column: "The column is far too massive to move."
     },
     objects: ["door"],
     entryMessages: {
@@ -2396,4 +2572,4 @@ workshop: {
     items: [],
     light: true
   }
-}
+};

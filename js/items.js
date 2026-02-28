@@ -7,14 +7,14 @@ const items = {
     examine: "A simple key made from chain loops",
     initialDescription: "Among the shattered remains of the hanging lantern lies a key made from chain loops.",
     description: "A key made from twisted chain loops lies here.",
-    setFlag: "dungeonKeyTaken",
+    setFlag: "dungeonKeyTaken"
   },
   dungeonWood: {
     names: ["wood", "planks", "boards", "floorboards"],
     examine: "Wooden planks, quite strong",
     initialDescription: "The floor is made out of loose wooden boards.",
     description: "Wooden planks lie scattered on the floor.",
-    setFlag: "dungeonWoodTaken",
+    setFlag: "dungeonWoodTaken"
   },
   stepladder: {
     names: ["stepladder", "step-ladder", "steps", "ladder", "step ladder"],
@@ -22,7 +22,7 @@ const items = {
     initialDescription: "There's a short stepladder propped against the wall.",
     description: "A stepladder stands against the wall.",
     setFlag: "stepladderTaken",
-    vital: true,
+    vital: true
   },
   lantern: {
     names: ["brass lantern", "lantern", "lamp", "brass", "light"],
@@ -88,27 +88,27 @@ const items = {
     initialDescription: "A compass lies in the dust.",
     description: "A compass lies on the ground.",
     setFlag: "compassTaken",
-    vital: true,
+    vital: true
   },
   nails: {
     names: ["nails", "nail"],
     examine: "Shiny!",
     description: "Nails lie on the ground.",
-    setFlag: "nailsTaken",
+    setFlag: "nailsTaken"
   },
   hammer: {
     names: ["hammer", "old hammer", "old"],
     examine: "It appears to be fairly weak, better use it wisely...",
     initialDescription: "A hammer rests on a bench.",
     description: "A hammer lies on the ground.",
-    setFlag: "hammerTaken",
+    setFlag: "hammerTaken"
   },
   skull: {
     names: ["skull", "head"],
     examine: "A very nice specimen, although it appears to be human",
     initialDescription: "A human skull sits ominously in the centre of the room.",
     description: "A skull rests on the floor.",
-    setFlag: "skullTaken",
+    setFlag: "skullTaken"
   },
   pick1: {
     names: ["pickaxe", "pick", "axe"],
@@ -131,7 +131,21 @@ const items = {
     initialDescription: "",
     description: "A glowing purple map has been left here.",
     softlockable: {
-      rooms: ["start", "cellar", "five", "three", "hammer1", "deadEnd1", "sand", "pick1", "tall", "sword", "ogre", "riddle1", "parachute"],
+      rooms: [
+        "start",
+        "cellar",
+        "five",
+        "three",
+        "hammer1",
+        "deadEnd1",
+        "sand",
+        "pick1",
+        "tall",
+        "sword",
+        "ogre",
+        "riddle1",
+        "parachute"
+      ],
       reaction: "vital"
     }
   },
@@ -141,7 +155,7 @@ const items = {
     examine: "Sharp, deadly, slightly sentient",
     initialDescription: "A gleaming sword leans against the wall.",
     description: "A gleaming sword rests here.",
-    setFlag: "swordTaken",
+    setFlag: "swordTaken"
   },
   pick2: {
     names: ["pickaxe", "pick", "axe"],
@@ -159,7 +173,7 @@ const items = {
     description: "A glowing blue helmet rests here.",
     setFlag: "helmetTaken",
     operate: {
-      equip:{
+      equip: {
         allowedVerbs: ["equip", "wear", "use"],
         requireNotFlags: ["helmetEquipped"],
         message: "You put the helmet on.",
@@ -168,7 +182,7 @@ const items = {
           setFlags: ["helmetEquipped"]
         }
       },
-      unequip:{
+      unequip: {
         allowedVerbs: ["unequip", "remove"],
         requireFlags: ["helmetEquipped"],
         message: "You take the helmet off.",
@@ -195,7 +209,7 @@ const items = {
         effects: {
           setFlags: ["parachuteEquipped"]
         }
-      },
+      }
     },
     vital: true,
     undroppable: true,
@@ -211,7 +225,8 @@ const items = {
     operate: {
       eat: {
         allowedVerbs: ["eat", "consume", "bite", "taste", "lick", "swallow"],
-        message: "You eat the red cake. It tastes sweet at first, then a searing pain erupts in your stomach. It feels like it's on fire! All of a sudden, you hear a loud *BANG*, and see your guts, or at least what's left of them, flop onto the floor before falling unconscious.",
+        message:
+          "You eat the red cake. It tastes sweet at first, then a searing pain erupts in your stomach. It feels like it's on fire! All of a sudden, you hear a loud *BANG*, and see your guts, or at least what's left of them, flop onto the floor before falling unconscious.",
         effects: {
           setHealth: 0
         }
@@ -228,7 +243,8 @@ const items = {
     operate: {
       eat: {
         allowedVerbs: ["eat", "consume", "bite", "taste", "lick", "swallow"],
-        message: "You eat the green cake. It tastes amazing, and you feel a warm, soothing sensation spread through your body. Your wounds begin to heal, and you feel completely refreshed.",
+        message:
+          "You eat the green cake. It tastes amazing, and you feel a warm, soothing sensation spread through your body. Your wounds begin to heal, and you feel completely refreshed.",
         effects: {
           setCheckpoint: true,
           removeItems: ["greenCake"],
@@ -247,7 +263,8 @@ const items = {
     operate: {
       eat: {
         allowedVerbs: ["eat", "consume", "bite", "taste", "lick", "swallow"], // add more?
-        message: "You eat the entirety of the blue cake. You pig! After such a big meal, you get rather sleepy, and feel like a little nap...\nUpon waking, you notice some of your possesions have been stolen whilst sleeping!",
+        message:
+          "You eat the entirety of the blue cake. You pig! After such a big meal, you get rather sleepy, and feel like a little nap...\nUpon waking, you notice some of your possesions have been stolen whilst sleeping!",
         effects: {
           loseNonvitalItems: true,
           removeItems: ["blueCake"]
@@ -358,7 +375,8 @@ const items = {
     operate: {
       eat: {
         allowedVerbs: ["eat", "consume", "bite", "taste", "lick", "swallow"],
-        message: "For some incomprehensible reason, you put the old chewing gum in your mouth and start chewing. It tastes absolutely awful. So bad, in fact, you start retching, and accidentally swallow the gum. It gets caught in your throat, and you're forced to taste that awful flavor while contemplating your poor life choices as you asphyxiate.",
+        message:
+          "For some incomprehensible reason, you put the old chewing gum in your mouth and start chewing. It tastes absolutely awful. So bad, in fact, you start retching, and accidentally swallow the gum. It gets caught in your throat, and you're forced to taste that awful flavor while contemplating your poor life choices as you asphyxiate.",
         effects: {
           setHealth: 0
         }
@@ -387,7 +405,8 @@ const items = {
   dynamite: {
     names: ["dynamite", "explosive", "stick"],
     examine: "A single stick of dynamite with a long fuse. Handle with care.",
-    initialDescription: "One of the crates has been pulled out, and is sitting open on the floor. A lone stick of dynamite is inside.",
+    initialDescription:
+      "One of the crates has been pulled out, and is sitting open on the floor. A lone stick of dynamite is inside.",
     description: "A stick of dynamite rests here.",
     setFlag: "dynamiteTaken",
     canTake: [
@@ -397,14 +416,16 @@ const items = {
       },
       {
         unless: { hasItem: "litDynamite" },
-        message: "Walking around with one stick of a powerful explosive, a lit one at that, is bad enough. I'm not taking more."
+        message:
+          "Walking around with one stick of a powerful explosive, a lit one at that, is bad enough. I'm not taking more."
       },
       {
         unless: { itemPlacedAnywhere: "dynamite" },
-        message: "If I were to go around leaving dynamite wherever I please, then come back to pick up some more from a seemingly infinite box, that's the sort of behaviour that's going to blow this place off this planet."
+        message:
+          "If I were to go around leaving dynamite wherever I please, then come back to pick up some more from a seemingly infinite box, that's the sort of behaviour that's going to blow this place off this planet."
       }
     ],
-    infinite: true,
+    infinite: true
   },
   litDynamite: {
     names: ["lit dynamite", "dynamite", "explosive", "lit explosive"],
@@ -418,8 +439,10 @@ const items = {
       },
       onExpire: "destroy",
       onExpireMessage: {
-        inventory: "The dynamite explodes with a bang! It would probably have been a good idea not to keep a stick of dynamite in your pocket.",
-        floor: "The dynamite explodes with a bang! Maybe it wasn't the best idea to watch a powerful explosive go off. It is impressive, in fact the most impressive thing you will see for the rest of your life.",
+        inventory:
+          "The dynamite explodes with a bang! It would probably have been a good idea not to keep a stick of dynamite in your pocket.",
+        floor:
+          "The dynamite explodes with a bang! Maybe it wasn't the best idea to watch a powerful explosive go off. It is impressive, in fact the most impressive thing you will see for the rest of your life.",
         away: "You hear a *boom* echoing from a nearby passage."
       }
     }
@@ -562,7 +585,8 @@ const items = {
     operate: {
       eat: {
         allowedVerbs: ["eat", "consume", "bite", "taste", "devour"],
-        message: "You eat the hamburger. It's awful - stale, rubbery, and tastes like it's been sitting there for weeks.",
+        message:
+          "You eat the hamburger. It's awful - stale, rubbery, and tastes like it's been sitting there for weeks.",
         effects: {
           setFlags: ["poisoned"],
           removeItems: ["hamburgerPoisoned"]
@@ -583,7 +607,8 @@ const items = {
   cup: {
     names: ["cup of water", "water", "glass of water", "cup", "glass"],
     examine: "A cup of remarkably clear water. It doesn't look like it came from here.",
-    initialDescription: "A cup of water sits in the perfect middle of the table. The dust forms a ring, ~10 cm back from the glass, suggesting it is repelled by the water.",
+    initialDescription:
+      "A cup of water sits in the perfect middle of the table. The dust forms a ring, ~10 cm back from the glass, suggesting it is repelled by the water.",
     description: "A cup of water has been placed here.",
     setFlag: "cupTaken"
   },
@@ -612,9 +637,9 @@ const items = {
   spentBattery: {
     names: ["dead battery", "battery", "spent battery", "used battery"],
     examine: "An old battery, charge completely used up.",
-    description: "A dead battery sits on the floor.",
+    description: "A dead battery sits on the floor."
   }
-}
+};
 
 // ===== RECIPES =====
 // Crafting recipes for combining items
@@ -631,7 +656,8 @@ const recipes = {
   map: {
     requires: ["skull", "hammer"],
     retains: ["hammer"],
-    message: "You smash the skull with the hammer. Inside is a glowing purple map \nYou now have the glowing purple map",
+    message:
+      "You smash the skull with the hammer. Inside is a glowing purple map \nYou now have the glowing purple map",
     effects: {
       setFlags: []
     }
@@ -662,7 +688,7 @@ const recipes = {
       resetCountdowns: ["lantern"]
     }
   }
-}
+};
 
 // ===== GENERIC ITEMS =====
 // Items that exist everywhere but can't be taken
@@ -679,8 +705,8 @@ const genericDisallowedItems = {
   stone: "You can't take the stone.",
   me: "You can't take yourself.",
   myself: "You can't take yourself.",
-  self: "You can't take yourself.",
-}
+  self: "You can't take yourself."
+};
 
 const genericExamines = {
   wall: "Solid stone. Not going through that.",
@@ -704,4 +730,4 @@ const genericExamines = {
   chamber: "This chamber seems ancient.",
   room: "Just another room in this endless maze.",
   exit: "That's the way out... I hope."
-}
+};

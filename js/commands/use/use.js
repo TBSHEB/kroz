@@ -4,7 +4,7 @@
 // Supports: "use" → "sword" → "troll" (3 steps)
 // Or: "use sword on troll" (1 step)
 function handleUseCommand(alias, things) {
-  let actionType = aliasToAction[alias] || 'use';
+  let actionType = aliasToAction[alias] || "use";
 
   // No parameters: start multi-step sequence
   if (!things || things.length === 0) {
@@ -18,8 +18,7 @@ function handleUseCommand(alias, things) {
   const parsed = parseActionCommand(actionType, things);
 
   if (things && (things.includes("all") || things.includes("every") || things.includes("both"))) {
-
-    let multiIndex
+    let multiIndex;
 
     if (things.includes("all")) {
       multiIndex = things.indexOf("all");
@@ -35,9 +34,7 @@ function handleUseCommand(alias, things) {
       const matches = findAllMatching(targetWord, interactables);
 
       if (matches.length > 0) {
-        const inventoryMatches = matches.filter(m =>
-          m.location === "inventory" && m.type === "item"
-        );
+        const inventoryMatches = matches.filter((m) => m.location === "inventory" && m.type === "item");
 
         if (inventoryMatches.length === 0) {
           displayText(`You don't have any ${targetWord}.`);
@@ -45,12 +42,8 @@ function handleUseCommand(alias, things) {
           return;
         }
 
-        const expansion = inventoryMatches.map(m => m.id);
-        things = [
-          ...things.slice(0, multiIndex),
-          ...expansion,
-          ...things.slice(multiIndex + 2)
-        ];
+        const expansion = inventoryMatches.map((m) => m.id);
+        things = [...things.slice(0, multiIndex), ...expansion, ...things.slice(multiIndex + 2)];
 
         const reparsed = parseActionCommand(actionType, things);
         parsed.items = reparsed.items;
@@ -73,12 +66,10 @@ function handleUseCommand(alias, things) {
       if (isPotentialPlural) {
         const matches = findAllMatching(itemName, interactables);
 
-        const inventoryMatches = matches.filter(m =>
-          m.type === "item" && m.location === "inventory"
-        );
+        const inventoryMatches = matches.filter((m) => m.type === "item" && m.location === "inventory");
 
         if (inventoryMatches.length > 1) {
-          expandedItems.push(...inventoryMatches.map(m => m.id));
+          expandedItems.push(...inventoryMatches.map((m) => m.id));
         } else if (inventoryMatches.length === 1) {
           expandedItems.push(inventoryMatches[0].id);
         } else {
@@ -120,7 +111,7 @@ function handleUseCommand(alias, things) {
 
     if (smartResult.action === "operate-multiple") {
       for (const itemName of smartResult.items) {
-        const singleParsed = {items: [itemName], target: []};
+        const singleParsed = { items: [itemName], target: [] };
         resolveAction("operate", singleParsed, alias);
       }
       clearUseState();
@@ -128,7 +119,7 @@ function handleUseCommand(alias, things) {
     }
 
     if (smartResult.action === "craft" && smartResult.allItems) {
-      const craftParsed = {items: smartResult.allItems, target: []};
+      const craftParsed = { items: smartResult.allItems, target: [] };
       resolveAction("craft", craftParsed, alias);
       clearUseState();
       return;
@@ -138,7 +129,7 @@ function handleUseCommand(alias, things) {
   }
 
   // Check if we need more information for apply/use
-  if (actionType === 'use' || actionType === 'apply') {
+  if (actionType === "use" || actionType === "apply") {
     if (parsed.items.length > 0 && parsed.target.length === 0) {
       // Have item but no target - validate item first
       const itemName = parsed.items[0];
@@ -153,21 +144,21 @@ function handleUseCommand(alias, things) {
       }
 
       // Check if it's an object (can't use objects as tools)
-      if (item.type === 'object') {
+      if (item.type === "object") {
         displayText("You can't take that to use it on something else.");
         clearUseState();
         return;
       }
 
       // Check if it's a generic disallowed item (wall, air, etc.)
-      if (item.type === 'generic') {
+      if (item.type === "generic") {
         displayText("You can't use that.");
         clearUseState();
         return;
       }
 
       // Check if item is actually IN inventory (positive check, not negative)
-      if (item.type === 'item' && !gameState.inventory.includes(item.id)) {
+      if (item.type === "item" && !gameState.inventory.includes(item.id)) {
         displayText(`You don't have the ${itemName}.`);
         clearUseState();
         return;
@@ -182,19 +173,17 @@ function handleUseCommand(alias, things) {
     }
 
     const interactables = buildInteractablesList();
-    const itemObjects = parsed.items.map(name => findInteractable(name, interactables));
+    const itemObjects = parsed.items.map((name) => findInteractable(name, interactables));
     const targetObject = findInteractable(parsed.target[0], interactables);
     const combination = checkCombinations(itemObjects, targetObject);
 
     if (combination) {
-      actionType = "applyCombination"
+      actionType = "applyCombination";
     }
-
-
   }
 
   // Check if we need more information for attack
-  if (actionType === 'attack') {
+  if (actionType === "attack") {
     if (parsed.target.length > 0 && parsed.items.length === 0) {
       // Have target but no weapon - validate target first
       const targetName = parsed.target[0];
@@ -217,9 +206,9 @@ function handleUseCommand(alias, things) {
     }
   }
 
-  if (actionType === 'operate') {
+  if (actionType === "operate") {
     if (parsed.items.length > 0 && parsed.target.length === 0) {
-      resolveAction('operate', parsed, alias);
+      resolveAction("operate", parsed, alias);
       clearUseState();
       return;
     }

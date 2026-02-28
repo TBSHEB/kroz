@@ -2,7 +2,7 @@
 
 function handleOperate(verb, item) {
   // Check if this is a scene with operate error messages
-  if (item.type === 'scene' && item.operate) {
+  if (item.type === "scene" && item.operate) {
     // operate is an object with verb: error message format
     const errorMessage = item.operate[verb];
     if (errorMessage) {
@@ -24,10 +24,10 @@ function handleOperate(verb, item) {
   for (const [actionName, action] of Object.entries(item.operate)) {
     if (item.togglable && verb === "use") {
       let allowed = true;
-      if (action.requireFlags && action.requireFlags.some(flag => !gameState.flags.includes(flag))) {
+      if (action.requireFlags && action.requireFlags.some((flag) => !gameState.flags.includes(flag))) {
         allowed = false;
       }
-      if (action.requireNotFlags && action.requireNotFlags.some(flag => gameState.flags.includes(flag))) {
+      if (action.requireNotFlags && action.requireNotFlags.some((flag) => gameState.flags.includes(flag))) {
         allowed = false;
       }
       if (allowed) {
@@ -41,8 +41,6 @@ function handleOperate(verb, item) {
       }
     }
   }
-
-
 
   if (!matchedAction) {
     displayText(`You can't ${verb} the ${item.names[0]}`);
@@ -103,35 +101,10 @@ function handleOperate(verb, item) {
 
   // Handle eat-to-kill enemies
   if (matchedAction.eatToKill && item.combat) {
-    // Initialize combat state if needed
     if (!gameState.combatState[item.id]) {
       initializeCombat(item);
     }
-
-    const combat = gameState.combatState[item.id];
-
-    // Increment eat count
-    if (!combat.eatCount) {
-      combat.eatCount = 0;
-    }
-    combat.eatCount++;
-
-    // Display eat message
-    const eatMsg = pickRandom(item.combat.eatMessage);
-    displayText(eatMsg);
-
-    // Check if killed
-    if (combat.eatCount >= item.combat.requiredEats) {
-      // Kill enemy
-      const killMsg = pickRandom(item.combat.killMessage);
-      displayText(killMsg);
-
-      // Apply on-kill effects
-      applyEffects(item.combat.effects);
-
-      delete gameState.combatState[item.id];
-    }
-
+    processEatToKill(item);
     return;
   }
 }

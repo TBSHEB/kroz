@@ -22,13 +22,17 @@ function buildInteractablesList() {
 
   // Add objects in the room (like troll, door, etc.)
   if (currentRoom.objects) {
-    currentRoom.objects.forEach(objId => {
-      if (objects[objId] && (objects[objId].hiddenUnlessHasFlag === undefined || gameState.flags.includes(objects[objId].hiddenUnlessHasFlag))) {
+    currentRoom.objects.forEach((objId) => {
+      if (
+        objects[objId] &&
+        (objects[objId].hiddenUnlessHasFlag === undefined ||
+          gameState.flags.includes(objects[objId].hiddenUnlessHasFlag))
+      ) {
         interactables.push({
-          ...objects[objId],  // Copy all object properties
-          id: objId,          // Add the ID for reference
-          type: 'object',
-          location: 'room'    // Mark as object
+          ...objects[objId], // Copy all object properties
+          id: objId, // Add the ID for reference
+          type: "object",
+          location: "room" // Mark as object
         });
       }
     });
@@ -36,26 +40,26 @@ function buildInteractablesList() {
 
   // Add items in the room (not picked up yet)
   if (currentRoom.items) {
-    currentRoom.items.forEach(itemId => {
+    currentRoom.items.forEach((itemId) => {
       if (items[itemId]) {
         interactables.push({
           ...items[itemId],
           id: itemId,
-          type: 'item',
-          location: 'room'
+          type: "item",
+          location: "room"
         });
       }
     });
   }
 
   // Add items in inventory
-  gameState.inventory.forEach(itemId => {
+  gameState.inventory.forEach((itemId) => {
     if (items[itemId]) {
       interactables.push({
         ...items[itemId],
         id: itemId,
-        type: 'item',
-        location: 'inventory'
+        type: "item",
+        location: "inventory"
       });
     }
   });
@@ -64,21 +68,21 @@ function buildInteractablesList() {
   if (currentRoom.scenery) {
     Object.entries(currentRoom.scenery).forEach(([itemId, data]) => {
       // Support both old string format and new object format
-      if (typeof data === 'string') {
+      if (typeof data === "string") {
         interactables.push({
           id: itemId,
-          type: 'scene',
+          type: "scene",
           names: [itemId],
           message: data,
-          location: 'room'
+          location: "room"
         });
       } else {
         if (data.hiddenUnlessHasFlag === undefined || gameState.flags.includes(data.hiddenUnlessHasFlag)) {
           interactables.push({
             ...data,
             id: itemId,
-            type: 'scene',
-            location: 'room'
+            type: "scene",
+            location: "room"
           });
         }
       }
@@ -86,13 +90,13 @@ function buildInteractablesList() {
   }
 
   // Add global generic items (wall, air, etc.)
-  Object.keys(genericDisallowedItems).forEach(itemId => {
+  Object.keys(genericDisallowedItems).forEach((itemId) => {
     interactables.push({
       id: itemId,
-      type: 'generic',
+      type: "generic",
       names: [itemId],
       message: genericDisallowedItems[itemId],
-      location: 'global'
+      location: "global"
     });
   });
 
@@ -103,13 +107,11 @@ function buildInteractablesList() {
 // Checks: exact ID match, then aliases (items), then names (objects)
 function findInteractable(searchName, interactables) {
   // First: exact ID match
-  const exactMatch = interactables.find(i => i.id === searchName);
+  const exactMatch = interactables.find((i) => i.id === searchName);
   if (exactMatch) return exactMatch;
 
   // Second: check names (for items, objects, and generic items)
-  const namesMatch = interactables.find(i =>
-    i.names && i.names.includes(searchName)
-  );
+  const namesMatch = interactables.find((i) => i.names && i.names.includes(searchName));
   if (namesMatch) return namesMatch;
 
   // Not found
@@ -120,13 +122,11 @@ function findInteractable(searchName, interactables) {
 // Returns: item object if found, "AMBIGUOUS" if ambiguous (sets state), null if not found
 function disambiguateItem(searchName, interactables, commandName) {
   // First: exact ID match
-  const exactMatch = interactables.find(i => i.id === searchName);
+  const exactMatch = interactables.find((i) => i.id === searchName);
   if (exactMatch) return exactMatch;
 
   // Second: find all name matches
-  const nameMatches = interactables.filter(i =>
-    i.names && i.names.includes(searchName)
-  );
+  const nameMatches = interactables.filter((i) => i.names && i.names.includes(searchName));
 
   if (nameMatches.length === 0) {
     return null; // Not found
@@ -137,19 +137,20 @@ function disambiguateItem(searchName, interactables, commandName) {
   }
 
   // Multiple matches - check if they're all the same ID (duplicate items)
-  const uniqueIds = [...new Set(nameMatches.map(m => m.id))];
+  const uniqueIds = [...new Set(nameMatches.map((m) => m.id))];
   if (uniqueIds.length === 1) {
     return nameMatches[0]; // All same item, just return first
   }
 
   // Check if all have same stackId (interchangeable items)
-  const stackIds = nameMatches.map(m => {
-    const itemData = items[m.id] || objects[m.id];
-    return itemData?.stackId;
-  }).filter(id => id);
+  const stackIds = nameMatches
+    .map((m) => {
+      const itemData = items[m.id] || objects[m.id];
+      return itemData?.stackId;
+    })
+    .filter((id) => id);
 
-  if (stackIds.length === nameMatches.length &&
-      stackIds.every(id => id === stackIds[0])) {
+  if (stackIds.length === nameMatches.length && stackIds.every((id) => id === stackIds[0])) {
     return nameMatches[0]; // All interchangeable
   }
 
@@ -168,9 +169,9 @@ function disambiguateItem(searchName, interactables, commandName) {
 // For craft: "combine hammer and nails" → items: [hammer, nails], target: []
 function parseActionCommand(actionType, things) {
   // Find any preposition in the command
-  const prepIndex = things.findIndex(word => PREPOSITIONS.includes(word));
+  const prepIndex = things.findIndex((word) => PREPOSITIONS.includes(word));
 
-  if (actionType === 'attack') {
+  if (actionType === "attack") {
     // Attack format: target comes first, then item
     // "attack troll with sword" → target: [troll], items: [sword]
     if (prepIndex === -1) {
@@ -181,8 +182,7 @@ function parseActionCommand(actionType, things) {
       target: things.slice(0, prepIndex),
       items: things.slice(prepIndex + 1)
     };
-  }
-  else if (actionType === 'use' || actionType === 'apply') {
+  } else if (actionType === "use" || actionType === "apply") {
     // Use/apply format: item comes first, then target
     // "use sword on troll" → items: [sword], target: [troll]
     if (prepIndex === -1) {
@@ -193,14 +193,12 @@ function parseActionCommand(actionType, things) {
       items: things.slice(0, prepIndex),
       target: things.slice(prepIndex + 1)
     };
-  }
-  else if (actionType === 'craft') {
+  } else if (actionType === "craft") {
     // Craft format: all items, preposition doesn't matter
     // "combine hammer and nails" → items: [hammer, nails]
     // Filter out the preposition itself
-    return { items: things.filter(word => !PREPOSITIONS.includes(word)), target: [] };
-  }
-  else if (actionType === 'operate') {
+    return { items: things.filter((word) => !PREPOSITIONS.includes(word)), target: [] };
+  } else if (actionType === "operate") {
     // Operate format: just the item, no target
     // "equip helmet" → items: [helmet], target: []
     return { items: things, target: [] };
@@ -224,38 +222,27 @@ function parseThingsFromWords(words, startIndex = 0) {
 }
 
 function findAllMatching(searchName, interactables) {
-  let matches = interactables.filter(i =>
-    i.id === searchName || i.names?.includes(searchName)
-  );
+  let matches = interactables.filter((i) => i.id === searchName || i.names?.includes(searchName));
 
   if (matches.length > 0) return matches;
 
   if (searchName.endsWith("ies")) {
     const singular = searchName.slice(0, -3) + "y";
-    matches = interactables.filter(i =>
-      i.id === singular ||
-      i.names?.includes(singular)
-    );
+    matches = interactables.filter((i) => i.id === singular || i.names?.includes(singular));
 
     if (matches.length > 0) return matches;
   }
 
   if (searchName.endsWith("es")) {
     const singular = searchName.slice(0, -2);
-    matches = interactables.filter(i =>
-      i.id === singular ||
-      i.names?.includes(singular)
-    );
+    matches = interactables.filter((i) => i.id === singular || i.names?.includes(singular));
 
     if (matches.length > 0) return matches;
   }
 
   if (searchName.endsWith("s")) {
     const singular = searchName.slice(0, -1);
-    matches = interactables.filter(i =>
-      i.id === singular ||
-      i.names?.includes(singular)
-    );
+    matches = interactables.filter((i) => i.id === singular || i.names?.includes(singular));
 
     if (matches.length > 0) return matches;
   }
@@ -272,11 +259,11 @@ function matchItemPhrase(things, aliasToItemId) {
 
     let matched = false;
     for (let len = things.length - i; len > 0; len--) {
-      const phrase = things.slice(i, i + len).join(' ');
+      const phrase = things.slice(i, i + len).join(" ");
 
       if (aliasToItemId[phrase]) {
         matches.push({ alias: phrase, itemId: aliasToItemId[phrase] });
-        for (let j = i; j < i + len; j ++) {
+        for (let j = i; j < i + len; j++) {
           used.add(j);
         }
         matched = true;
@@ -299,7 +286,7 @@ function replaceSplitWordsWithFullName(words) {
   const aliasToInteractableId = {};
   const interactables = buildInteractablesList();
   if (interactables) {
-    interactables.forEach(int => {
+    interactables.forEach((int) => {
       if (int.type === "item" && items[int.id].names) {
         for (const name of items[int.id].names) {
           aliasToInteractableId[name.toLowerCase()] = int.id;
@@ -319,20 +306,20 @@ function replaceSplitWordsWithFullName(words) {
   for (let i = 0; i < words.length; i++) {
     if (used.has(i)) continue;
 
-    const match = matches.find(m => {
-      const splitMatch = m.alias.split(' ');
+    const match = matches.find((m) => {
+      const splitMatch = m.alias.split(" ");
       return splitMatch.every((word, offset) => words[i + offset] === word);
     });
 
     if (match) {
       result.push(match.alias);
 
-      const phraseLength = match.alias.split(' ').length;
+      const phraseLength = match.alias.split(" ").length;
       for (let j = 0; j < phraseLength; j++) {
         used.add(i + j);
       }
     } else {
-      result.push(words[i])
+      result.push(words[i]);
     }
   }
   return result;
@@ -341,56 +328,60 @@ function replaceSplitWordsWithFullName(words) {
 // Handle disambiguation when multiple items match
 // Returns true if input was consumed (caller should return early)
 function handleDisambiguation(command, mainCommand) {
-    if (gameState.disambiguationMatches.length === 0) return false;
+  if (gameState.disambiguationMatches.length === 0) return false;
 
-    const useAliases = Object.keys(aliasToAction);
+  const useAliases = Object.keys(aliasToAction);
 
-    if (simpleCommands[mainCommand] || useAliases.includes(mainCommand) ||
-        complicatedCommands[mainCommand] || knownWords[mainCommand]) {
-        gameState.disambiguationMatches = [];
-        gameState.disambiguationSearchName = "";
-        gameState.disambiguationOriginalCommand = "";
-        return false;
-    }
+  if (
+    simpleCommands[mainCommand] ||
+    useAliases.includes(mainCommand) ||
+    complicatedCommands[mainCommand] ||
+    knownWords[mainCommand]
+  ) {
+    gameState.disambiguationMatches = [];
+    gameState.disambiguationSearchName = "";
+    gameState.disambiguationOriginalCommand = "";
+    return false;
+  }
 
-    const matches = gameState.disambiguationMatches;
-    const previousSearch = gameState.disambiguationSearchName;
-    const originalCommand = gameState.disambiguationOriginalCommand;
+  const matches = gameState.disambiguationMatches;
+  const previousSearch = gameState.disambiguationSearchName;
+  const originalCommand = gameState.disambiguationOriginalCommand;
 
-    const narrowedMatches = matches.filter(match => {
-        const itemData = items[match.id] || objects[match.id];
-        if (!itemData || !itemData.names) return false;
+  const narrowedMatches = matches.filter((match) => {
+    const itemData = items[match.id] || objects[match.id];
+    if (!itemData || !itemData.names) return false;
 
-        return itemData.names.some(name => {
-            if (name.includes(command)) return true;
-            const words = name.split(' ');
-            return words.includes(command);
-        });
+    return itemData.names.some((name) => {
+      if (name.includes(command)) return true;
+      const words = name.split(" ");
+      return words.includes(command);
     });
+  });
 
-    if (narrowedMatches.length === 0) {
-        displayText(`You don't have the ${command} ${previousSearch}.`);
-        gameState.disambiguationMatches = [];
-        gameState.disambiguationSearchName = "";
-        gameState.disambiguationOriginalCommand = "";
-    } else if (narrowedMatches.length === 1) {
-        const item = narrowedMatches[0];
-        gameState.disambiguationMatches = [];
-        gameState.disambiguationSearchName = "";
-        gameState.disambiguationOriginalCommand = "";
+  if (narrowedMatches.length === 0) {
+    displayText(`You don't have the ${command} ${previousSearch}.`);
+    gameState.disambiguationMatches = [];
+    gameState.disambiguationSearchName = "";
+    gameState.disambiguationOriginalCommand = "";
+  } else if (narrowedMatches.length === 1) {
+    const item = narrowedMatches[0];
+    gameState.disambiguationMatches = [];
+    gameState.disambiguationSearchName = "";
+    gameState.disambiguationOriginalCommand = "";
 
-        if (originalCommand === "take") {
-            take([item.id]);
-        } else if (originalCommand === "drop") {
-            drop([item.id]);
-        } else if (originalCommand === "examine") {
-            examine([item.id]);
-        }
-    } else {
-        gameState.disambiguationMatches = narrowedMatches;
-        gameState.disambiguationSearchName = `${command} ${previousSearch}`;
-        displayText(`Which ${gameState.disambiguationSearchName}?`);
+    if (originalCommand === "take") {
+      take([item.id]);
+    } else if (originalCommand === "drop") {
+      drop([item.id]);
+    } else if (originalCommand === "examine") {
+      examine([item.id]);
     }
+  } else {
+    gameState.disambiguationMatches = narrowedMatches;
+    gameState.disambiguationSearchName = `${command} ${previousSearch}`;
+    displayText(`Which ${gameState.disambiguationSearchName}?`);
+  }
 
-    return true;
+  return true;
 }

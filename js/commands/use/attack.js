@@ -1,9 +1,8 @@
 // ===== ATTACK HANDLER =====
 
 function handleAttack(item, target) {
-
   // Check if target is a scene with attack interactions
-  if (target.type === 'scene' && target.attack) {
+  if (target.type === "scene" && target.attack) {
     // attack is an object with item IDs as keys and error messages as values
     const errorMessage = target.attack[item.id];
     if (errorMessage) {
@@ -16,7 +15,7 @@ function handleAttack(item, target) {
   // If there is no combat for the target
   if (!target.combat) {
     if (target.attackMessage) {
-      displayText(target.attackMessage)
+      displayText(target.attackMessage);
     } else {
       displayText(`You can't attack the ${target.names[0]} with the ${item.names[0]}.`);
     }
@@ -40,8 +39,6 @@ function handleAttack(item, target) {
     return false;
   }
 
-
-
   // If there are no restrictive flags
   let allowCombat = true;
 
@@ -64,31 +61,7 @@ function handleAttack(item, target) {
 
   // Special handling for eat-to-kill enemies
   if (target.combat.eatToKill) {
-    // Initialize eat count
-    if (!combat.eatCount) {
-      combat.eatCount = 0;
-    }
-
-    // Increment eat count
-    combat.eatCount++;
-
-    // Display eat message
-    const eatMsg = pickRandom(target.combat.eatMessage);
-    displayText(eatMsg);
-
-    // Check if killed
-    if (combat.eatCount >= target.combat.requiredEats) {
-      // Kill enemy
-      const killMsg = pickRandom(target.combat.killMessage);
-      displayText(killMsg);
-
-      // Apply on-kill effects
-      applyEffects(target.combat.effects);
-
-      delete gameState.combatState[target.id];
-      return true;
-    }
-
+    processEatToKill(target);
     return true;
   }
 
@@ -105,13 +78,13 @@ function handleAttack(item, target) {
   // You attack the enemy on the second (or later) turn with the right weapon and all required flags
   let hitEnemy = false;
   const randomNumber = Math.random();
-  if (target.combat.dodgeChanceDamaged && (gameState.healthState <= target.combat.damagedPlayerThreshold)) {
+  if (target.combat.dodgeChanceDamaged && gameState.healthState <= target.combat.damagedPlayerThreshold) {
     if (randomNumber >= target.combat.dodgeChanceDamaged) {
       hitEnemy = true;
     } else {
       if (target.combat.missMessage) {
         const randomMessage = pickRandom(target.combat.missMessage);
-        displayText(randomMessage)
+        displayText(randomMessage);
       } else {
         displayText(`The ${target.id} dodges.`);
       }
@@ -122,7 +95,7 @@ function handleAttack(item, target) {
     } else {
       if (target.combat.dodgeMessage) {
         const randomMessage = pickRandom(target.combat.dodgeMessage);
-        displayText(randomMessage)
+        displayText(randomMessage);
       } else {
         displayText(`The ${target.id} dodges.`);
       }

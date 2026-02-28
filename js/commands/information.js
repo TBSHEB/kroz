@@ -6,9 +6,15 @@ function help() {
 
   // Count green keys found
   const greenKeysFound = [
-    "greenKey1Taken", "greenKey2Taken", "greenKey3Taken", "greenKey4Taken",
-    "greenKey5Taken", "greenKey6Taken", "greenKey7Taken", "greenKey8Taken"
-  ].filter(flag => gameState.flags.includes(flag)).length;
+    "greenKey1Taken",
+    "greenKey2Taken",
+    "greenKey3Taken",
+    "greenKey4Taken",
+    "greenKey5Taken",
+    "greenKey6Taken",
+    "greenKey7Taken",
+    "greenKey8Taken"
+  ].filter((flag) => gameState.flags.includes(flag)).length;
 
   // Determine current goal based on progression
   if (!gameState.visitedRooms.includes("five")) {
@@ -27,32 +33,34 @@ function help() {
     goal = "Escape";
   }
 
-  displayText("=== KROZ ===\n" +
-    `Current Goal: ${goal}\n\n` +
-    "MOVEMENT:\n" +
-    "  north (n), south (s), east (e), west (w)\n" +
-    "  northeast (ne), southeast (se), southwest (sw), northwest (nw)\n" +
-    "  up (u), down (d)\n" +
-    "  back (b) - Takes you in the direction of the previous room\n\n" +
-    "COMMANDS:\n" +
-    "  look (l) - See the room and available exits\n" +
-    "  examine <thing> (x) - Take a more detailed look at something\n" +
-    "  inventory (i) (inv) - Display the inventory\n\n" +
-    "  take <item> - Pick up an item\n" +
-    "  take all - Pick up everything in the room\n" +
-    "  drop <item> - Drop an item\n\n" +
-    "  use <item> - Use, operate, equip, or activate an item\n" +
-    "  use <item> on <target> - Use an item on something\n" +
-    "  attack <enemy> with <weapon> - Engage in combat\n" +
-    "  craft <item> and <item> - Combine items to create something\n\n" +
-    "GAME:\n" +
-    "  save - Save your progress\n" +
-    "  save <name> - Save to a specific slot\n" +
-    "  load - Load your last save\n" +
-    "  load <name> - Load a specific save\n" +
-    "  reset - Restart from the beginning\n" +
-    "  help (h) (?) - Display this message\n\n" +
-    "These are all required commands, but there are more commands. Try things out!")
+  displayText(
+    "=== KROZ ===\n" +
+      `Current Goal: ${goal}\n\n` +
+      "MOVEMENT:\n" +
+      "  north (n), south (s), east (e), west (w)\n" +
+      "  northeast (ne), southeast (se), southwest (sw), northwest (nw)\n" +
+      "  up (u), down (d)\n" +
+      "  back (b) - Takes you in the direction of the previous room\n\n" +
+      "COMMANDS:\n" +
+      "  look (l) - See the room and available exits\n" +
+      "  examine <thing> (x) - Take a more detailed look at something\n" +
+      "  inventory (i) (inv) - Display the inventory\n\n" +
+      "  take <item> - Pick up an item\n" +
+      "  take all - Pick up everything in the room\n" +
+      "  drop <item> - Drop an item\n\n" +
+      "  use <item> - Use, operate, equip, or activate an item\n" +
+      "  use <item> on <target> - Use an item on something\n" +
+      "  attack <enemy> with <weapon> - Engage in combat\n" +
+      "  craft <item> and <item> - Combine items to create something\n\n" +
+      "GAME:\n" +
+      "  save - Save your progress\n" +
+      "  save <name> - Save to a specific slot\n" +
+      "  load - Load your last save\n" +
+      "  load <name> - Load a specific save\n" +
+      "  reset - Restart from the beginning\n" +
+      "  help (h) (?) - Display this message\n\n" +
+      "These are all required commands, but there are more commands. Try things out!"
+  );
 }
 
 function inventory() {
@@ -82,7 +90,7 @@ function inventory() {
 function look() {
   const currentRoom = rooms[gameState.currentRoom];
 
-  if (!currentRoom.light && !gameState.flags.includes("lanternLit")) {
+  if (isDark()) {
     displayRoomTitle("A dark room");
     displayText("It's too dark to see!");
     return;
@@ -140,7 +148,7 @@ function look() {
       // Build passage list
       for (let i = 0; i < allDirections.length; i++) {
         const dir = allDirections[i];
-        const isLast = (i === allDirections.length - 1);
+        const isLast = i === allDirections.length - 1;
 
         if (isLast) {
           // Last item: "and [direction]."
@@ -190,7 +198,7 @@ function look() {
               const allowedItems = Array.isArray(requirement.roomItems)
                 ? requirement.roomItems
                 : [requirement.roomItems];
-              roomItemMet = allowedItems.some(item => currentRoom.items?.includes(item));
+              roomItemMet = allowedItems.some((item) => currentRoom.items?.includes(item));
             }
 
             if (!flagMet || !itemMet || !roomItemMet) {
@@ -252,14 +260,14 @@ function look() {
     }
   }
 
-  displayText("\n" + look)
+  displayText("\n" + look);
 }
 
 function isInCombat() {
   const currentRoom = rooms[gameState.currentRoom];
   if (!currentRoom?.objects) return false;
 
-  return currentRoom.objects.some(objectId => {
+  return currentRoom.objects.some((objectId) => {
     const object = objects[objectId];
     if (!object?.combat) return false;
     const combat = gameState.combatState[objectId];
@@ -308,27 +316,32 @@ function load(name) {
 
   resetGameState(loadedState);
 
-  displayText(`Loaded save${saveName ? " \"" + saveName + "\"" : ""}.`);
+  displayText(`Loaded save${saveName ? ' "' + saveName + '"' : ""}.`);
   look();
 }
 
 function reset() {
+  gameState.currentRoom = "start";
+  gameState.previousRoom = "";
+  gameState.inventory = [];
+  gameState.flags = [];
+  gameState.visitedRooms = [];
+  gameState.partCommand = "";
+  gameState.pendingAlias = "";
+  gameState.partApplyItems = [];
+  gameState.partAttackTarget = [];
+  gameState.partCraftItems = [];
+  gameState.combatState = {};
+  gameState.healthState = 4;
+  gameState.poison = 0;
+  gameState.hazardState = { room: "", count: 0 };
+  gameState.itemCountdowns = {};
+  gameState.sequences = {};
+  gameState.commandCount = 0;
+  gameState.lastCheckpoint = "start";
 
-  gameState.currentRoom = "start"
-  gameState.previousRoom = ""
-  gameState.inventory = []
-  gameState.flags = []
-  gameState.visitedRooms = []
-  gameState.partCommand = ""
-  gameState.pendingAlias = ""
-  gameState.partApplyItems = []
-  gameState.partAttackTarget = []
-  gameState.partCraftItems = []
-  gameState.combatState = {}
-  gameState.healthState = 4
-  gameState.roomChanges = {}
-  gameState.lastCheckpoint = "start"
-
+  reverseRoomChanges(gameState.roomChanges);
+  gameState.roomChanges = {};
 
   deleteSave();
 
@@ -336,7 +349,11 @@ function reset() {
 }
 
 function fullReset() {
-  if (!confirm("This will delete all of your saves and reset the game. This cannot be undone. Are you sure you want to do this?")) {
+  if (
+    !confirm(
+      "This will delete all of your saves and reset the game. This cannot be undone. Are you sure you want to do this?"
+    )
+  ) {
     return;
   }
 

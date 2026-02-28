@@ -1,5 +1,16 @@
 // ===== ENVIRONMENT & STATE HELPERS =====
 
+function formatList(names, conjunction = "or") {
+  if (names.length === 1) return names[0];
+  if (names.length === 2) return `${names[0]} ${conjunction} ${names[1]}`;
+  const allButLast = names.slice(0, -1).join(", ");
+  return `${allButLast}, ${conjunction} ${names[names.length - 1]}`;
+}
+
+function isDark() {
+  return !rooms[gameState.currentRoom].light && !gameState.flags.includes("lanternLit");
+}
+
 // Pick a random element from an array
 function pickRandom(array) {
   return array[Math.floor(Math.random() * array.length)];
@@ -8,11 +19,8 @@ function pickRandom(array) {
 // Get a random damage message for a given damage amount
 function getDamageMessage(amount) {
   const messages = damageMessages
-    .filter(t =>
-      (t.min === undefined || amount >= t.min) &&
-      (t.max === undefined || amount <= t.max)
-    )
-    .flatMap(t => t.messages);
+    .filter((t) => (t.min === undefined || amount >= t.min) && (t.max === undefined || amount <= t.max))
+    .flatMap((t) => t.messages);
   return messages.length ? pickRandom(messages) : null;
 }
 
@@ -27,9 +35,13 @@ function evaluateCanTake(conditions) {
       if (check.hasFlag) denied = denied || gameState.flags.includes(check.hasFlag);
       if (check.notHasFlag) denied = denied || !gameState.flags.includes(check.notHasFlag);
       if (check.inRoom) denied = denied || gameState.currentRoom === check.inRoom;
-      if (check.itemPlacedAnywhere) denied = denied || (gameState.roomChanges && Object.values(gameState.roomChanges).some(changes =>
-        changes.items?.added?.includes(check.itemPlacedAnywhere)
-      ));
+      if (check.itemPlacedAnywhere)
+        denied =
+          denied ||
+          (gameState.roomChanges &&
+            Object.values(gameState.roomChanges).some((changes) =>
+              changes.items?.added?.includes(check.itemPlacedAnywhere)
+            ));
     }
     if (denied) return condition.message;
   }
@@ -40,33 +52,34 @@ function evaluateCanTake(conditions) {
 function resolveTemplates(text) {
   const roots = { gameState };
   return text.replace(/\{\{(.+?)\}\}/g, (match, path) => {
-    const parts = path.split('.');
+    const parts = path.split(".");
     let val = roots[parts[0]];
     if (val === undefined) return match;
     for (let i = 1; i < parts.length; i++) {
-      val = val?.[parts[i]];
+      if (!Object.hasOwn(val, parts[i])) return match;
+      val = val[parts[i]];
       if (val === undefined) return match;
     }
-    return Array.isArray(val) ? val.join(', ') : val;
+    return Array.isArray(val) ? val.join(", ") : val;
   });
 }
 
 // Resolve a value that may be a string or { base, parts } object
 function resolveConditionalText(value) {
-  if (typeof value === 'string') return resolveTemplates(value);
-  if (typeof value === 'object' && value !== null && value.parts) {
-    let text = value.base ?? '';
+  if (typeof value === "string") return resolveTemplates(value);
+  if (typeof value === "object" && value !== null && value.parts) {
+    let text = value.base ?? "";
     for (const part of value.parts) {
-      if (part.if && !part.if.every(f => gameState.flags.includes(f))) continue;
-      if (part.unless && !part.unless.every(f => !gameState.flags.includes(f))) continue;
-      if (part.ifAny && !part.ifAny.some(f => gameState.flags.includes(f))) continue;
-      if (part.unlessAny && !part.unlessAny.some(f => !gameState.flags.includes(f))) continue;
-      if (text) text += ' ';
+      if (part.if && !part.if.every((f) => gameState.flags.includes(f))) continue;
+      if (part.unless && !part.unless.every((f) => !gameState.flags.includes(f))) continue;
+      if (part.ifAny && !part.ifAny.some((f) => gameState.flags.includes(f))) continue;
+      if (part.unlessAny && !part.unlessAny.some((f) => !gameState.flags.includes(f))) continue;
+      if (text) text += " ";
       text += part.text;
     }
     return resolveTemplates(text);
   }
-  return '';
+  return "";
 }
 
 // Helper: Check if two arrays contain the same elements (order doesn't matter)
@@ -104,7 +117,6 @@ function getErrorMessage(item, actionType, target) {
 }
 
 function setGameState(field, data, adding = true) {
-
   if (adding === true) {
     gameState[field].push(data);
     return true;
@@ -120,7 +132,7 @@ function setGameState(field, data, adding = true) {
 }
 
 function setRoomState(field, data, adding = true, roomOverride) {
-  let currentRoom
+  let currentRoom;
   if (roomOverride) {
     currentRoom = rooms[roomOverride];
   } else {
@@ -151,7 +163,7 @@ function clearUseState() {
 }
 
 function trackRoomChange(id, type, added = true, roomOverride) {
-  let roomId
+  let roomId;
   if (roomOverride) {
     roomId = roomOverride;
   } else {
@@ -207,7 +219,12 @@ function trackRoomChange(id, type, added = true, roomOverride) {
     }
   }
 
-  if (changes.items.added.length === 0 && changes.items.removed.length === 0 && changes.objects.added.length === 0 && changes.objects.removed.length === 0) {
+  if (
+    changes.items.added.length === 0 &&
+    changes.items.removed.length === 0 &&
+    changes.objects.added.length === 0 &&
+    changes.objects.removed.length === 0
+  ) {
     delete gameState.roomChanges[roomId];
   }
 }
@@ -215,147 +232,147 @@ function trackRoomChange(id, type, added = true, roomOverride) {
 // Flip a direction to its opposite (for mirror rooms)
 function flipDirection(direction) {
   const directionMap = {
-    'north': 'south',
-    'south': 'north',
-    'east': 'west',
-    'west': 'east',
-    'northeast': 'southwest',
-    'southwest': 'northeast',
-    'northwest': 'southeast',
-    'southeast': 'northwest',
-    'n': 's',
-    's': 'n',
-    'e': 'w',
-    'w': 'e',
-    'ne': 'sw',
-    'sw': 'ne',
-    'nw': 'se',
-    'se': 'nw'
+    north: "south",
+    south: "north",
+    east: "west",
+    west: "east",
+    northeast: "southwest",
+    southwest: "northeast",
+    northwest: "southeast",
+    southeast: "northwest",
+    n: "s",
+    s: "n",
+    e: "w",
+    w: "e",
+    ne: "sw",
+    sw: "ne",
+    nw: "se",
+    se: "nw"
   };
   return directionMap[direction] || direction;
 }
 
 // Check if player has items that cause instant death in hazard rooms
 function checkKillIfInventory(currentRoom) {
-    if (!currentRoom?.hazard?.killIfInventory) return false;
+  if (!currentRoom?.hazard?.killIfInventory) return false;
 
-    let killed = false;
-    for (const [item, message] of Object.entries(currentRoom.hazard.killIfInventory)) {
-        if (gameState.inventory.includes(item)) {
-            gameState.healthState = 0;
-            displayText(message);
-            killed = true;
-        }
+  let killed = false;
+  for (const [item, message] of Object.entries(currentRoom.hazard.killIfInventory)) {
+    if (gameState.inventory.includes(item)) {
+      gameState.healthState = 0;
+      displayText(message);
+      killed = true;
     }
-    return killed;
+  }
+  return killed;
 }
 
 // Process temporary item countdowns and expiration
 function processTemporaryItems(currentRoom) {
-    for (const itemId of gameState.inventory) {
-        const tempConfig = items[itemId]?.temporary;
+  for (const itemId of gameState.inventory) {
+    const tempConfig = items[itemId]?.temporary;
 
-        if (tempConfig && gameState.itemCountdowns[itemId] === undefined) {
-            gameState.itemCountdowns[itemId] = 0;
-        }
+    if (tempConfig && gameState.itemCountdowns[itemId] === undefined) {
+      gameState.itemCountdowns[itemId] = 0;
+    }
+  }
+
+  for (const [item, count] of Object.entries(gameState.itemCountdowns)) {
+    const tempConfig = items[item]?.temporary;
+
+    if (!tempConfig) {
+      continue;
     }
 
-    for (const [item, count] of Object.entries(gameState.itemCountdowns)) {
-        const tempConfig = items[item]?.temporary;
-
-        if (!tempConfig) {
-            continue;
-        }
-
-        if (tempConfig.requireFlags && !tempConfig.requireFlags.every(f => gameState.flags.includes(f))) {
-            continue;
-        }
-
-        if (tempConfig.duration === count) {
-            switch (tempConfig.onExpire) {
-                case "destroy":
-                    if (currentRoom.items.includes(item) || gameState.inventory.includes(item)) {
-                        gameState.healthState = 0;
-                    }
-
-                    for (const room of Object.keys(gameState.roomChanges)) {
-                        if (gameState.roomChanges[room]?.items?.added.includes(item)) {
-                            trackRoomChange(item, "item", false, room);
-                            setRoomState("items", item, false, room);
-                            if (rooms[room].objects) {
-                                for (const object of rooms[room].objects) {
-                                    if (objects[object].destructible) {
-                                        setRoomState("objects", object, false, room)
-                                        trackRoomChange(object, "object", false, room);
-                                        if (objects[object].onDestruct) {
-                                            for (const flag of objects[object].onDestruct) {
-                                                setGameState("flags", flag);
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                    if (currentRoom.items.includes(item)) {
-                        displayText(tempConfig.onExpireMessage.floor);
-                    } else if (gameState.inventory.includes(item)) {
-                        displayText(tempConfig.onExpireMessage.inventory);
-                    } else {
-                        displayText(tempConfig.onExpireMessage.away);
-                    }
-                    break;
-
-                case "extinguish":
-
-                    if (currentRoom.items.includes(item)) {
-                        displayText(tempConfig.onExpireMessage.floor);
-                    } else if (gameState.inventory.includes(item)) {
-                        displayText(tempConfig.onExpireMessage.inventory);
-                    }
-
-                    if (tempConfig.actionSetFlags) {
-                        for (const flag of tempConfig.actionSetFlags) {
-                            setGameState("flags", flag);
-                        }
-                    }
-                    if (tempConfig.actionUnsetFlags) {
-                        for (const flag of tempConfig.actionUnsetFlags) {
-                            setGameState("flags", flag, false);
-                        }
-                    }
-            }
-            delete gameState.itemCountdowns[item];
-        }
-        if (tempConfig.messages?.[count]) {
-            if (tempConfig.globalMessages || rooms[gameState.currentRoom].items.includes(item)) {
-                displayText(tempConfig.messages[count]);
-            }
-        }
-
-        if (gameState.itemCountdowns[item] !== undefined) {
-            gameState.itemCountdowns[item]++;
-        }
+    if (tempConfig.requireFlags && !tempConfig.requireFlags.every((f) => gameState.flags.includes(f))) {
+      continue;
     }
+
+    if (tempConfig.duration === count) {
+      switch (tempConfig.onExpire) {
+        case "destroy":
+          if (currentRoom.items.includes(item) || gameState.inventory.includes(item)) {
+            gameState.healthState = 0;
+          }
+
+          for (const room of Object.keys(gameState.roomChanges)) {
+            if (gameState.roomChanges[room]?.items?.added.includes(item)) {
+              trackRoomChange(item, "item", false, room);
+              setRoomState("items", item, false, room);
+              if (rooms[room].objects) {
+                for (const object of rooms[room].objects) {
+                  if (objects[object].destructible) {
+                    setRoomState("objects", object, false, room);
+                    trackRoomChange(object, "object", false, room);
+                    if (objects[object].onDestruct) {
+                      for (const flag of objects[object].onDestruct) {
+                        setGameState("flags", flag);
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+
+          if (currentRoom.items.includes(item)) {
+            displayText(tempConfig.onExpireMessage.floor);
+          } else if (gameState.inventory.includes(item)) {
+            displayText(tempConfig.onExpireMessage.inventory);
+          } else {
+            displayText(tempConfig.onExpireMessage.away);
+          }
+          break;
+
+        case "extinguish":
+          if (currentRoom.items.includes(item)) {
+            displayText(tempConfig.onExpireMessage.floor);
+          } else if (gameState.inventory.includes(item)) {
+            displayText(tempConfig.onExpireMessage.inventory);
+          }
+
+          if (tempConfig.actionSetFlags) {
+            for (const flag of tempConfig.actionSetFlags) {
+              setGameState("flags", flag);
+            }
+          }
+          if (tempConfig.actionUnsetFlags) {
+            for (const flag of tempConfig.actionUnsetFlags) {
+              setGameState("flags", flag, false);
+            }
+          }
+      }
+      delete gameState.itemCountdowns[item];
+      continue;
+    }
+    if (tempConfig.messages?.[count]) {
+      if (tempConfig.globalMessages || rooms[gameState.currentRoom].items.includes(item)) {
+        displayText(tempConfig.messages[count]);
+      }
+    }
+
+    if (gameState.itemCountdowns[item] !== undefined) {
+      gameState.itemCountdowns[item]++;
+    }
+  }
 }
 
 // Evaluate dynamic flags each turn
 function evaluateDynamicFlags() {
-    for (const entry of dynamicFlags) {
-        let met = false;
-        if (entry.ifHasItem) {
-            met = gameState.inventory.includes(entry.ifHasItem);
-        } else if (entry.ifVisitedRoom) {
-            met = gameState.visitedRooms.includes(entry.ifVisitedRoom);
-        }
-        const hasFlag = gameState.flags.includes(entry.flag);
-        if (met && !hasFlag) {
-            setGameState("flags", entry.flag);
-        } else if (!met && hasFlag) {
-            setGameState("flags", entry.flag, false);
-        }
+  for (const entry of dynamicFlags) {
+    let met = false;
+    if (entry.ifHasItem) {
+      met = gameState.inventory.includes(entry.ifHasItem);
+    } else if (entry.ifVisitedRoom) {
+      met = gameState.visitedRooms.includes(entry.ifVisitedRoom);
     }
+    const hasFlag = gameState.flags.includes(entry.flag);
+    if (met && !hasFlag) {
+      setGameState("flags", entry.flag);
+    } else if (!met && hasFlag) {
+      setGameState("flags", entry.flag, false);
+    }
+  }
 }
 
 function applyEffects(data) {
@@ -375,7 +392,7 @@ function applyEffects(data) {
         break;
       }
       case "setFlagsIfAllFlags": {
-        if (data[effect].required.every(flag => gameState.flags.includes(flag))) {
+        if (data[effect].required.every((flag) => gameState.flags.includes(flag))) {
           for (const flag of data[effect].set) {
             setGameState("flags", flag);
           }
@@ -419,7 +436,7 @@ function applyEffects(data) {
         break;
       }
       case "removeObjectsIfAllFlags": {
-        if (data[effect].required.every(flag => gameState.flags.includes(flag))) {
+        if (data[effect].required.every((flag) => gameState.flags.includes(flag))) {
           for (const object of data[effect].objects) {
             const room = data[effect].room || null;
             setRoomState("objects", object, false, room);
@@ -447,7 +464,7 @@ function applyEffects(data) {
             let isVital = items[item].vital;
             if (!isVital && items[item].softlockable) {
               const sl = items[item].softlockable;
-              if (sl.rooms.includes(gameState.currentRoom) && sl.reaction === 'vital') {
+              if (sl.rooms.includes(gameState.currentRoom) && sl.reaction === "vital") {
                 isVital = true;
               }
             }
@@ -471,7 +488,7 @@ function applyEffects(data) {
         break;
       }
       case "triggerEffects": {
-        data[effect].forEach(thingId => {
+        data[effect].forEach((thingId) => {
           const affectedThing = objects[thingId] ?? items[thingId] ?? null;
           if (affectedThing && affectedThing.triggerEffects) {
             // call applyEffects on the new thing
@@ -481,7 +498,7 @@ function applyEffects(data) {
         break;
       }
       case "resetCountdowns": {
-        data[effect].forEach(itemId => {
+        data[effect].forEach((itemId) => {
           if (gameState.itemCountdowns[itemId] !== undefined) {
             gameState.itemCountdowns[itemId] = 0;
           }
@@ -489,7 +506,10 @@ function applyEffects(data) {
         break;
       }
       case "checkSequence": {
-        if (data[effect].solveOnce && gameState.flags.includes(data[effect].onSuccessEffects.setFlags[0])) continue;
+        if (data[effect].solveOnce && gameState.flags.includes(data[effect].onSuccessEffects.setFlags[0])) {
+          displayText(data[effect].failMessage || "Nothing happens.");
+          continue;
+        }
 
         const store = data[effect].storeName;
         const key = data[effect].key;

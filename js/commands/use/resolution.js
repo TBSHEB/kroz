@@ -19,7 +19,7 @@ function resolveSmartUse(parsed, interactables) {
         message: `I can't find "${name}".`
       };
     }
-    items.push(found)
+    items.push(found);
 
     const index = remainingInteractables.indexOf(found);
     if (index > -1) {
@@ -47,16 +47,15 @@ function resolveSmartUse(parsed, interactables) {
 
   if (targetCount === 0) {
     if (itemCount === 1 && items[0].type === "item") {
-
       if (!gameState.inventory.includes(items[0].id)) {
         return {
           action: "fail",
           message: `You don't have the ${parsed.items[0]}.`
-        }
+        };
       }
 
       if (items[0].primaryType === "operate") {
-        return {action: "operate"};
+        return { action: "operate" };
       }
 
       return {
@@ -65,17 +64,16 @@ function resolveSmartUse(parsed, interactables) {
       };
     }
 
-    if (itemCount > 1 && items.every(i => i.type === "item")) {
-
-      const missingItem = items.find(item => !gameState.inventory.includes(item.id));
+    if (itemCount > 1 && items.every((i) => i.type === "item")) {
+      const missingItem = items.find((item) => !gameState.inventory.includes(item.id));
       if (missingItem) {
         return {
           action: "fail",
-          message: `You don't have the ${missingItem.name}.`
-        }
+          message: `You don't have the ${missingItem.names[0]}.`
+        };
       }
 
-      const operableItems = items.filter(i => i.operate)
+      const operableItems = items.filter((i) => i.operate);
       if (operableItems.length > 0) {
         return {
           action: "operate-multiple",
@@ -85,15 +83,15 @@ function resolveSmartUse(parsed, interactables) {
 
       return {
         action: "need-target",
-        itemNames: items.map(i => i.names[0]),
+        itemNames: items.map((i) => i.names[0]),
         isPartialRecipe: true
       };
     }
 
-    if (items.some(i => i.type === "object")) {
+    if (items.some((i) => i.type === "object")) {
       if (itemCount === 1) {
         if (items[0].operate) {
-          return {action: "operate"};
+          return { action: "operate" };
         }
 
         return {
@@ -102,8 +100,8 @@ function resolveSmartUse(parsed, interactables) {
         };
       }
 
-      if (!items.some(i => i.type === "item")) {
-        if (items.every(i => i.operate)) {
+      if (!items.some((i) => i.type === "item")) {
+        if (items.every((i) => i.operate)) {
           return {
             action: "operate-multiple",
             items: parsed.items
@@ -124,22 +122,21 @@ function resolveSmartUse(parsed, interactables) {
   }
 
   if (targetCount > 0) {
-    if (items.some(i => i.type === "object" || i.type === "generic")) {
+    if (items.some((i) => i.type === "object" || i.type === "generic")) {
       return {
         action: "fail",
         message: "I don't understand how you want me to do that."
       };
     }
 
-    if (targets.every(t => t.type === "item")) {
-
-      const allItemIds = [...items.map(i => i.id), ...targets.map(t => t.id)];
+    if (targets.every((t) => t.type === "item")) {
+      const allItemIds = [...items.map((i) => i.id), ...targets.map((t) => t.id)];
       const recipeMatch = findRecipeMatch(allItemIds);
 
       if (recipeMatch.type === "partial") {
         return {
           action: "need-target",
-          itemNames: [...items.map(i => i.names[0]), ...targets.map(t => t.names[0])],
+          itemNames: [...items.map((i) => i.names[0]), ...targets.map((t) => t.names[0])],
           isPartialRecipe: true
         };
       }
@@ -158,21 +155,21 @@ function resolveSmartUse(parsed, interactables) {
 
     if (itemCount === 1 && targetCount === 1 && (targets[0].type === "object" || targets[0].type === "generic")) {
       if (items[0].primaryType && items[0].primaryType === "combat" && targets[0].combat) {
-        return {action: "attack"};
+        return { action: "attack" };
       }
 
-      return {action: "apply"};
+      return { action: "apply" };
     }
 
-    if (targets.some(t => t.type === "object")) {
-      return {action: "apply"};
+    if (targets.some((t) => t.type === "object")) {
+      return { action: "apply" };
     }
   }
 
   return {
     action: "fail",
     message: "I don't understand what you want me to do."
-  }
+  };
 }
 
 // Main resolver: validates action and dispatches to execution
@@ -180,20 +177,16 @@ function resolveSmartUse(parsed, interactables) {
 function resolveAction(actionType, parsed, verb) {
   // Default null (generic "use") becomes "use" action
   if (actionType === null) {
-    actionType = 'use';
+    actionType = "use";
   }
 
   const interactables = buildInteractablesList();
 
   // Find the item (tool/weapon being used)
-  const item = parsed.items.length > 0
-    ? findInteractable(parsed.items[0], interactables)
-    : null;
+  const item = parsed.items.length > 0 ? findInteractable(parsed.items[0], interactables) : null;
 
   // Find the target (thing being acted upon)
-  const target = parsed.target.length > 0
-    ? findInteractable(parsed.target[0], interactables)
-    : null;
+  const target = parsed.target.length > 0 ? findInteractable(parsed.target[0], interactables) : null;
 
   // Validation: Check if item exists
   if (!item && parsed.items.length > 0) {
@@ -202,17 +195,17 @@ function resolveAction(actionType, parsed, verb) {
   }
 
   // Validation: For use/apply/craft, item must be in inventory (not just in room)
-  if (item && (actionType === 'use' || actionType === 'apply' || actionType === 'craft')) {
-    if (item.type === 'object') {
+  if (item && (actionType === "use" || actionType === "apply" || actionType === "craft")) {
+    if (item.type === "object") {
       displayText("You can't take that to use it on something else.");
       return false;
     }
-    if (item.type === 'generic') {
+    if (item.type === "generic") {
       displayText("You can't use that.");
       return false;
     }
     // Check if item is actually IN inventory (positive check, not negative)
-    if (item.type === 'item' && !gameState.inventory.includes(item.id)) {
+    if (item.type === "item" && !gameState.inventory.includes(item.id)) {
       displayText(`You don't have the ${parsed.items[0]}.`);
       return false;
     }
@@ -233,16 +226,16 @@ function resolveAction(actionType, parsed, verb) {
 // Main dispatcher - routes to specific handler based on action type
 function executeAction(actionType, item, target, parsed, verb) {
   switch (actionType) {
-    case 'attack':
+    case "attack":
       return handleAttack(item, target);
-    case 'apply':
+    case "apply":
       return handleApply(item, target);
-    case 'craft':
+    case "craft":
       return handleCraft(parsed.items);
-    case 'operate':
+    case "operate":
       return handleOperate(verb, item);
-    case 'applyCombination':
-      return handleCombination(parsed.items, target)
+    case "applyCombination":
+      return handleCombination(parsed.items, target);
     default:
       displayText("Action not implemented yet.");
       return false;

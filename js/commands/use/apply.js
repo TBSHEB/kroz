@@ -3,7 +3,7 @@
 // Handle applying items to objects/targets
 function handleApply(item, target) {
   // Special case: ladder placement on floor/ground
-  if ((item.id === 'stepladder' || item.id === 'ladder') && (target.id === 'floor' || target.id === 'ground')) {
+  if ((item.id === "stepladder" || item.id === "ladder") && (target.id === "floor" || target.id === "ground")) {
     setRoomState("items", item.id);
     trackRoomChange(item.id, "item");
     setGameState("inventory", item.id, false);
@@ -12,13 +12,13 @@ function handleApply(item, target) {
   }
 
   // Special case: using equippable items on self (use helmet on me)
-  if ((target.id === 'me' || target.id === 'myself' || target.id === 'self') && item.operate) {
+  if ((target.id === "me" || target.id === "myself" || target.id === "self") && item.operate) {
     // Route to operate handler with "equip" or "use" verb
-    return handleOperate('use', item);
+    return handleOperate("use", item);
   }
 
   // Check if target is a scene with apply interactions
-  if (target.type === 'scene' && target.apply) {
+  if (target.type === "scene" && target.apply) {
     // apply is an object with item IDs as keys and error messages as values
     const errorMessage = target.apply[item.id];
     if (errorMessage) {
@@ -29,7 +29,7 @@ function handleApply(item, target) {
   }
 
   // Check if target is an object with applyWith interactions
-  if (target.type === 'object' && target.applyWith) {
+  if (target.type === "object" && target.applyWith) {
     // Check for progressive combination with single item
     if (target.applyWith._progressiveCombination) {
       const config = target.applyWith._progressiveCombination;
@@ -49,9 +49,7 @@ function handleApply(item, target) {
         setGameState("inventory", item.id, false);
 
         // Check completion
-        const allUsed = config.items.every(itemId =>
-          gameState.flags.includes(itemId + "Used")
-        );
+        const allUsed = config.items.every((itemId) => gameState.flags.includes(itemId + "Used"));
 
         // Display message
         if (allUsed) {
@@ -64,9 +62,7 @@ function handleApply(item, target) {
             trackRoomChange(target.id, "object", false);
           }
         } else {
-          const remaining = config.items.filter(itemId =>
-            !gameState.flags.includes(itemId + "Used")
-          ).length;
+          const remaining = config.items.filter((itemId) => !gameState.flags.includes(itemId + "Used")).length;
 
           let message = config.singleMessage || "You insert a key. It clicks into place.";
           if (config.incompleteSuffix) {
@@ -88,12 +84,12 @@ function handleApply(item, target) {
     }
 
     // Check requirements
-    if (interaction.requireFlags && !interaction.requireFlags.every(f => gameState.flags.includes(f))) {
+    if (interaction.requireFlags && !interaction.requireFlags.every((f) => gameState.flags.includes(f))) {
       displayText(interaction.failMessage || `You can't use that yet.`);
       return false;
     }
 
-    if (interaction.requireNotFlags && interaction.requireNotFlags.some(f => gameState.flags.includes(f))) {
+    if (interaction.requireNotFlags && interaction.requireNotFlags.some((f) => gameState.flags.includes(f))) {
       displayText(interaction.failMessage || `You've already done that.`);
       return false;
     }
@@ -112,13 +108,12 @@ function handleApply(item, target) {
   return false;
 }
 
-function handleCombination(items, target) {
-
+function handleCombination(itemIds, target) {
   // This has already been checked, so should always work, but we'll double check to be safe
   // Check if target is a scene with apply interactions
-  if (target.type === 'scene' && target.apply) {
+  if (target.type === "scene" && target.apply) {
     // Check if any of the items have a specific error message
-    for (const itemId of items) {
+    for (const itemId of itemIds) {
       const errorMessage = target.apply[itemId];
       if (errorMessage) {
         displayText(resolveConditionalText(errorMessage));
@@ -129,13 +124,13 @@ function handleCombination(items, target) {
   }
 
   // Check if target is an object with applyWith interactions
-  if (target.type === 'object' && target.applyWith) {
+  if (target.type === "object" && target.applyWith) {
     // Check for progressive combination with multiple items
     if (target.applyWith._progressiveCombination) {
       const config = target.applyWith._progressiveCombination;
 
       // Filter to only valid items from the progressive combination
-      const validItems = items.filter(itemId => config.items.includes(itemId));
+      const validItems = itemIds.filter((itemId) => config.items.includes(itemId));
 
       if (validItems.length === 0) {
         // No valid items, fall through to default
@@ -148,7 +143,7 @@ function handleCombination(items, target) {
       }
 
       // Check which items haven't been used yet
-      const unusedItems = validItems.filter(itemId => {
+      const unusedItems = validItems.filter((itemId) => {
         const flagName = itemId + "Used";
         return !gameState.flags.includes(flagName);
       });
@@ -159,16 +154,14 @@ function handleCombination(items, target) {
       }
 
       // Set flags and consume items
-      unusedItems.forEach(itemId => {
+      unusedItems.forEach((itemId) => {
         const flagName = itemId + "Used";
         setGameState("flags", flagName);
         setGameState("inventory", itemId, false);
       });
 
       // Check completion
-      const allUsed = config.items.every(itemId =>
-        gameState.flags.includes(itemId + "Used")
-      );
+      const allUsed = config.items.every((itemId) => gameState.flags.includes(itemId + "Used"));
 
       // Display message
       if (allUsed) {
@@ -181,9 +174,7 @@ function handleCombination(items, target) {
           trackRoomChange(target.id, "object", false);
         }
       } else {
-        const remaining = config.items.filter(itemId =>
-          !gameState.flags.includes(itemId + "Used")
-        ).length;
+        const remaining = config.items.filter((itemId) => !gameState.flags.includes(itemId + "Used")).length;
 
         if (unusedItems.length === 1) {
           let message = config.singleMessage || "You insert a key. It clicks into place.";
@@ -206,14 +197,13 @@ function handleCombination(items, target) {
   }
 
   // Check if target is an object with applyWith interactions
-  if (target.type === 'object' && target.applyWith._combinations) {
-
-    let interaction
+  if (target.type === "object" && target.applyWith._combinations) {
+    let interaction;
 
     // We need to find the correct interaction
     for (const combo of target.applyWith._combinations) {
-      if (arraysMatchUnordered(items, combo.items)) {
-        interaction = combo
+      if (arraysMatchUnordered(itemIds, combo.items)) {
+        interaction = combo;
       }
     }
 
@@ -222,19 +212,18 @@ function handleCombination(items, target) {
     }
 
     // Check requirements
-    if (interaction.requireFlags && !interaction.requireFlags.every(f => gameState.flags.includes(f))) {
+    if (interaction.requireFlags && !interaction.requireFlags.every((f) => gameState.flags.includes(f))) {
       displayText(interaction.failMessage || `You can't use that yet.`);
       return false;
     }
 
-    if (interaction.requireNotFlags && interaction.requireNotFlags.some(f => gameState.flags.includes(f))) {
+    if (interaction.requireNotFlags && interaction.requireNotFlags.some((f) => gameState.flags.includes(f))) {
       displayText(interaction.failMessage || `You've already done that.`);
       return false;
     }
 
     // Execute the interaction
     displayText(resolveConditionalText(interaction.message));
-
 
     // Apply effects
     applyEffects(interaction.effects);
@@ -243,6 +232,7 @@ function handleCombination(items, target) {
   }
 
   // Default: no interaction defined
-  displayText(`You can't use the ${item.names[0]} on the ${target.names[0]}.`);
+  const itemNames = itemIds.map((id) => items[id]?.names?.[0] || id).join(" and ");
+  displayText(`You can't use the ${itemNames} on the ${target.names[0]}.`);
   return false;
 }

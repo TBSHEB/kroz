@@ -3,35 +3,35 @@
 // Maps command aliases to their action types
 // null = generic "use" (we'll infer intent based on context)
 const aliasToAction = {
-  'use': null,              // Generic - can mean apply, attack, or craft
-  'apply': 'apply',         // Explicitly using an item on something
-  'attack': 'attack',       // Combat actions
-  'kill': 'attack',
-  'strike': 'attack',
-  'stab': 'attack',
-  'hit': 'attack',
-  'combine': 'craft',       // Crafting/combining items
-  'craft': 'craft',
-  'make': 'craft',
-  'create': 'craft',
-  'operate': 'operate',
-  'equip': 'operate',
-  'wear': 'operate',
-  'light': 'operate',
-  'activate': 'operate',
-  'unequip': 'operate',
-  'remove': 'operate',
-  'extinguish': 'operate',
-  'deactivate': 'operate',
-  'open': 'operate',
-  'lift': 'operate',
-  'shut': 'operate',
-  'close': 'operate',
-  'eat': 'operate'
+  use: null, // Generic - can mean apply, attack, or craft
+  apply: "apply", // Explicitly using an item on something
+  attack: "attack", // Combat actions
+  kill: "attack",
+  strike: "attack",
+  stab: "attack",
+  hit: "attack",
+  combine: "craft", // Crafting/combining items
+  craft: "craft",
+  make: "craft",
+  create: "craft",
+  operate: "operate",
+  equip: "operate",
+  wear: "operate",
+  light: "operate",
+  activate: "operate",
+  unequip: "operate",
+  remove: "operate",
+  extinguish: "operate",
+  deactivate: "operate",
+  open: "operate",
+  lift: "operate",
+  shut: "operate",
+  close: "operate",
+  eat: "operate"
 };
 
 // Common prepositions we recognize as separators
-const PREPOSITIONS = ['on', 'with', 'to', 'at', 'and', 'using', 'in', 'into'];
+const PREPOSITIONS = ["on", "with", "to", "at", "and", "using", "in", "into"];
 
 // Define command data with aliases and failure messages
 const commandData = {
@@ -108,17 +108,17 @@ const commandData = {
   save: {
     command: () => save([]),
     failedCommand: (subject) => `I can't save ${subject}.`,
-    aliases: [],
+    aliases: []
   },
   load: {
     command: () => load([]),
     failedCommand: (subject) => `I can't load ${subject}.`,
-    aliases: [],
+    aliases: []
   },
   reset: {
     command: reset,
     failedCommand: (subject) => `I can't reset ${subject}.`,
-    aliases: ["restart"],
+    aliases: ["restart"]
   },
   fullReset: {
     command: fullReset,
@@ -201,4 +201,4 @@ const knownWords = {
   listen: "You listen carefully. Just silence and distant echoes.",
   hide: "There's nowhere to hide.",
   hi: "Hello!"
-}
+};

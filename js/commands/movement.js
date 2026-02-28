@@ -8,7 +8,7 @@ function performRoomTransition(direction, targetRoom) {
     displayText(resolveConditionalText(currentRoom.entryMessages[direction]));
   }
 
-  if (currentRoom.onExit && gameState.visitedRooms.includes(gameState.currentRoom)) {
+  if (currentRoom.onExit) {
     const exitData = currentRoom.onExit[direction] || currentRoom.onExit;
     if (exitData.setFlags) {
       for (const flag of exitData.setFlags) {
@@ -32,7 +32,7 @@ function performRoomTransition(direction, targetRoom) {
     }
   } else {
     const newRoom = rooms[gameState.currentRoom];
-    if (!newRoom.light && !gameState.flags.includes("lanternLit")) {
+    if (isDark()) {
       displayRoomTitle("A dark room");
       displayText("It's too dark to see!");
     } else {
@@ -45,7 +45,6 @@ function move(direction) {
   const currentRoom = rooms[gameState.currentRoom];
 
   if (direction !== "back") {
-
     if (currentRoom.mirrorDirections) {
       direction = flipDirection(direction);
     }
@@ -70,13 +69,13 @@ function move(direction) {
             return;
           }
           if (requirement.roomItems) {
-            let foundLadder = false;
-            for (const ladder of requirement.roomItems) {
-              if (currentRoom.items && currentRoom.items.includes(ladder)) {
-                foundLadder = true;
+            let foundItem = false;
+            for (const roomItem of requirement.roomItems) {
+              if (currentRoom.items && currentRoom.items.includes(roomItem)) {
+                foundItem = true;
               }
             }
-            if (foundLadder === false) {
+            if (foundItem === false) {
               displayText(requirement.failMessage);
               return;
             }
@@ -114,14 +113,13 @@ function move(direction) {
       if (currentRoom.passages) {
         const directions = Object.keys(currentRoom.passages);
 
-        for (let direction of directions) {
-
-          if (currentRoom.mirrorDirections) {
-            direction = flipDirection(direction);
-          }
-
+        for (const direction of directions) {
           if (currentRoom.passages[direction] === gameState.previousRoom) {
-            performRoomTransition(direction, currentRoom.passages[direction]);
+            if (currentRoom.mirrorDirections) {
+              move(direction);
+            } else {
+              performRoomTransition(direction, currentRoom.passages[direction]);
+            }
             return;
           }
         }
@@ -131,13 +129,12 @@ function move(direction) {
       if (!foundDirection && currentRoom.restrictedPassages) {
         const directions = Object.keys(currentRoom.restrictedPassages);
 
-        for (let direction of directions) {
-
-          if (currentRoom.mirrorDirections) {
-            direction = flipDirection(direction);
-          }
-
+        for (const direction of directions) {
           if (currentRoom.restrictedPassages[direction].room === gameState.previousRoom) {
+            if (currentRoom.mirrorDirections) {
+              move(direction);
+              return;
+            }
             // Check if requirements are met
             if (currentRoom.restrictedPassages[direction].requirements) {
               for (const requirement of currentRoom.restrictedPassages[direction].requirements) {
@@ -158,13 +155,13 @@ function move(direction) {
                   return;
                 }
                 if (requirement.roomItems) {
-                  let foundLadder = false;
-                  for (const ladder of requirement.roomItems) {
-                    if (currentRoom.items && currentRoom.items.includes(ladder)) {
-                      foundLadder = true;
+                  let foundItem = false;
+                  for (const roomItem of requirement.roomItems) {
+                    if (currentRoom.items && currentRoom.items.includes(roomItem)) {
+                      foundItem = true;
                     }
                   }
-                  if (foundLadder === false) {
+                  if (foundItem === false) {
                     if (requirement.backFailMessage) {
                       displayText(requirement.backFailMessage);
                     } else {
@@ -175,7 +172,6 @@ function move(direction) {
                 }
               }
             }
-
 
             // All requirements met
             performRoomTransition(direction, currentRoom.restrictedPassages[direction].room);
@@ -193,6 +189,5 @@ function move(direction) {
         }
       }
     }
-
   }
 }

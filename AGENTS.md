@@ -139,7 +139,7 @@ Reason: `map.js` references items from `items.js` and objects from `objects.js`.
 
 **Security Requirements:**
 - **ALWAYS use `textContent` for user-generated content** (XSS prevention)
-- **NEVER use `innerHTML` with unsanitized input**
+- Avoid `innerHTML` with unsanitized input to prevent injection attacks
 - Validate all data retrieved from localStorage before use
 - Avoid `eval()` or similar dynamic code execution
 
@@ -367,7 +367,6 @@ Save format stored in localStorage under key `'kroz-save'`:
 **Important:**
 - Always validate loaded data (could be corrupted/tampered)
 - Handle localStorage unavailable/full scenarios
-- Check storage availability with `isStorageAvailable()`
 - `healthState`: 4 = full health, 3 = minor damage, 2 = moderate damage, 1 = severe, 0 = dead
 
 ## Testing Instructions

@@ -36,9 +36,9 @@ function take(things, all = false) {
               for (const thing of things) {
                 if (obj.names.includes(thing)) {
                   // Route to operate handler
-                  const objectWithId = {...obj, id: objId, type: 'object'};
+                  const objectWithId = { ...obj, id: objId, type: "object" };
                   operableObjects.push(objectWithId);
-                  things = things.filter(t => t !== thing)
+                  things = things.filter((t) => t !== thing);
                 }
               }
             }
@@ -54,14 +54,12 @@ function take(things, all = false) {
           for (const thing of things) {
             if (object.names.includes(thing)) {
               feedback += `${thing}: You can't take that.\n`;
-              things = things.filter(t => t !== thing);
+              things = things.filter((t) => t !== thing);
             }
           }
         }
       }
     }
-
-
 
     // Build alias-to-itemId map for items in this room
     const aliasToItemId = currentRoom.items ? buildAliasMap(currentRoom.items) : {};
@@ -70,13 +68,13 @@ function take(things, all = false) {
     const disallowedAliasToKey = {};
     if (currentRoom.scenery) {
       Object.entries(currentRoom.scenery).forEach(([key, data]) => {
-        if (typeof data === 'string') {
+        if (typeof data === "string") {
           // Old format: key is the only alias
           disallowedAliasToKey[key] = key;
         } else {
           // New format: map all names to the key
           if (data.names) {
-            data.names.forEach(alias => {
+            data.names.forEach((alias) => {
               disallowedAliasToKey[alias] = key;
             });
           }
@@ -84,10 +82,7 @@ function take(things, all = false) {
       });
     }
 
-    console.log("Final things array:", things);
-
     if (things.length !== 1 || all) {
-
       const taken = new Set();
 
       for (const thing of things) {
@@ -105,7 +100,7 @@ function take(things, all = false) {
           // Item found in room
           setGameState("inventory", itemId);
           if (items[itemId].setFlag) {
-            setGameState("flags", items[itemId].setFlag)
+            setGameState("flags", items[itemId].setFlag);
           }
 
           // Remove item from room
@@ -116,13 +111,12 @@ function take(things, all = false) {
 
           taken.add(itemId);
           feedback += `${thing}: Taken.\n`;
-
         } else if (taken.has(itemId)) {
-          feedback += `${thing}: You've already taken that.\n`
+          feedback += `${thing}: You've already taken that.\n`;
         } else if (disallowedAliasToKey[thing]) {
           const key = disallowedAliasToKey[thing];
           const data = currentRoom.scenery[key];
-          const message = resolveConditionalText(typeof data === 'string' ? data : data.message);
+          const message = resolveConditionalText(typeof data === "string" ? data : data.message);
           feedback += `${thing}: ${message}\n`;
         } else if (genericDisallowedItems[thing]) {
           feedback += `${thing}: ${genericDisallowedItems[thing]}\n`;
@@ -145,7 +139,7 @@ function take(things, all = false) {
         // Item found in room
         setGameState("inventory", itemId);
         if (items[itemId].setFlag) {
-          setGameState("flags", items[itemId].setFlag)
+          setGameState("flags", items[itemId].setFlag);
         }
         // Remove item from room
         if (!items[itemId].infinite) {
@@ -157,7 +151,7 @@ function take(things, all = false) {
       } else if (disallowedAliasToKey[things[0]]) {
         const key = disallowedAliasToKey[things[0]];
         const data = currentRoom.scenery[key];
-        const message = resolveConditionalText(typeof data === 'string' ? data : data.message);
+        const message = resolveConditionalText(typeof data === "string" ? data : data.message);
         feedback += message;
       } else if (genericDisallowedItems[things[0]]) {
         feedback += genericDisallowedItems[things[0]];
@@ -168,7 +162,7 @@ function take(things, all = false) {
     displayText(feedback);
     if (operableObjects.length > 0) {
       for (const object of operableObjects) {
-        handleOperate('take', object);
+        handleOperate("take", object);
       }
     }
   }
@@ -203,18 +197,21 @@ function drop(things) {
       for (const thing of things) {
         const itemId = aliasToItemId[thing];
 
+        if (!itemId || !items[itemId]) {
+          feedback += `${thing}: I don't have that.\n`;
+          continue;
+        }
+
         if (items[itemId].undroppable === true) {
           displayText(items[itemId].undroppableMessage);
           continue;
         }
 
-        if (setGameState("inventory", itemId, false)){
-
+        if (setGameState("inventory", itemId, false)) {
           setRoomState("items", itemId);
           feedback += `${thing}: Dropped.\n`;
           dropped.add(itemId);
           trackRoomChange(itemId, "item");
-
         } else if (dropped.has(itemId)) {
           feedback += `${thing}: You've already dropped that.\n`;
         } else {
@@ -225,11 +222,9 @@ function drop(things) {
       const itemId = aliasToItemId[things[0]];
 
       if (setGameState("inventory", itemId, false)) {
-
         setRoomState("items", itemId);
         trackRoomChange(itemId, "item");
         feedback += "Dropped.";
-
       } else {
         feedback += "I don't have that.";
       }
@@ -239,8 +234,7 @@ function drop(things) {
 }
 
 function examineSingle(alias) {
-
-  if (!rooms[gameState.currentRoom].light && !gameState.flags.includes("lanternLit")) {
+  if (isDark()) {
     displayText("It's far too dark to examine anything...");
     return;
   }
@@ -250,8 +244,7 @@ function examineSingle(alias) {
 }
 
 function examine(things) {
-
-  if (!rooms[gameState.currentRoom].light && !gameState.flags.includes("lanternLit")) {
+  if (isDark()) {
     displayText("It's far too dark to examine anything...");
     return;
   }
@@ -319,7 +312,7 @@ function examine(things) {
       // Check scenery for examine text
       if (!found && currentRoom.scenery) {
         for (const [key, data] of Object.entries(currentRoom.scenery)) {
-          if (typeof data === 'object' && data.names && data.names.includes(things[0]) && data.examine) {
+          if (typeof data === "object" && data.names && data.names.includes(things[0]) && data.examine) {
             feedback += resolveConditionalText(data.examine);
             found = true;
             break;
@@ -381,7 +374,7 @@ function examine(things) {
         // Check scenery for examine text
         if (!found && currentRoom.scenery) {
           for (const [key, data] of Object.entries(currentRoom.scenery)) {
-            if (typeof data === 'object' && data.names && data.names.includes(thing) && data.examine) {
+            if (typeof data === "object" && data.names && data.names.includes(thing) && data.examine) {
               feedback += `${thing}: ${resolveConditionalText(data.examine)}\n`;
               found = true;
               break;
@@ -403,13 +396,11 @@ function examine(things) {
     }
 
     displayText(feedback);
-
   }
 }
 
 function takeAll() {
-
-  if (!rooms[gameState.currentRoom].light && !gameState.flags.includes("lanternLit")) {
+  if (isDark()) {
     displayText("I'm not sure how you want me to take everything in the room, when I can see nothing of the room.");
     return;
   }
@@ -417,17 +408,17 @@ function takeAll() {
   const interactables = buildInteractablesList();
 
   // Filter items in the room, excluding those with allIgnore: true
-  let takes = interactables.filter(item =>
-    item.location === "room" && !item.allIgnore
-  );
+  let takes = interactables.filter((item) => item.location === "room" && !item.allIgnore);
 
-  const takesIds = takes.map(t => {
-    if (t.names) {
-      return t.names[0];  // Use first name/alias
-    } else if (t.type === "generic" || t.type === "scene") {
-      return t.id;
-    }
-  }).filter(id => id !== undefined);
+  const takesIds = takes
+    .map((t) => {
+      if (t.names) {
+        return t.names[0]; // Use first name/alias
+      } else if (t.type === "generic" || t.type === "scene") {
+        return t.id;
+      }
+    })
+    .filter((id) => id !== undefined);
 
   if (takesIds.length === 0) {
     displayText("There's nothing here for me to take.");
@@ -439,15 +430,15 @@ function takeAll() {
 
 function saySingle(alias) {
   gameState.partCommand = "say";
-  displayText(`What would you like to ${alias}?`)
+  displayText(`What would you like to ${alias}?`);
 }
 function say(raw) {
   // The input is literally what the user typed.
   // First, we need a clean version
-  const clean = raw.split(' ');
+  const clean = raw.split(" ");
   // If the first member of clean is "say", "answer" or "speak", we remove it.
   if (clean[0] === "say" || clean[0] === "speak" || clean[0] === "answer") {
-    clean.splice(0,1);
+    clean.splice(0, 1);
   }
   // Now, clean should consist of an array with everything the user inputted, with the spaces removed. Lets check if it's an answer to a riddle.
   const currentRoom = rooms[gameState.currentRoom];
@@ -458,7 +449,10 @@ function say(raw) {
         // We're in a room with a riddle. Does the text include the answer?
         let foundAnswer = false;
         for (const thing of clean) {
-          const cleanThing = thing.toLowerCase().trim().replace(/[,\.;!?]+$/, "");
+          const cleanThing = thing
+            .toLowerCase()
+            .trim()
+            .replace(/[,\.;!?]+$/, "");
           if (checkRiddleAnswer(cleanThing)) {
             // Yes, the answer was within the text.
             // checkRiddleAnswer already handles what happens when you correctly answer the riddle.
@@ -481,7 +475,10 @@ function say(raw) {
       if (obj && obj.sayTrigger) {
         // Check if any of the words match the trigger word
         for (const thing of clean) {
-          const cleanThing = thing.toLowerCase().trim().replace(/[,\.;!?]+$/, "");
+          const cleanThing = thing
+            .toLowerCase()
+            .trim()
+            .replace(/[,\.;!?]+$/, "");
           if (cleanThing === obj.sayTrigger.word.toLowerCase()) {
             // Trigger matched!
             displayText(obj.sayTrigger.message);

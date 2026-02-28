@@ -9,11 +9,12 @@ const objects = {
     operate: {
       grab: {
         allowedVerbs: ["use", "pull", "yank", "break", "take", "grab"],
-        message: "You reach up and grab the chandelier. Unfortunately, the chains holding it up aren't strong. They break and the chandelier falls to the floor, shattering on impact. The chain, and part of the roof also collapse.\nThe dust clears. There is a hole in the roof, and the shattered remains of chain on the floor. Within the remains of the chain appears to be a key.",
+        message:
+          "You reach up and grab the chandelier. Unfortunately, the chains holding it up aren't strong. They break and the chandelier falls to the floor, shattering on impact. The chain, and part of the roof also collapse.\nThe dust clears. There is a hole in the roof, and the shattered remains of chain on the floor. Within the remains of the chain appears to be a key.",
         effects: {
-          spawnItems: {items: ["dungeonKey"]},
+          spawnItems: { items: ["dungeonKey"] },
           setFlags: ["dungeonLampTaken"],
-          removeObjects: {objects: ["dungeonLamp"]}
+          removeObjects: { objects: ["dungeonLamp"] }
         }
       }
     },
@@ -72,15 +73,16 @@ const objects = {
       pick3: {
         message: "You chip away at the wall. A chunk of concrete falls to the ground.",
         effects: {
-          spawnItems: {items: ["concrete"]}
+          spawnItems: { items: ["concrete"] }
         }
-      },
+      }
     }
   },
 
   troll: {
     names: ["troll", "monster", "enemy", "creature", "beast"],
-    examine: "A massive, brutish troll blocks the way. Its grey skin is covered in scars, and it watches you with hungry eyes. You'll need a weapon to deal with this.",
+    examine:
+      "A massive, brutish troll blocks the way. Its grey skin is covered in scars, and it watches you with hungry eyes. You'll need a weapon to deal with this.",
     combat: {
       successfulWeapons: ["sword"],
 
@@ -106,22 +108,10 @@ const objects = {
         "Your blade finds its mark. The troll collapses.\nIt disappears in a cloud of purple smoke.",
         "The troll falls to the ground, defeated.\nPurple smoke rises as it fades away."
       ],
-      missMessage: [
-        "The troll dodges your strike.",
-        "Your attack goes wide."
-      ],
-      counterAttackMessage: [
-        "The troll swings its axe at you.",
-        "The troll brings its axe down toward you."
-      ],
-      playerDodgeMessage: [
-        "You duck under the blow.",
-        "You sidestep the attack."
-      ],
-      hitPlayerMessage: [
-        "The axe strikes you.",
-        "The blow strikes home."
-      ],
+      missMessage: ["The troll dodges your strike.", "Your attack goes wide."],
+      counterAttackMessage: ["The troll swings its axe at you.", "The troll brings its axe down toward you."],
+      playerDodgeMessage: ["You duck under the blow.", "You sidestep the attack."],
+      hitPlayerMessage: ["The axe strikes you.", "The blow strikes home."],
 
       //Flavoursome messages
       wrongWeaponMessage: {
@@ -135,20 +125,20 @@ const objects = {
       //on kill
       effects: {
         setFlags: ["trollGone"],
-        removeObjects: {objects: ["troll"]}
-      },
+        removeObjects: { objects: ["troll"] }
+      }
     },
     applyWith: {
       _default: {
         message: "Giving that to the troll is a bad idea."
       }
     }
-
   },
 
   cavein: {
     names: ["cavein", "cave-in", "blockage", "rubble", "rocks", "debris", "stones", "collapse"],
-    examine: "A pile of rubble and broken rock blocks the passage. It looks like it could be cleared with the right tool.",
+    examine:
+      "A pile of rubble and broken rock blocks the passage. It looks like it could be cleared with the right tool.",
     applyWith: {
       pick1: {
         requireNotFlags: ["pick1UsedOnCavein"],
@@ -156,8 +146,12 @@ const objects = {
         effects: {
           setFlags: ["pick1UsedOnCavein"],
           removeItems: ["pick1"],
-          removeObjectsIfAllFlags: {required: ["pick1UsedOnCavein", "pick2UsedOnCavein"], objects: ["cavein"], message: "\nHowever, the cavein is passable now."},
-          setFlagsIfAllFlags: {set: ["caveinRemoved"], required: ["pick1UsedOnCavein", "pick2UsedOnCavein"]}
+          removeObjectsIfAllFlags: {
+            required: ["pick1UsedOnCavein", "pick2UsedOnCavein"],
+            objects: ["cavein"],
+            message: "\nHowever, the cavein is passable now."
+          },
+          setFlagsIfAllFlags: { set: ["caveinRemoved"], required: ["pick1UsedOnCavein", "pick2UsedOnCavein"] }
         }
       },
       pick2: {
@@ -166,8 +160,12 @@ const objects = {
         effects: {
           setFlags: ["pick2UsedOnCavein"],
           removeItems: ["pick2"],
-          removeObjectsIfAllFlags: {required: ["pick1UsedOnCavein", "pick2UsedOnCavein"], objects: ["cavein"], message: "\nHowever, the cavein is passable now."},
-          setFlagsIfAllFlags: {set: ["caveinRemoved"], required: ["pick1UsedOnCavein", "pick2UsedOnCavein"]}
+          removeObjectsIfAllFlags: {
+            required: ["pick1UsedOnCavein", "pick2UsedOnCavein"],
+            objects: ["cavein"],
+            message: "\nHowever, the cavein is passable now."
+          },
+          setFlagsIfAllFlags: { set: ["caveinRemoved"], required: ["pick1UsedOnCavein", "pick2UsedOnCavein"] }
         }
       },
       _combinations: [
@@ -177,7 +175,7 @@ const objects = {
           effects: {
             removeItems: ["pick1", "pick2"],
             setFlags: ["caveinRemoved", "pick1UsedOnCavein", "pick2UsedOnCavein"],
-            removeObjects: {objects: ["cavein"]}
+            removeObjects: { objects: ["cavein"] }
           }
         }
       ],
@@ -189,7 +187,8 @@ const objects = {
 
   ogre: {
     names: ["ogre", "monster", "enemy", "giant", "creature", "beast"],
-    examine: "A towering ogre stands before you, easily twice your height. Spiked knuckles glint on its massive fists. You'll need both a weapon and protection if you hope to survive.",
+    examine:
+      "A towering ogre stands before you, easily twice your height. Spiked knuckles glint on its massive fists. You'll need both a weapon and protection if you hope to survive.",
     combat: {
       successfulWeapons: ["sword"],
       requiredFlags: ["helmetEquipped"],
@@ -202,7 +201,7 @@ const objects = {
 
       //damage
       damageToPlayer: {
-        default: 2,
+        default: 2
       },
       playerDodgeChance: 0.3,
 
@@ -215,22 +214,10 @@ const objects = {
         "The ogre crashes to the ground, defeated.\nIt crumbles to dust as it falls.",
         "Your blade finds its mark. The ogre collapses.\nIts form dissolves into ash."
       ],
-      missMessage: [
-        "The ogre shifts away from your strike.",
-        "Your attack misses its mark."
-      ],
-      counterAttackMessage: [
-        "The ogre lunges forward, fists swinging.",
-        "Spiked knuckles flash toward you."
-      ],
-      playerDodgeMessage: [
-        "You roll clear of the strike.",
-        "You barely avoid the crushing blow."
-      ],
-      hitPlayerMessage: [
-        "The spiked knuckles tear into you.",
-        "Sharp metal rips across your flesh."
-      ],
+      missMessage: ["The ogre shifts away from your strike.", "Your attack misses its mark."],
+      counterAttackMessage: ["The ogre lunges forward, fists swinging.", "Spiked knuckles flash toward you."],
+      playerDodgeMessage: ["You roll clear of the strike.", "You barely avoid the crushing blow."],
+      hitPlayerMessage: ["The spiked knuckles tear into you.", "Sharp metal rips across your flesh."],
 
       //Flavoursome messages
       wrongWeaponMessage: {
@@ -247,8 +234,8 @@ const objects = {
       //on kill
       effects: {
         setFlags: ["ogreGone"],
-        removeObjects: {objects: ["ogre"]}
-      },
+        removeObjects: { objects: ["ogre"] }
+      }
     },
     applyWith: {
       _default: {
@@ -264,7 +251,8 @@ const objects = {
       removeOnAnswer: true,
       setFlags: ["firstRiddleSolved"],
       message: "When uttering those words, the stone door to the east grinds open.",
-      riddle: "Two men are lying in the desert. They both have backpacks on. One of them is dead. What is in the backpack?"
+      riddle:
+        "Two men are lying in the desert. They both have backpacks on. One of them is dead. What is in the backpack?"
     }
   },
 
@@ -301,7 +289,7 @@ const objects = {
         effects: {
           removeItems: ["brick1"],
           setFlags: ["glassBroken"],
-          removeObjects: {objects: ["glass"]}
+          removeObjects: { objects: ["glass"] }
         }
       },
       brick2: {
@@ -309,7 +297,7 @@ const objects = {
         effects: {
           removeItems: ["brick2"],
           setFlags: ["glassBroken"],
-          removeObjects: {objects: ["glass"]}
+          removeObjects: { objects: ["glass"] }
         }
       },
       hammer: {
@@ -341,7 +329,7 @@ const objects = {
         message: "You dig through the dirt, revealing a passage down.",
         effects: {
           setFlags: ["holeDug"],
-          removeObjects: {objects: ["dirt"]}
+          removeObjects: { objects: ["dirt"] }
         }
       },
       sword: {
@@ -365,8 +353,8 @@ const objects = {
         message: "You touch the mirror. It's cold.",
         effects: {
           teleportMap: {
-            "mirror1": "mirror2",
-            "mirror2": "mirror1"
+            mirror1: "mirror2",
+            mirror2: "mirror1"
           }
         }
       }
@@ -429,16 +417,19 @@ const objects = {
         values: ["red", "blue", "yellow", "green"]
       }
     },
-    examine: "Colored glass in the skylight casts shadows on the floor. The pattern shows: {{gameState.sequences.colorCode}}."
+    examine:
+      "Colored glass in the skylight casts shadows on the floor. The pattern shows: {{gameState.sequences.colorCode}}."
   },
 
   barricade: {
     names: ["barricaded wooden door", "barricade", "door", "wooden door"],
-    examine: "A battered wooden door. It's been covered with wooden boards, and is completely unusable in its current state.",
+    examine:
+      "A battered wooden door. It's been covered with wooden boards, and is completely unusable in its current state.",
     operate: {
       open: {
         allowedVerbs: ["open"],
-        message: "The wooden planks covering the door are forcing it shut. It's not being opened without removing those."
+        message:
+          "The wooden planks covering the door are forcing it shut. It's not being opened without removing those."
       }
     },
     applyWith: {
@@ -516,11 +507,12 @@ const objects = {
     names: [],
     hiddenUnlessHasFlag: "hidden",
     answer: {
-      answer: [],
+      answer: ["key", "a key", "keys", "the key"],
       removeOnAnswer: true,
       setFlags: ["secondRiddleSolved"],
       message: "When uttering those words, the stone door grinds open.",
-      riddle: "I am not strong, yet the strongest door cannot stand in my way. I am not rich, yet I can access things of great value. I have no friends, yet people will stand in the street to wait for me. What am I?"
+      riddle:
+        "I am not strong, yet the strongest door cannot stand in my way. I am not rich, yet I can access things of great value. I have no friends, yet people will stand in the street to wait for me. What am I?"
     }
   },
 
@@ -528,7 +520,7 @@ const objects = {
     names: [],
     hiddenUnlessHasFlag: "hidden",
     answer: {
-      answer: [],
+      answer: ["sawdust", "saw dust", "the sawdust"],
       removeOnAnswer: true,
       setFlags: ["thirdRiddleSolved"],
       message: "When uttering those words, the stone door to the northwest grinds open.",
@@ -590,7 +582,7 @@ const objects = {
             successMessage: "The ball flickers and vanishes. A glowing green key drops to the floor.",
             failMessage: "Nothing happens.",
             onSuccessEffects: {
-              spawnItems: {items: ["greenKey7"]},
+              spawnItems: { items: ["greenKey7"] },
               setFlags: ["ballPuzzleSolved"]
             }
           }
@@ -616,7 +608,7 @@ const objects = {
             successMessage: "The ball flickers and vanishes. A glowing green key drops to the floor.",
             failMessage: "Nothing happens.",
             onSuccessEffects: {
-              spawnItems: {items: ["greenKey7"]},
+              spawnItems: { items: ["greenKey7"] },
               setFlags: ["ballPuzzleSolved"]
             }
           }
@@ -642,7 +634,7 @@ const objects = {
             successMessage: "The ball flickers and vanishes. A glowing green key drops to the floor.",
             failMessage: "Nothing happens.",
             onSuccessEffects: {
-              spawnItems: {items: ["greenKey7"]},
+              spawnItems: { items: ["greenKey7"] },
               setFlags: ["ballPuzzleSolved"]
             }
           }
@@ -668,7 +660,7 @@ const objects = {
             successMessage: "The ball flickers and vanishes. A glowing green key drops to the floor.",
             failMessage: "Nothing happens.",
             onSuccessEffects: {
-              spawnItems: {items: ["greenKey7"]},
+              spawnItems: { items: ["greenKey7"] },
               setFlags: ["ballPuzzleSolved"]
             }
           }
@@ -680,14 +672,15 @@ const objects = {
   purpleDoor: {
     names: ["purple door", "purple-door", "door", "glowing door", "glowing-door"],
     description: "",
-    examine: "A heavy iron door, solid and imposing, shimmering with purple energy. A keyhole glows faintly on the right side.",
+    examine:
+      "A heavy iron door, solid and imposing, shimmering with purple energy. A keyhole glows faintly on the right side.",
     applyWith: {
       purpleKey: {
         message: "You unlock the purple door with the glowing purple key. It swings open.",
         effects: {
           removeItems: ["purpleKey"],
           setFlags: ["purpleDoorUnlocked"],
-          removeObjects: {objects: ["purpleDoor"]}
+          removeObjects: { objects: ["purpleDoor"] }
         }
       },
       _default: {
@@ -705,7 +698,7 @@ const objects = {
         effects: {
           removeItems: ["silverKey"],
           setFlags: ["silverDoorUnlocked"],
-          removeObjects: {objects: ["silverDoor"]}
+          removeObjects: { objects: ["silverDoor"] }
         }
       },
       _default: {
@@ -723,7 +716,7 @@ const objects = {
         effects: {
           removeItems: ["redKey"],
           setFlags: ["redDoorOpened"],
-          removeObjects: {objects: ["redDoor"]}
+          removeObjects: { objects: ["redDoor"] }
         }
       },
       _default: {
@@ -765,18 +758,9 @@ const objects = {
         "You take the final bite. The marshmallow is defeated.",
         "The marshmallow is completely eaten and gone."
       ],
-      counterAttackMessage: [
-        "The marshmallow swings at you.",
-        "The marshmallow retaliates with a sticky blow."
-      ],
-      playerDodgeMessage: [
-        "You dodge the attack.",
-        "You avoid the gooey strike."
-      ],
-      hitPlayerMessage: [
-        "The marshmallow hits you.",
-        "The sticky blow connects."
-      ],
+      counterAttackMessage: ["The marshmallow swings at you.", "The marshmallow retaliates with a sticky blow."],
+      playerDodgeMessage: ["You dodge the attack.", "You avoid the gooey strike."],
+      hitPlayerMessage: ["The marshmallow hits you.", "The sticky blow connects."],
 
       // Wrong weapon messages
       wrongWeaponMessage: {
@@ -786,7 +770,7 @@ const objects = {
       // On kill
       effects: {
         setFlags: ["marshmallowGone"],
-        removeObjects: {objects: ["marshmallow"]}
+        removeObjects: { objects: ["marshmallow"] }
       }
     },
     applyWith: {
@@ -817,7 +801,7 @@ const objects = {
         failMessage: "The forge needs to be heated first.",
         effects: {
           removeItems: ["crucibleSilver"],
-          spawnObjects: {objects: ["crucibleMelt"]}
+          spawnObjects: { objects: ["crucibleMelt"] }
         }
       },
       _default: {
@@ -843,7 +827,15 @@ const objects = {
   },
 
   crucibleMelt: {
-    names: ["crucible", "molten silver", "molten-silver", "hot crucible", "hot-crucible", "melting crucible", "melting-crucible"],
+    names: [
+      "crucible",
+      "molten silver",
+      "molten-silver",
+      "hot crucible",
+      "hot-crucible",
+      "melting crucible",
+      "melting-crucible"
+    ],
     description: "A hot crucible sits on the forge, filled with molten silver.",
     examine: "The crucible sits on the furnace, silver bubbling and glowing white-hot inside. Too hot to touch.",
     applyWith: {
@@ -852,7 +844,7 @@ const objects = {
         effects: {
           removeItems: ["tongs"],
           giveItems: ["crucibleTongs"],
-          removeObjects: {objects: ["crucibleMelt"]}
+          removeObjects: { objects: ["crucibleMelt"] }
         }
       },
       _default: {
@@ -869,7 +861,7 @@ const objects = {
         message: "You pour the molten silver into the mold. It begins to cool and take shape.",
         effects: {
           removeItems: ["crucibleTongs"],
-          spawnItems: {items: ["silverMold"]}
+          spawnItems: { items: ["silverMold"] }
         }
       },
       _default: {
@@ -883,10 +875,11 @@ const objects = {
     examine: "A deep tub filled with cool water. Used for rapidly cooling hot metal.",
     applyWith: {
       silverMold: {
-        message: "You plunge the mold into the slack tub. The water hisses as the silver cools rapidly. A silver key falls out of the mold.",
+        message:
+          "You plunge the mold into the slack tub. The water hisses as the silver cools rapidly. A silver key falls out of the mold.",
         effects: {
           removeItems: ["silverMold"],
-          spawnItems: {items: ["silverKey"]}
+          spawnItems: { items: ["silverKey"] }
         }
       },
       _default: {
@@ -897,7 +890,8 @@ const objects = {
 
   fire: {
     names: ["fire", "flames", "blaze", "inferno"],
-    examine: "Intense flames roar here, making the entire room swelteringly hot. There's no way I can get through this.",
+    examine:
+      "Intense flames roar here, making the entire room swelteringly hot. There's no way I can get through this.",
     applyWith: {
       extinguisher: {
         message: "You spray the fire extinguisher. The flames die down and extinguish.",
@@ -905,7 +899,7 @@ const objects = {
           removeItems: ["extinguisher"],
           giveItems: ["spentExtinguisher"],
           setFlags: ["fireExtinguished"],
-          removeObjects: {objects: ["fire"]}
+          removeObjects: { objects: ["fire"] }
         }
       },
       cup: {
@@ -925,7 +919,8 @@ const objects = {
     examine: "A vast underground lake of dark, still water. Far too deep and cold to cross safely.",
     applyWith: {
       sawdust: {
-        message: "You drop the sawdust into the lake. There's so much, it completely fills and starts to float, creating a safe passage north.", // dont like fix
+        message:
+          "You drop the sawdust into the lake. There's so much, it completely fills and starts to float, creating a safe passage north.", // dont like fix
         effects: {
           removeItems: ["sawdust"],
           setFlags: ["lakeFilled"]
@@ -954,13 +949,14 @@ const objects = {
 
   cyclops: {
     names: ["cyclops", "giant", "monster", "enemy", "creature"],
-    examine: "From here, I can see a pretty standard looking cyclops, and I'm not going any closer to further examine it.",
+    examine:
+      "From here, I can see a pretty standard looking cyclops, and I'm not going any closer to further examine it.",
     sayTrigger: {
       word: "ulysses",
       message: "Upon hearing the name 'Ulysses', the cyclops panics and flees from the room!",
       effects: {
         setFlags: ["cyclopsGone"],
-        removeObjects: {objects: ["cyclops"]}
+        removeObjects: { objects: ["cyclops"] }
       }
     },
     combat: {
@@ -983,26 +979,14 @@ const objects = {
         "Your attack catches the cyclops off guard. It falls with a thunderous crash.",
         "The cyclops collapses before it can react."
       ],
-      killMessage: [
-        "The cyclops falls to the ground, defeated.",
-        "With a final roar, the cyclops collapses."
-      ],
-      missMessage: [
-        "The cyclops dodges your attack.",
-        "Your attack goes wide."
-      ],
+      killMessage: ["The cyclops falls to the ground, defeated.", "With a final roar, the cyclops collapses."],
+      missMessage: ["The cyclops dodges your attack.", "Your attack goes wide."],
       counterAttackMessage: [
         "The cyclops swings its massive fist at you.",
         "The cyclops lunges forward with a crushing blow."
       ],
-      playerDodgeMessage: [
-        "You dodge the cyclops' attack.",
-        "You narrowly avoid the crushing blow."
-      ],
-      hitPlayerMessage: [
-        "The cyclops' fist connects with brutal force.",
-        "The blow strikes you hard."
-      ],
+      playerDodgeMessage: ["You dodge the cyclops' attack.", "You narrowly avoid the crushing blow."],
+      hitPlayerMessage: ["The cyclops' fist connects with brutal force.", "The blow strikes you hard."],
 
       // Wrong weapon messages
       wrongWeaponMessage: {
@@ -1013,7 +997,7 @@ const objects = {
       // On kill
       effects: {
         setFlags: ["cyclopsGone"],
-        removeObjects: {objects: ["cyclops"]}
+        removeObjects: { objects: ["cyclops"] }
       }
     },
     applyWith: {
@@ -1029,7 +1013,8 @@ const objects = {
     examine: "A massive brass bell hanging from the ceiling. Tarnished with age.",
     applyWith: {
       brassHammer: {
-        message: "You ring the bell with the brass hammer. The sound echoes loudly through the building. You hear the sound of shattering glass from elsewhere.",
+        message:
+          "You ring the bell with the brass hammer. The sound echoes loudly through the building. You hear the sound of shattering glass from elsewhere.",
         effects: {
           triggerEffects: ["case"]
         }
@@ -1049,8 +1034,8 @@ const objects = {
     examine: "A glass trophy case. Contained inside is a glowing green key.",
     triggerEffects: {
       setFlags: ["caseShattered"],
-      spawnItems: {items: ["greenKey6"], room: "case"},
-      removeObjects: {objects: ["case"], room: "case"}
+      spawnItems: { items: ["greenKey6"], room: "case" },
+      removeObjects: { objects: ["case"], room: "case" }
     }
   },
 
@@ -1063,7 +1048,7 @@ const objects = {
         effects: {
           removeItems: ["blueKey"],
           setFlags: ["blueDoorUnlocked"],
-          removeObjects: {objects: ["blueDoor"]}
+          removeObjects: { objects: ["blueDoor"] }
         }
       },
       _default: {
@@ -1075,14 +1060,15 @@ const objects = {
   vendingMachine: {
     names: ["vending machine", "vending-machine", "machine", "vendor"],
     description: "An old vending machine hums quietly in the corner.",
-    examine: "An old vending machine humming quietly. Inside is a singular hamburger, kept warm for whoever knows how long.",
+    examine:
+      "An old vending machine humming quietly. Inside is a singular hamburger, kept warm for whoever knows how long.",
     applyWith: {
       coin: {
         message: "You insert the coin into the machine. A hamburger drops into the dispenser tray.",
         requireNotFlags: ["vendingMachineUsed"],
         effects: {
           removeItems: ["coin"],
-          spawnItems: {items: ["hamburger"]},
+          spawnItems: { items: ["hamburger"] },
           setFlags: ["vendingMachineUsed"]
         }
       },
@@ -1090,7 +1076,7 @@ const objects = {
         message: "You jam the pickaxe into the machine's mechanism. Something falls out, but it looks... questionable.",
         requireNotFlags: ["vendingMachineUsed"],
         effects: {
-          spawnItems: {items: ["hamburgerPoisoned"]},
+          spawnItems: { items: ["hamburgerPoisoned"] },
           setFlags: ["vendingMachineUsed"]
         }
       },
@@ -1117,7 +1103,8 @@ const objects = {
 
   door: {
     names: ["door", "final door", "final-door", "eight door", "eight-door", "green door", "green-door"],
-    examine: "A massive door adorned with intricate glowing green metalwork. Eight glowing keyholes are stacked vertically down the right hand side.",
+    examine:
+      "A massive door adorned with intricate glowing green metalwork. Eight glowing keyholes are stacked vertically down the right hand side.",
     applyWith: {
       _progressiveCombination: {
         items: ["greenKey1", "greenKey2", "greenKey3", "greenKey4", "greenKey5", "greenKey6", "greenKey7", "greenKey8"],
@@ -1133,4 +1120,4 @@ const objects = {
       }
     }
   }
-}
+};
