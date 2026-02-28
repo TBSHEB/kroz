@@ -1,14 +1,13 @@
 /* Colour scheme - change these variables to retheme the entire game */
 :root {
-  --phosphor: #33ff77;
-  --phosphor-dim: #20aa55;
-  --phosphor-dark: #0e5a2d;
-  --phosphor-glow: rgba(51, 255, 119, 0.25);
-  --phosphor-faint: rgba(51, 255, 119, 0.06);
+  --phosphor: #00aaff;
+  --phosphor-dim: #0077aa;
+  --phosphor-dark: #003d5a;
+  --phosphor-glow: rgba(0, 170, 255, 0.25);
+  --phosphor-faint: rgba(0, 170, 255, 0.06);
   --bg-screen: #050505;
   --bg-body: #0c0c0c;
 }
-
 /* Reset and base */
 * {
   margin: 0;
