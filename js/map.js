@@ -2,37 +2,16 @@ const rooms = {
   start: {
     name: "The Dungeon",
     hideItemDescriptions: ["dungeonWood", "dungeonKey"],
-    look: () => {
-      let parts = [];
-
-      // Opening - always present
-      parts.push("You stand in a dimly lit stone chamber.");
-
-      // Ceiling state
-      if (gameState.flags.includes("dungeonLampTaken")) {
-        parts.push("A hole gapes in the ceiling where the chandelier once hung, debris scattered on the floor below.");
-      } else {
-        parts.push("An ornate chandelier hangs from chains above, casting flickering shadows across the walls.");
-      }
-
-      // Floor/wood/trapdoor state
-      if (gameState.flags.includes("dungeonWoodTaken")) {
-        if (gameState.flags.includes("dungeonTrapdoorOpen")) {
-          parts.push("The trapdoor lies open, revealing darkness below.");
-        } else {
-          parts.push("A trapdoor is set into the stone floor.");
-        }
-      } else {
-        parts.push("The floor is covered with loose wooden boards.");
-      }
-
-      // Walls - only mentioned when both items taken (clears the view)
-      if (gameState.flags.includes("dungeonLampTaken") &&
-          gameState.flags.includes("dungeonWoodTaken")) {
-        parts.push("The chamber's thick walls are ancient and weathered, crumbling to a coarse, granular texture.");
-      }
-
-      return parts.join(" ");
+    look: {
+      base: "You stand in a dimly lit stone chamber.",
+      parts: [
+        { text: "A hole gapes in the ceiling where the chandelier once hung, debris scattered on the floor below.", if: ["dungeonLampTaken"] },
+        { text: "An ornate chandelier hangs from chains above, casting flickering shadows across the walls.", unless: ["dungeonLampTaken"] },
+        { text: "The trapdoor lies open, revealing darkness below.", if: ["dungeonWoodTaken", "dungeonTrapdoorOpen"] },
+        { text: "A trapdoor is set into the stone floor.", if: ["dungeonWoodTaken"], unless: ["dungeonTrapdoorOpen"] },
+        { text: "The floor is covered with loose wooden boards.", unless: ["dungeonWoodTaken"] },
+        { text: "The chamber's thick walls are ancient and weathered, crumbling to a coarse, granular texture.", if: ["dungeonLampTaken", "dungeonWoodTaken"] }
+      ]
     },
     restrictedPassages: {
       up: {
@@ -57,17 +36,17 @@ const rooms = {
     scenery: {
       chains: {
         names: ["chains", "chain", "chandelier chains"],
-        message: () => {
-          if (gameState.flags.includes("dungeonLampTaken")) {
-            return "The shattered remains of the chain lie scattered on the floor, bits of twisted metal too small or sharp to bother messing with.";
-          }
-          return "The chains are firmly anchored to the ceiling.";
+        message: {
+          parts: [
+            { text: "The shattered remains of the chain lie scattered on the floor, bits of twisted metal too small or sharp to bother messing with.", if: ["dungeonLampTaken"] },
+            { text: "The chains are firmly anchored to the ceiling.", unless: ["dungeonLampTaken"] }
+          ]
         },
-        examine: () => {
-          if (gameState.flags.includes("dungeonLampTaken")) {
-            return "Broken links of rusted iron, twisted and scattered where they fell.";
-          }
-          return "Heavy iron chains suspend the ornate chandelier, links darkened with age.";
+        examine: {
+          parts: [
+            { text: "Broken links of rusted iron, twisted and scattered where they fell.", if: ["dungeonLampTaken"] },
+            { text: "Heavy iron chains suspend the ornate chandelier, links darkened with age.", unless: ["dungeonLampTaken"] }
+          ]
         },
         apply: {
           key: "Although I appreciate your concern for wanting to fix broken decor, putting one loop back won't do much good."
@@ -131,7 +110,7 @@ const rooms = {
     look: {
       base: "A triangular room with three visible passages.",
       parts: [
-        {text: "The southern wall shimmers faintly, as if hiding something.", if: "hasMap"}
+        {text: "The southern wall shimmers faintly, as if hiding something.", if: ["hasMap"]}
       ]
     },
     passages: {northwest: "hammer1", north: "five", northeast: "five"},
@@ -148,17 +127,17 @@ const rooms = {
     scenery: {
       shimmer: {
         names: ["shimmer", "shimmering", "glow", "glimmer"],
-        message: () => {
-          if (!gameState.flags.includes("hasMap")) {
-            return "I can't find that.";
-          }
-          return "That's the state the wall is in, not exactly something I can take.";
+        message: {
+          parts: [
+            { text: "I can't find that.", unless: ["hasMap"] },
+            { text: "That's the state the wall is in, not exactly something I can take.", if: ["hasMap"] }
+          ]
         },
-        examine: () => {
-          if (!gameState.flags.includes("hasMap")) {
-            return "I can't find that.";
-          }
-          return "A purple sparkling glow, phasing in and out of the wall.";
+        examine: {
+          parts: [
+            { text: "I can't find that.", unless: ["hasMap"] },
+            { text: "A purple sparkling glow, phasing in and out of the wall.", if: ["hasMap"] }
+          ]
         },
         allIgnore: true
       }
@@ -208,8 +187,8 @@ const rooms = {
     name: "The Sandy room",
     look: {
       parts: [
-        {text: "This room is full of sand.", if: "nailsTaken"},
-        {text: "This room is full of sand, shining in the light of my lantern.", unless: "nailsTaken"}
+        {text: "This room is full of sand.", if: ["nailsTaken"]},
+        {text: "This room is full of sand, shining in the light of my lantern.", unless: ["nailsTaken"]}
       ]
     },
     passages: {west: "five", northeast: "pick1"},
@@ -225,33 +204,33 @@ const rooms = {
       },
       shine: {
         names: ["shine", "shining", "glint", "glinting", "glimmer", "sparkle", "sparkling"],
-        message: () => {
-          if (gameState.flags.includes("nailsTaken")) {
-            return "I can't find that.";
-          }
-          return "I can't take the shine itself, but I could probably find what it's glinting off.";
+        message: {
+          parts: [
+            { text: "I can't find that.", if: ["nailsTaken"] },
+            { text: "I can't take the shine itself, but I could probably find what it's glinting off.", unless: ["nailsTaken"] }
+          ]
         },
-        examine: () => {
-          if (gameState.flags.includes("nailsTaken")) {
-            return "I can't find that.";
-          }
-          return "Taking a closer look at the sand reveals it is full of nails! That would be what is glinting in the light.";
+        examine: {
+          parts: [
+            { text: "I can't find that.", if: ["nailsTaken"] },
+            { text: "Taking a closer look at the sand reveals it is full of nails! That would be what is glinting in the light.", unless: ["nailsTaken"] }
+          ]
         },
         allIgnore: true
       },
       light: {
         names: ["light"],
-        message: () => {
-          if (gameState.flags.includes("nailsTaken")) {
-            return "I can't find that.";
-          }
-          return "I've already got the lantern, and the sand isn't producing any light. Just reflecting it.";
+        message: {
+          parts: [
+            { text: "I can't find that.", if: ["nailsTaken"] },
+            { text: "I've already got the lantern, and the sand isn't producing any light. Just reflecting it.", unless: ["nailsTaken"] }
+          ]
         },
-        examine: () => {
-          if (gameState.flags.includes("nailsTaken")) {
-            return "I can't find that.";
-          }
-          return "Why does light always seem brighter when reflecting off of something shiny?";
+        examine: {
+          parts: [
+            { text: "I can't find that.", if: ["nailsTaken"] },
+            { text: "Why does light always seem brighter when reflecting off of something shiny?", unless: ["nailsTaken"] }
+          ]
         },
         allIgnore: true
       }
@@ -861,8 +840,8 @@ const rooms = {
     look: {
       base: "I'm in the northern half of a large rectangular room.",
       parts: [
-        {text: "A large glass wall separates me from the southern side.", unless: "glassBroken"},
-        {text: "There used to be a glass wall here, now there's just shattered remains.", if:"glassBroken"}
+        {text: "A large glass wall separates me from the southern side.", unless: ["glassBroken"]},
+        {text: "There used to be a glass wall here, now there's just shattered remains.", if: ["glassBroken"]}
       ]
     },
     passages: {
@@ -894,8 +873,8 @@ const rooms = {
     look: {
       base: "I'm in the southern half of a large rectangular room." ,
       parts: [
-        {text: "A large glass wall separates me from the northern side.", unless: "glassBroken"},
-        {text: "There used to be a glass wall here, now there's just shattered remains.", if: "glassBroken"}
+        {text: "A large glass wall separates me from the northern side.", unless: ["glassBroken"]},
+        {text: "There used to be a glass wall here, now there's just shattered remains.", if: ["glassBroken"]}
       ]
     },
     passages: {
@@ -1565,13 +1544,12 @@ const rooms = {
   },
   boring: {
     name: "The Boring room",
-    look: () => {
-      const base = "This room is really boring.";
-      if (gameState.flags.includes("leftBoringOnce")) {
-        return base + " Why am I here again?";
-      } else {
-        return base + " I should move on.";
-      }
+    look: {
+      base: "This room is really boring.",
+      parts: [
+        { text: "Why am I here again?", if: ["leftBoringOnce"] },
+        { text: "I should move on.", unless: ["leftBoringOnce"] }
+      ]
     },
     onExit: {
       setFlags: ["leftBoringOnce"]
@@ -1643,16 +1621,17 @@ const rooms = {
     light: true
   },
   riddle2: {
-    name: () => {
-      if (gameState.visitedRooms.includes("riddle3")) {
-        return "The Third Riddle";
-      } else {
-        return "The Second Riddle";
-      }
+    name: {
+      parts: [
+        { text: "The Third Riddle", if: ["visitedRiddle3"] },
+        { text: "The Second Riddle", unless: ["visitedRiddle3"] }
+      ]
     },
-    look: () => {
-      const ordinal = gameState.visitedRooms.includes("riddle3") ? "third" : "second";
-      return `Ancient symbols are etched into every surface. A ${ordinal} riddle awaits on a stone pedestal.`;
+    look: {
+      parts: [
+        { text: "Ancient symbols are etched into every surface. A third riddle awaits on a stone pedestal.", if: ["visitedRiddle3"] },
+        { text: "Ancient symbols are etched into every surface. A second riddle awaits on a stone pedestal.", unless: ["visitedRiddle3"] }
+      ]
     },
     passages: {east: "round"},
     restrictedPassages: {
@@ -1749,7 +1728,7 @@ workshop: {
     look: {
       base: "A domed, high-tech room.",
       parts: [
-        {text: "There's a floating ball in the middle of the room. It's reflective, and refractive at the same time. You can see a green light originating from inside.", unless: "codeInput"},
+        {text: "There's a floating ball in the middle of the room. It's reflective, and refractive at the same time. You can see a green light originating from inside.", unless: ["codeInput"]},
       ]
     },
     passages: {west: "rorrim"},
@@ -1765,16 +1744,17 @@ workshop: {
     light: true
   },
   riddle3: {
-    name: () => {
-      if (gameState.visitedRooms.includes("riddle2")) {
-        return "The Third Riddle";
-      } else {
-        return "The Second Riddle";
-      }
+    name: {
+      parts: [
+        { text: "The Third Riddle", if: ["visitedRiddle2"] },
+        { text: "The Second Riddle", unless: ["visitedRiddle2"] }
+      ]
     },
-    look: () => {
-      const ordinal = gameState.visitedRooms.includes("riddle2") ? "third" : "second";
-      return `Ancient symbols are etched into every surface. A ${ordinal} riddle awaits on a stone pedestal.`;
+    look: {
+      parts: [
+        { text: "Ancient symbols are etched into every surface. A third riddle awaits on a stone pedestal.", if: ["visitedRiddle2"] },
+        { text: "Ancient symbols are etched into every surface. A second riddle awaits on a stone pedestal.", unless: ["visitedRiddle2"] }
+      ]
     },
     passages: {north: "round"},
     restrictedPassages: {
@@ -1831,8 +1811,8 @@ workshop: {
     name: "The Wooden room",
     look: {
       parts: [
-        {text: "Everything here is lined with wood. Walls, floor, even the ceiling. It's a wonder there aren't termites here.", unless: "woodTaken"},
-        {text: "The room has been stripped bare. There's really not much here anymore.", if: "woodTaken"}
+        {text: "Everything here is lined with wood. Walls, floor, even the ceiling. It's a wonder there aren't termites here.", unless: ["woodTaken"]},
+        {text: "The room has been stripped bare. There's really not much here anymore.", if: ["woodTaken"]}
       ]
     },
     passages: {
@@ -2061,8 +2041,8 @@ workshop: {
     look: {
       base: "This appears to be an industrial incinerator. The walls are blackened from years of use.",
       parts: [
-        {text: "The room is incredibly hot, I shouldn't stay here for too long.", unless: "fireExtinguished"},
-        {text: "Now that the fire's out, I can breathe easier and the heat has dissipated.", if: "fireExtinguished"}
+        {text: "The room is incredibly hot, I shouldn't stay here for too long.", unless: ["fireExtinguished"]},
+        {text: "Now that the fire's out, I can breathe easier and the heat has dissipated.", if: ["fireExtinguished"]}
       ]
     },
     passages: {southeast: "hideout"},
@@ -2144,9 +2124,11 @@ workshop: {
   },
   bell: {
     name: "The Bell Tower",
-    look: () => {
-      const article = gameState.visitedRooms.includes("candle") ? "the" : "a";
-      return `Apparently, I'm at the spire of ${article} church. Through the decorative arched windows, I can see vast barren plains and distant forests stretching to the horizon.`;
+    look: {
+      parts: [
+        { text: "Apparently, I'm at the spire of the church. Through the decorative arched windows, I can see vast barren plains and distant forests stretching to the horizon.", if: ["visitedCandle"] },
+        { text: "Apparently, I'm at the spire of a church. Through the decorative arched windows, I can see vast barren plains and distant forests stretching to the horizon.", unless: ["visitedCandle"] }
+      ]
     },
     passages: {
       north: "blueKey",
@@ -2400,7 +2382,7 @@ workshop: {
     },
     objects: ["door"],
     entryMessages: {
-      east: () => `PLACEHOLDER: Ending message goes here. It took you ${gameState.commandCount} commands to escape.` // TODO: replace with ending text
+      east: "PLACEHOLDER: Ending message goes here. It took you {{gameState.commandCount}} commands to escape." // TODO: replace with ending text
     },
     onExit: {
       east: { setFlags: ["gameOver"] }

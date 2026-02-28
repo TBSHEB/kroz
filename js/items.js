@@ -27,38 +27,34 @@ const items = {
   lantern: {
     names: ["brass lantern", "lantern", "lamp", "brass", "light"],
     primaryType: "operate",
-    examine: () => {
-      if (gameState.flags.includes("lanternLit")) {
-        return "An old brass lantern. Given its apparent age, I'm surprised it's still working.";
-      }
-      if (gameState.flags.includes("lanternOut")) {
-        return "An old brass lantern. It's completely out of battery, and as such is useless to me.";
-      }
-      return "An old brass lantern. It's off.";
+    examine: {
+      base: "An old brass lantern.",
+      parts: [
+        { text: "Given its apparent age, I'm surprised it's still working.", if: ["lanternLit"] },
+        { text: "It's completely out of battery, and as such is useless to me.", if: ["lanternOut"] },
+        { text: "It's off.", unlessAny: ["lanternLit", "lanternOut"] }
+      ]
     },
     initialDescription: "An old brass lantern rests here.",
     description: "A brass lantern rests here.",
     setFlag: "lanternTaken",
-    temporary: () => {
-      if (gameState.flags.includes("lanternLit")) {
-        return {
-          duration: 800,
-          messages: {
-            100: "You wonder if the light from the lantern is dimmer than it was earlier.",
-            400: "You notice the lantern is indeed giving off less light.",
-            600: "The lantern is giving off considerably less light.",
-            750: "The lantern is all but a flicker.",
-            790: "The light from the lantern is so little, you can barely see."
-          },
-          onExpire: "extinguish",
-          onExpireMessage: {
-            inventory: "The lantern goes out. I would say I'm plunged into darkness, however not much has changed.",
-            floor: "The lantern goes out."
-          },
-          actionSetFlags: ["lanternOut"],
-          actionUnsetFlags: ["lanternLit"]
-        }
-      }
+    temporary: {
+      requireFlags: ["lanternLit"],
+      duration: 800,
+      messages: {
+        100: "You wonder if the light from the lantern is dimmer than it was earlier.",
+        400: "You notice the lantern is indeed giving off less light.",
+        600: "The lantern is giving off considerably less light.",
+        750: "The lantern is all but a flicker.",
+        790: "The light from the lantern is so little, you can barely see."
+      },
+      onExpire: "extinguish",
+      onExpireMessage: {
+        inventory: "The lantern goes out. I would say I'm plunged into darkness, however not much has changed.",
+        floor: "The lantern goes out."
+      },
+      actionSetFlags: ["lanternOut"],
+      actionUnsetFlags: ["lanternLit"]
     },
     vital: true,
     togglable: true,
@@ -134,9 +130,9 @@ const items = {
     examine: "It's faintly glowing, and appears to be of a great underground empire",
     initialDescription: "",
     description: "A glowing purple map has been left here.",
-    vital: () => {
-      const softlockRooms = ["start", "cellar", "five", "three", "hammer1", "deadEnd1", "sand", "pick1", "tall", "sword", "ogre", "riddle1", "parachute"]
-      return softlockRooms.includes(gameState.currentRoom);
+    softlockable: {
+      rooms: ["start", "cellar", "five", "three", "hammer1", "deadEnd1", "sand", "pick1", "tall", "sword", "ogre", "riddle1", "parachute"],
+      reaction: "vital"
     }
   },
   sword: {
@@ -394,20 +390,20 @@ const items = {
     initialDescription: "One of the crates has been pulled out, and is sitting open on the floor. A lone stick of dynamite is inside.",
     description: "A stick of dynamite rests here.",
     setFlag: "dynamiteTaken",
-    canTake: () => {
-      if (gameState.inventory.includes("dynamite")) {
-        return "Walking around with one stick of a powerful explosive is bad enough. I'm not taking more.";
+    canTake: [
+      {
+        unless: { hasItem: "dynamite" },
+        message: "Walking around with one stick of a powerful explosive is bad enough. I'm not taking more."
+      },
+      {
+        unless: { hasItem: "litDynamite" },
+        message: "Walking around with one stick of a powerful explosive, a lit one at that, is bad enough. I'm not taking more."
+      },
+      {
+        unless: { itemPlacedAnywhere: "dynamite" },
+        message: "If I were to go around leaving dynamite wherever I please, then come back to pick up some more from a seemingly infinite box, that's the sort of behaviour that's going to blow this place off this planet."
       }
-      if (gameState.inventory.includes("litDynamite")) {
-        return "Walking around with one stick of a powerful explosive, a lit one at that, is bad enough. I'm not taking more."
-      }
-      if (gameState.roomChanges && Object.values(gameState.roomChanges).some(changes =>
-        changes.items.added && changes.items.added.includes("dynamite")
-      )) {
-        return "If I were to go around leaving dynamite wherever I please, then come back to pick up some more from a seemingly infinite box, that's the sort of behaviour that's going to blow this place off this planet."
-      }
-      return true;
-    },
+    ],
     infinite: true,
   },
   litDynamite: {

@@ -5,12 +5,9 @@ function handleAttack(item, target) {
   // Check if target is a scene with attack interactions
   if (target.type === 'scene' && target.attack) {
     // attack is an object with item IDs as keys and error messages as values
-    let errorMessage = target.attack[item.id];
+    const errorMessage = target.attack[item.id];
     if (errorMessage) {
-      if (typeof errorMessage === 'function') {
-        errorMessage = errorMessage();
-      }
-      displayText(errorMessage);
+      displayText(resolveConditionalText(errorMessage));
       return false;
     }
     // Fall through to default error if no specific message

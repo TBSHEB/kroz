@@ -168,7 +168,7 @@ function processTick(oldRoom) {
 
     gameState.commandCount++;
     processTemporaryItems(currentRoom);
-    updateHoldingFlags();
+    evaluateDynamicFlags();
 
     const killed = checkKillIfInventory(currentRoom);
     if (!killed) {

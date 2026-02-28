@@ -75,9 +75,6 @@ const objects = {
           spawnItems: {items: ["concrete"]}
         }
       },
-      _default: {
-        message: (item) => `You can't use the ${item.name} on the wall.`
-      }
     }
   },
 
@@ -426,28 +423,13 @@ const objects = {
   code: {
     names: ["code", "floor", "shadows", "glass", "skylight", "pattern"],
     description: "Light filters through the coloured glass skylight, casting patterns on the floor.",
-    examine: function() {
-      // Generate random color code if it doesn't exist
-      if (!gameState.sequences.colorCode) {
-        const colors = ["red", "blue", "yellow", "green"];
-        const sequence = [];
-
-        // Copy colors array
-        for (let i = 0; i < colors.length; i++) {
-          sequence.push(colors[i]);
-        }
-
-        // Shuffle the sequence
-        for (let i = sequence.length - 1; i > 0; i--) {
-          const j = Math.floor(Math.random() * (i + 1));
-          [sequence[i], sequence[j]] = [sequence[j], sequence[i]];
-        }
-
-        gameState.sequences.colorCode = sequence;
+    onExamine: {
+      generateSequence: {
+        storeName: "colorCode",
+        values: ["red", "blue", "yellow", "green"]
       }
-
-      return `Colored glass in the skylight casts shadows on the floor. The pattern shows: ${gameState.sequences.colorCode.join(", ")}.`;
-    }
+    },
+    examine: "Colored glass in the skylight casts shadows on the floor. The pattern shows: {{gameState.sequences.colorCode}}."
   },
 
   barricade: {
@@ -597,9 +579,10 @@ const objects = {
     operate: {
       push: {
         allowedVerbs: ["push", "press", "use"],
-        message: () => gameState.sequences.colorCode ? "*click*" : "You push the red button.",
         effects: {
           checkSequence: {
+            message: "*click*",
+            sequencelessMessage: "You push the red button.",
             solveOnce: true,
             storeName: "buttonsPressed",
             key: "red",
@@ -622,9 +605,10 @@ const objects = {
     operate: {
       push: {
         allowedVerbs: ["push", "press", "use"],
-        message: () => gameState.sequences.colorCode ? "*click*" : "You push the blue button.",
         effects: {
           checkSequence: {
+            message: "*click*",
+            sequencelessMessage: "You push the blue button.",
             solveOnce: true,
             storeName: "buttonsPressed",
             key: "blue",
@@ -647,9 +631,10 @@ const objects = {
     operate: {
       push: {
         allowedVerbs: ["push", "press", "use"],
-        message: () => gameState.sequences.colorCode ? "*click*" : "You push the yellow button.",
         effects: {
           checkSequence: {
+            message: "*click*",
+            sequencelessMessage: "You push the yellow button.",
             solveOnce: true,
             storeName: "buttonsPressed",
             key: "yellow",
@@ -672,9 +657,10 @@ const objects = {
     operate: {
       push: {
         allowedVerbs: ["push", "press", "use"],
-        message: () => gameState.sequences.colorCode ? "*click*" : "You push the green button.",
         effects: {
           checkSequence: {
+            message: "*click*",
+            sequencelessMessage: "You push the green button.",
             solveOnce: true,
             storeName: "buttonsPressed",
             key: "green",

@@ -20,12 +20,9 @@ function handleApply(item, target) {
   // Check if target is a scene with apply interactions
   if (target.type === 'scene' && target.apply) {
     // apply is an object with item IDs as keys and error messages as values
-    let errorMessage = target.apply[item.id];
+    const errorMessage = target.apply[item.id];
     if (errorMessage) {
-      if (typeof errorMessage === 'function') {
-        errorMessage = errorMessage();
-      }
-      displayText(errorMessage);
+      displayText(resolveConditionalText(errorMessage));
       return false;
     }
     // Fall through to default error if no specific message
@@ -102,10 +99,7 @@ function handleApply(item, target) {
     }
 
     // Execute the interaction
-    const message = typeof interaction.message === 'function'
-      ? interaction.message(item)
-      : interaction.message;
-    displayText(message);
+    displayText(resolveConditionalText(interaction.message));
 
     // Apply effects
     applyEffects(interaction.effects);
@@ -125,12 +119,9 @@ function handleCombination(items, target) {
   if (target.type === 'scene' && target.apply) {
     // Check if any of the items have a specific error message
     for (const itemId of items) {
-      let errorMessage = target.apply[itemId];
+      const errorMessage = target.apply[itemId];
       if (errorMessage) {
-        if (typeof errorMessage === 'function') {
-          errorMessage = errorMessage();
-        }
-        displayText(errorMessage);
+        displayText(resolveConditionalText(errorMessage));
         return false;
       }
     }
@@ -242,10 +233,7 @@ function handleCombination(items, target) {
     }
 
     // Execute the interaction
-    const message = typeof interaction.message === 'function'
-      ? interaction.message(items)
-      : interaction.message;
-    displayText(message);
+    displayText(resolveConditionalText(interaction.message));
 
 
     // Apply effects

@@ -87,38 +87,9 @@ function look() {
     displayText("It's too dark to see!");
     return;
   }
-  const roomName = typeof currentRoom.name === "function" ? currentRoom.name() : currentRoom.name;
-  displayRoomTitle(roomName);
+  displayRoomTitle(resolveConditionalText(currentRoom.name));
 
-  let look = "";
-
-  if (typeof currentRoom.look === "object") {
-    if (currentRoom.look.base) {
-      look += currentRoom.look.base + "\n";
-
-    }
-    for (const part of currentRoom.look.parts) {
-      if (part.if) {
-        if (gameState.flags.includes(part.if)) {
-          if (look) look += " ";
-          look += part.text;
-        }
-      } else if (part.unless) {
-        if (!gameState.flags.includes(part.unless)) {
-          if (look) look += " ";
-          look += part.text;
-        }
-      } else {
-        look = "This room has an error...";
-      }
-    }
-  } else if (typeof currentRoom.look === "string") {
-    look = currentRoom.look;
-  } else if (typeof currentRoom.look === "function") {
-    look = currentRoom.look();
-  } else {
-    look = "This room has an error...";
-  }
+  let look = resolveConditionalText(currentRoom.look);
 
   look += "\n";
 

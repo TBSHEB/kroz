@@ -164,8 +164,8 @@ Rooms use plain objects with this structure:
 ```javascript
 const rooms = {
   "roomId": {
-    name: "Room Name",           // Display name (can be function for dynamic names)
-    look: "Description text",    // What player sees (can be object with base/parts for dynamic text)
+    name: "Room Name",           // Display name (string or {base, parts} object)
+    look: "Description text",    // What player sees (string or {base, parts} object)
     passages: {                  // Available exits
       north: "otherRoomId",
       up: "anotherRoomId"
@@ -199,10 +199,9 @@ const rooms = {
       // east: { setFlags: ["gameOver"] }  // Only fires when leaving east
     },
     entryMessages: {              // Custom messages on entry (optional)
-      north: "You fall through a hole."  // String or function
-      // east: () => `Dynamic message: ${gameState.commandCount}`
+      north: "You fall through a hole."  // String, supports {{gameState.x}} templates
     },
-    scenery: {            // Items that can't be taken
+    scenery: {                    // Non-takeable room elements
       "walls": "The walls are part of the structure."
     }
   }
@@ -224,12 +223,22 @@ const items = {
   "itemId": {
     names: ["primary name", "alias1", "alias2"],  // All valid names
     description: "Text shown when item is in room",
-    examine: "Detailed examination text",  // Can be function for dynamic text
+    examine: "Detailed examination text",  // String or {base, parts} object
     primaryType: "equipment|consumable|weapon|tool",  // For smart routing
-    canTake: true,               // Or function returning true/error message
+    canTake: [                   // Array of deny conditions (optional)
+      { unless: { hasItem: "x" }, message: "Denial text." }
+    ],
     infinite: true,              // Stays in room after taking (optional)
     vital: true,                 // Protected from blue cake theft (optional)
-    temporary: () => { ... },    // Function returning countdown config (optional)
+    softlockable: {              // Room-conditional vital (optional)
+      rooms: ["room1", "room2"],
+      reaction: "vital"
+    },
+    temporary: {                 // Countdown config (optional)
+      requireFlags: ["flagName"],  // Only counts when all flags present
+      duration: 800,
+      // ...
+    },
     operate: {                   // Operating the item
       activate: {
         allowedVerbs: ["light", "activate"],
@@ -255,26 +264,22 @@ const items = {
 ```
 
 **Temporary Items:**
-Items with `temporary` property (function) count down while in inventory:
+Items with `temporary` property count down while in inventory:
 ```javascript
-temporary: () => {
-  if (gameState.flags.includes("lanternLit")) {
-    return {
-      duration: 800,              // Commands until expiration
-      messages: {                 // Warning messages at specific counts
-        100: "Getting low...",
-        750: "Almost done!"
-      },
-      onExpire: "extinguish",     // Action: "extinguish" or "destroy"
-      onExpireMessage: {
-        inventory: "It goes out.",
-        floor: "It fizzles out."
-      },
-      actionSetFlags: ["out"],    // Flags to set on expiration
-      actionUnsetFlags: ["lit"]   // Flags to unset
-    };
-  }
-  return false;  // Not active
+temporary: {
+  requireFlags: ["lanternLit"],   // Only counts when all flags present
+  duration: 800,                  // Commands until expiration
+  messages: {                     // Warning messages at specific counts
+    100: "Getting low...",
+    750: "Almost done!"
+  },
+  onExpire: "extinguish",         // Action: "extinguish" or "destroy"
+  onExpireMessage: {
+    inventory: "It goes out.",
+    floor: "It fizzles out."
+  },
+  actionSetFlags: ["out"],        // Flags to set on expiration
+  actionUnsetFlags: ["lit"]       // Flags to unset
 }
 ```
 
@@ -286,7 +291,10 @@ Objects are non-takeable interactables in rooms:
 const objects = {
   "objectId": {
     names: ["primary name", "alias1"],
-    examine: "Examination text",
+    examine: "Examination text",    // String or {base, parts} object
+    onExamine: {                    // Effects to run before showing examine text (optional)
+      generateSequence: { storeName: "seqName", values: ["a", "b", "c"] }
+    },
     onUse: {
       // Interaction logic
     },
@@ -301,7 +309,7 @@ const objects = {
 The command system is modular:
 
 - **helpers/ directory**: Helper functions split by domain
-  - **environment.js**: State management (`setGameState`, `setRoomState`, `applyEffects`, `trackRoomChange`), temporary items, holding flags, utilities (`pickRandom`, `arraysMatchUnordered`)
+  - **environment.js**: State management (`setGameState`, `setRoomState`, `applyEffects`, `trackRoomChange`), temporary items, dynamic flags (`evaluateDynamicFlags`), conditional text resolver (`resolveConditionalText`, `resolveTemplates`), canTake evaluator (`evaluateCanTake`), damage messages (`getDamageMessage`), utilities (`pickRandom`, `arraysMatchUnordered`)
   - **mechanics.js**: Combat (`initializeCombat`, `processEnemyTurns`), hazards (`processHazards`, `checkKillIfInventory`), puzzles (`checkRiddleAnswer`, `findRecipeMatch`, `checkCombinations`), `processTick` (post-command game world tick)
   - **parsing.js**: Input parsing (`parseActionCommand`, `parseThingsFromWords`), item lookup (`buildInteractablesList`, `findInteractable`, `disambiguateItem`), name resolution (`replaceSplitWordsWithFullName`, `matchItemPhrase`)
 - **use/ directory**: Modular "use" command system
@@ -419,7 +427,7 @@ Open browser DevTools (F12) → Console tab to see:
 1. Define item in `items.js` with `names`, `description`, `examine`, `primaryType`
 2. Place item in appropriate room's `items` array in `map.js`
 3. Add any item-specific interactions in `operate` or `applyWith` properties
-4. Optional properties: `infinite`, `canTake` (function), `temporary` (function), `vital`
+4. Optional properties: `infinite`, `canTake` (deny conditions array), `temporary` (countdown object), `vital`, `softlockable`
 5. Test take, drop, examine, and use commands
 
 ### Adding Crafting Recipes
@@ -570,7 +578,8 @@ Rooms with `isCheckpoint: true` are safe respawn points:
 
 Items with countdown timers (lantern, litDynamite):
 
-- `temporary` property is a function returning config when active
+- `temporary` property is a plain object with countdown config
+- `requireFlags` array: countdown only ticks when all flags are present
 - Counts up each command until reaching `duration`
 - Shows warning messages at specific counts
 - On expiration: "extinguish" (turn off) or "destroy" (explode)
@@ -578,21 +587,105 @@ Items with countdown timers (lantern, litDynamite):
 
 ### Infinite Items
 
-Items with `infinite: true` and/or `canTake` function:
+Items with `infinite: true` and/or `canTake` conditions:
 
 - **infinite**: Item stays in room after taking
-- **canTake**: Function returning `true` or error message string
+- **canTake**: Array of deny conditions, first match blocks the take
 - Used for gum (unlimited) and dynamite (only one at a time)
 
 Example:
 ```javascript
-canTake: () => {
-  if (gameState.inventory.includes("dynamite")) {
-    return "You already have dynamite.";
+canTake: [
+  {
+    unless: { hasItem: "dynamite" },
+    message: "You already have dynamite."
   }
-  return true;
+]
+```
+
+Condition types: `hasItem`, `hasFlag`, `notHasFlag`, `inRoom`, `itemPlacedAnywhere`
+
+### Structured Conditional Text
+
+Many text fields accept a `{ base, parts }` object for flag-dependent text. Resolved by `resolveConditionalText()`.
+
+Supported fields: `room.name`, `room.look`, `entryMessages`, item `examine`, object `examine`, scenery `message`, scenery `examine`, operate action `message`.
+
+```javascript
+look: {
+  base: "A dimly lit chamber.",       // Optional
+  parts: [
+    { text: "The door is open.", if: ["doorUnlocked", "doorOpen"] },
+    { text: "You hear water.", ifAny: ["fountainOn", "rainStarted"] },
+    { text: "Still sealed.", unless: ["doorUnlocked"] },
+    { text: "Quiet here.", unlessAny: ["fountainOn", "bellRung"] }
+  ]
 }
 ```
+
+Condition types (all take arrays of flag strings):
+- `if`: all flags must be present (AND)
+- `unless`: all flags must be absent (AND)
+- `ifAny`: at least one flag must be present (OR)
+- `unlessAny`: at least one flag must be absent (OR)
+- Multiple conditions can combine on a single part (all must pass)
+
+### Template Substitution
+
+Strings support `{{gameState.x.y}}` templates, resolved at runtime by `resolveTemplates()`. Arrays are auto-joined with ", ".
+
+```javascript
+examine: "The pattern shows: {{gameState.sequences.colorCode}}."
+entryMessages: { east: "It took you {{gameState.commandCount}} commands." }
+```
+
+Templates work in all fields that go through `resolveConditionalText()`, including within `{ base, parts }` text values.
+
+### Dynamic Flags
+
+The `dynamicFlags` array in `game.js` auto-sets/unsets flags each turn based on game state. Evaluated by `evaluateDynamicFlags()` in `processTick`.
+
+```javascript
+const dynamicFlags = [
+  { flag: "hasMap", ifHasItem: "map" },
+  { flag: "visitedCandle", ifVisitedRoom: "candle" }
+];
+```
+
+Condition types:
+- `ifHasItem`: flag set when item is in inventory, unset when not
+- `ifVisitedRoom`: flag set when room has been visited (never unset)
+
+### Damage Messages
+
+The `damageMessages` array in `game.js` uses range-based tiers. `getDamageMessage(amount)` pools messages from all matching ranges and picks one randomly.
+
+```javascript
+const damageMessages = [
+  { max: 1, messages: ["A glancing blow..."] },
+  { min: 2, messages: ["A deep gash..."] }
+];
+```
+
+- Omit `min`: no lower bound. Omit `max`: no upper bound.
+- Overlapping ranges pool their messages together.
+- Supports negative damage numbers.
+
+### Softlockable Items
+
+Items with `softlockable` provide room-conditional protection from `loseNonvitalItems` (blue cake theft):
+
+```javascript
+softlockable: {
+  rooms: ["start", "cellar", "five"],
+  reaction: "vital"
+}
+```
+
+- `rooms`: array of room keys where the item is protected
+- `reaction: "vital"`: treat as vital in those rooms
+
+Checked alongside `vital: true` (unconditional protection) in the `loseNonvitalItems` effect.
 
 ## Browser Compatibility
 
@@ -649,13 +742,23 @@ See `TODO.md` for current task list and priorities.
 - Checkpoint system (safe respawn points)
 - Infinite items (gum, dynamite with restrictions)
 - Ladder placement mechanics
-- Dynamic room text (function-based names/descriptions/entryMessages)
+- Dynamic room text (data-driven via structured conditionals and templates)
 - Restricted passages with requirements
 - Mirror room (reversed directions)
 - Sequence puzzle system (generic checkSequence effect in applyEffects)
 - Game ending system (gameOver flag disables input, command counter tracks total commands)
 - Post-command tick system (processTick handles world state advancement)
 - Directional onExit support (direction-specific or any-exit flag setting)
+- Data-driven engine: all game data is declarative (no functions in data files)
+- Structured conditional text system (`resolveConditionalText` with if/unless/ifAny/unlessAny)
+- Template substitution (`{{gameState.x.y}}` in text strings)
+- Dynamic flags system (`evaluateDynamicFlags` with ifHasItem/ifVisitedRoom)
+- Range-based damage messages (`getDamageMessage`)
+- Declarative canTake deny conditions (`evaluateCanTake`)
+- Softlockable item property (room-conditional vital)
+- Temporary item requireFlags (countdown gated by flags)
+- Object onExamine effects (generateSequence)
+- checkSequence message/sequencelessMessage support
 
 **Remaining Content:**
 - Door room ending text (placeholder)
@@ -677,10 +780,12 @@ See `TODO.md` for current task list and priorities.
 
 6. **Plain objects over classes:** Use plain JavaScript objects for data (easier serialization for localStorage).
 
-7. **Script dependencies:** Always remember script loading order - dependencies must load first.
+7. **No functions in data files:** `map.js`, `items.js`, and `objects.js` must contain only declarative data (strings, numbers, arrays, plain objects). Use structured conditionals (`{ base, parts }`), templates (`{{gameState.x}}`), dynamic flags, and effects instead of functions. This is required for the adventure-maker editor/generator.
 
-8. **No emojis:** Unless explicitly requested by the user.
+8. **Script dependencies:** Always remember script loading order - dependencies must load first.
 
-9. **Security first:** Always use `textContent`, never `innerHTML` with user input.
+9. **No emojis:** Unless explicitly requested by the user.
 
-10. **Test thoroughly:** Browser console is your friend - check for errors frequently.
+10. **Security first:** Always use `textContent`, never `innerHTML` with user input.
+
+11. **Test thoroughly:** Browser console is your friend - check for errors frequently.

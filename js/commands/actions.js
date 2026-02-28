@@ -95,20 +95,9 @@ function take(things, all = false) {
 
         if (itemId && currentRoom.items.includes(itemId)) {
           if (items[itemId].canTake) {
-            let canTakeResult;
-
-            if (typeof items[itemId].canTake === "function") {
-              canTakeResult = items[itemId].canTake();
-            } else {
-              canTakeResult = items[itemId].canTake;
-            }
-
-            if (canTakeResult !== true) {
-              if (typeof canTakeResult === "string") {
-                feedback += `${canTakeResult}\n`
-              } else {
-                feedback += `${thing}: You can't take that\n`;
-              }
+            const denial = evaluateCanTake(items[itemId].canTake);
+            if (denial) {
+              feedback += `${denial}\n`;
               continue;
             }
           }
@@ -133,10 +122,7 @@ function take(things, all = false) {
         } else if (disallowedAliasToKey[thing]) {
           const key = disallowedAliasToKey[thing];
           const data = currentRoom.scenery[key];
-          let message = typeof data === 'string' ? data : data.message;
-          if (typeof message === 'function') {
-            message = message();
-          }
+          const message = resolveConditionalText(typeof data === 'string' ? data : data.message);
           feedback += `${thing}: ${message}\n`;
         } else if (genericDisallowedItems[thing]) {
           feedback += `${thing}: ${genericDisallowedItems[thing]}\n`;
@@ -149,20 +135,9 @@ function take(things, all = false) {
 
       if (itemId) {
         if (items[itemId].canTake) {
-          let canTakeResult;
-
-          if (typeof items[itemId].canTake === "function") {
-            canTakeResult = items[itemId].canTake();
-          } else {
-            canTakeResult = items[itemId].canTake;
-          }
-
-          if (canTakeResult !== true) {
-            if (typeof canTakeResult === "string") {
-              feedback += `${canTakeResult}\n`
-            } else {
-              feedback += `You can't take the ${things[0]}.\n`;
-            }
+          const denial = evaluateCanTake(items[itemId].canTake);
+          if (denial) {
+            feedback += `${denial}\n`;
             displayText(feedback);
             return;
           }
@@ -182,10 +157,7 @@ function take(things, all = false) {
       } else if (disallowedAliasToKey[things[0]]) {
         const key = disallowedAliasToKey[things[0]];
         const data = currentRoom.scenery[key];
-        let message = typeof data === 'string' ? data : data.message;
-        if (typeof message === 'function') {
-          message = message();
-        }
+        const message = resolveConditionalText(typeof data === 'string' ? data : data.message);
         feedback += message;
       } else if (genericDisallowedItems[things[0]]) {
         feedback += genericDisallowedItems[things[0]];
@@ -309,7 +281,8 @@ function examine(things) {
         for (const object of currentRoom.objects) {
           if (objects[object].names && objects[object].names.includes(things[0])) {
             if (objects[object].examine) {
-              feedback += objects[object].examine;
+              if (objects[object].onExamine) applyEffects(objects[object].onExamine);
+              feedback += resolveConditionalText(objects[object].examine);
               found = true;
               break;
             }
@@ -324,11 +297,7 @@ function examine(things) {
         if (aliasToItemId[things[0]]) {
           const item = items[aliasToItemId[things[0]]];
           if (item && item.examine) {
-            if (typeof item.examine === "function") {
-              feedback += item.examine();
-            } else {
-              feedback += item.examine;
-            }
+            feedback += resolveConditionalText(item.examine);
             found = true;
           }
         }
@@ -341,11 +310,7 @@ function examine(things) {
         if (aliasToItemId[things[0]]) {
           const item = items[aliasToItemId[things[0]]];
           if (item && item.examine) {
-            if (typeof item.examine === "function") {
-              feedback += item.examine();
-            } else {
-              feedback += item.examine;
-            }
+            feedback += resolveConditionalText(item.examine);
             found = true;
           }
         }
@@ -355,11 +320,7 @@ function examine(things) {
       if (!found && currentRoom.scenery) {
         for (const [key, data] of Object.entries(currentRoom.scenery)) {
           if (typeof data === 'object' && data.names && data.names.includes(things[0]) && data.examine) {
-            if (typeof data.examine === 'function') {
-              feedback += data.examine();
-            } else {
-              feedback += data.examine;
-            }
+            feedback += resolveConditionalText(data.examine);
             found = true;
             break;
           }
@@ -390,7 +351,8 @@ function examine(things) {
           for (const object of currentRoom.objects) {
             if (objects[object].names && objects[object].names.includes(thing)) {
               if (objects[object].examine) {
-                feedback += `${thing}: ${objects[object].examine}\n`;
+                if (objects[object].onExamine) applyEffects(objects[object].onExamine);
+                feedback += `${thing}: ${resolveConditionalText(objects[object].examine)}\n`;
                 found = true;
                 break;
               }
@@ -402,11 +364,7 @@ function examine(things) {
         if (!found && roomItemAliases[thing]) {
           const item = items[roomItemAliases[thing]];
           if (item && item.examine) {
-            if (typeof item.examine === "function") {
-              feedback += `${thing}: ${item.examine()}`;
-            } else {
-              feedback += `${thing}: ${item.examine}`;
-            }
+            feedback += `${thing}: ${resolveConditionalText(item.examine)}`;
             found = true;
           }
         }
@@ -415,11 +373,7 @@ function examine(things) {
         if (!found && inventoryAliases[thing]) {
           const item = items[inventoryAliases[thing]];
           if (item && item.examine) {
-            if (typeof item.examine === "function") {
-              feedback += `${thing}: ${item.examine()}`;
-            } else {
-              feedback += `${thing}: ${item.examine}`;
-            }
+            feedback += `${thing}: ${resolveConditionalText(item.examine)}`;
             found = true;
           }
         }
@@ -428,11 +382,7 @@ function examine(things) {
         if (!found && currentRoom.scenery) {
           for (const [key, data] of Object.entries(currentRoom.scenery)) {
             if (typeof data === 'object' && data.names && data.names.includes(thing) && data.examine) {
-              let examineText = data.examine;
-              if (typeof examineText === 'function') {
-                examineText = examineText();
-              }
-              feedback += `${thing}: ${examineText}\n`;
+              feedback += `${thing}: ${resolveConditionalText(data.examine)}\n`;
               found = true;
               break;
             }

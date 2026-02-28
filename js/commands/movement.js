@@ -5,8 +5,7 @@ function performRoomTransition(direction, targetRoom) {
   const currentRoom = rooms[gameState.currentRoom];
 
   if (currentRoom.entryMessages && currentRoom.entryMessages[direction]) {
-    const message = typeof currentRoom.entryMessages[direction] === 'function' ? currentRoom.entryMessages[direction]() : currentRoom.entryMessages[direction];
-    displayText(message);
+    displayText(resolveConditionalText(currentRoom.entryMessages[direction]));
   }
 
   if (currentRoom.onExit && gameState.visitedRooms.includes(gameState.currentRoom)) {
@@ -37,8 +36,7 @@ function performRoomTransition(direction, targetRoom) {
       displayRoomTitle("A dark room");
       displayText("It's too dark to see!");
     } else {
-      const roomName = typeof newRoom.name === "function" ? newRoom.name() : newRoom.name;
-      displayRoomTitle(roomName);
+      displayRoomTitle(resolveConditionalText(newRoom.name));
     }
   }
 }

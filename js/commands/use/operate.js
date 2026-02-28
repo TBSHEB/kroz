@@ -4,12 +4,9 @@ function handleOperate(verb, item) {
   // Check if this is a scene with operate error messages
   if (item.type === 'scene' && item.operate) {
     // operate is an object with verb: error message format
-    let errorMessage = item.operate[verb];
+    const errorMessage = item.operate[verb];
     if (errorMessage) {
-      if (typeof errorMessage === 'function') {
-        errorMessage = errorMessage();
-      }
-      displayText(errorMessage);
+      displayText(resolveConditionalText(errorMessage));
     } else {
       // No specific message for this verb, use generic message
       displayText(`You can't ${verb} that.`);
@@ -97,12 +94,8 @@ function handleOperate(verb, item) {
     }
   }
 
-  //Display message for successfully using the item in the intended manner
   if (matchedAction.message) {
-    const msg = typeof matchedAction.message === 'function' ? matchedAction.message() : matchedAction.message;
-    displayText(msg);
-  } else {
-    displayText("You successfully used the item");
+    displayText(resolveConditionalText(matchedAction.message));
   }
 
   // Apply effects

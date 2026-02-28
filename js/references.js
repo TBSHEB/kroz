@@ -1,41 +1,37 @@
 // ===== REFERENCE EXAMPLES =====
 // This file contains commented examples showing how to create items and objects
 // Use these as templates when adding new content to your game
+// IMPORTANT: No functions in data files (map.js, items.js, objects.js)
+// Use structured conditionals, templates, dynamic flags, and effects instead
 
 /*
 // ===== ROOM STRUCTURE EXAMPLE =====
 
 exampleRoom: {
   // ===== BASIC PROPERTIES =====
-  name: "The Example Chamber",           // Display name shown in room header
+  name: "The Example Chamber",           // Display name (string or {base, parts} object)
 
-  // ===== LOOK DESCRIPTION (3 formats) =====
+  // ===== LOOK DESCRIPTION (2 formats) =====
   // Format 1: Simple string (use this if description never changes)
   look: "A simple room with stone walls.",
 
-  // Format 2: Function (use for complex dynamic descriptions)
-  look: () => {
-    let parts = [];
-    parts.push("The main description always shows.");
-
-    if (gameState.flags.includes("torchLit")) {
-      parts.push("Firelight dances on the walls.");
-    } else {
-      parts.push("The room is dark.");
-    }
-
-    return parts.join(" ");
-  },
-
-  // Format 3: Object with base and conditional parts (cleaner for simple conditions)
+  // Format 2: Object with base and conditional parts (flag-dependent text)
   look: {
-    base: "A chamber with ancient murals on the walls.",  // Always shown first
+    base: "A chamber with ancient murals on the walls.",  // Always shown first (optional)
     parts: [
-      {text: "The murals glow faintly in the light.", if: "lanternEquipped"},      // Show if flag exists
-      {text: "The murals are barely visible in the darkness.", unless: "lanternEquipped"},  // Show if flag doesn't exist
-      {text: "A hidden door is now visible.", if: "secretRevealed"}
+      { text: "The murals glow faintly in the light.", if: ["lanternEquipped"] },
+      { text: "The murals are barely visible in the darkness.", unless: ["lanternEquipped"] },
+      { text: "A hidden door is now visible.", if: ["secretRevealed"] },
+      { text: "You hear water.", ifAny: ["fountainOn", "rainStarted"] },
+      { text: "Quiet here.", unlessAny: ["fountainOn", "bellRung"] }
     ]
   },
+  // Condition types (all take arrays of flag strings):
+  //   if:        all flags must be present (AND)
+  //   unless:    all flags must be absent (AND)
+  //   ifAny:     at least one flag must be present (OR)
+  //   unlessAny: at least one flag must be absent (OR)
+  // Multiple conditions can combine on a single part (all must pass)
 
   // ===== PASSAGES (simple exits) =====
   passages: {
@@ -94,81 +90,217 @@ exampleRoom: {
   hideItemDescriptions: ["hiddenKey", "secretNote"],  // Item descriptions won't show in look
                                                        // (useful for items hidden until discovered)
 
-  // ===== DISALLOWED TAKES (scenery/flavor) =====
+  // ===== SCENERY (non-takeable room elements) =====
   scenery: {
-    "murals": "The murals are painted on the walls.",
+    // Simple string format
     "walls": "I can't take the walls.",
-    "shadows": "I can't take shadows.",
-    "door": "It's attached to the wall.",
-    "ceiling": "That's not something I can take."
+    "ceiling": "That's not something I can take.",
+
+    // Object format with names, examine, and conditional text
+    "chains": {
+      names: ["chains", "chain"],
+      message: {                                // Shown when trying to take
+        parts: [
+          { text: "The chains are broken.", if: ["chainsDestroyed"] },
+          { text: "The chains are firmly anchored.", unless: ["chainsDestroyed"] }
+        ]
+      },
+      examine: {                                // Shown on examine
+        base: "Heavy iron chains.",
+        parts: [
+          { text: "They're broken and scattered.", if: ["chainsDestroyed"] },
+          { text: "They suspend a chandelier.", unless: ["chainsDestroyed"] }
+        ]
+      },
+      allIgnore: true                           // Won't appear in "take all"
+    }
   },
 
-  // ===== CHECKPOINT (respawn point) =====
-  isCheckpoint: true                            // If true, becomes respawn point on first visit
+  // ===== ENTRY MESSAGES =====
+  entryMessages: {                              // Custom messages on entry (optional)
+    north: "You fall through a hole.",          // String, supports {{gameState.x}} templates
+    east: "It took you {{gameState.commandCount}} commands to get here."
+  },
+
+  // ===== ON EXIT =====
+  onExit: {
+    setFlags: ["leftRoom"]                      // Any-exit format: fires on all exits
+    // OR direction-specific:
+    // east: { setFlags: ["gameOver"] }         // Only fires when leaving east
+  },
+
+  // ===== HAZARD (environmental damage) =====
+  hazard: {
+    count: 2,                                   // Commands before damage
+    damage: 1,                                  // Damage per cycle
+    messages: ["The heat burns you!", "Ouch!"], // Random damage messages
+    unless: "fireOut",                          // Flag that disables hazard
+    killIfInventory: {                          // Items that cause instant death
+      dynamite: "The dynamite explodes!"
+    }
+  },
+
+  // ===== ROOM FLAGS =====
+  light: true,                                  // Room has natural light (default false)
+  isCheckpoint: true,                           // Safe respawn point on first visit
+  mirrorDirections: true                        // Reverses movement directions
 },
 
 // ===== ITEM STRUCTURE EXAMPLES =====
 
 // BASIC ITEM (pickupable, can be examined)
 basicItem: {
-  name: "item name",                    // Display name (singular)
-  aliases: ["item", "thing", "object"], // All words that refer to this item
+  names: ["item name", "item", "thing"],  // All valid names (first is primary)
   examine: "Description when examining the item.",
-  description: "A item lies on the ground.",  // Shown in room description
-  setFlag: "itemTaken",                 // Optional: flag set when picked up
+  primaryType: "equipment",               // For smart routing: equipment|consumable|weapon|tool
+  description: "An item lies on the ground.",     // Shown in room description
+  initialDescription: "A shiny item rests here.", // Shown on first visit (optional)
+  setFlag: "itemTaken",                   // Flag set when picked up (optional)
+},
+
+// ITEM WITH CONDITIONAL EXAMINE
+conditionalItem: {
+  names: ["brass lantern", "lantern", "lamp"],
+  primaryType: "operate",
+  examine: {
+    base: "An old brass lantern.",
+    parts: [
+      { text: "It's lit and working.", if: ["lanternLit"] },
+      { text: "It's completely out of battery.", if: ["lanternOut"] },
+      { text: "It's off.", unlessAny: ["lanternLit", "lanternOut"] }
+    ]
+  },
+  description: "A brass lantern rests here.",
 },
 
 // ITEM WITH OPERATE (equippable, activatable, etc.)
 operableItem: {
-  name: "magical ring",
-  aliases: ["ring", "band", "magical"],
-  primaryType: "operate",               // Hint for use system
+  names: ["magical ring", "ring", "band", "magical"],
+  primaryType: "operate",
   examine: "A ring that glows faintly.",
   description: "A magical ring sits on a pedestal.",
   setFlag: "ringTaken",
+  togglable: true,                              // Allows "use" to cycle through actions
 
   operate: {
-    // Each action is a separate object
     equip: {
-      allowedVerbs: ["equip", "wear", "use", "put"],
-      requireNotFlags: ["ringEquipped"],      // Can't do if flag exists
-      requireFlags: [],                       // Optional: must have these flags
+      allowedVerbs: ["equip", "wear", "put"],
+      requireNotFlags: ["ringEquipped"],         // Can't do if flag exists
+      requireFlags: [],                          // Must have these flags
       message: "You slide the ring onto your finger.",
-      setFlags: ["ringEquipped"],             // Add flags
-      unsetFlags: [],                         // Remove flags
       failMessage: "You're already wearing the ring.",
-
-      // Optional outcomes:
-      giveItems: [],                          // Add items to inventory
-      dropItems: [],                          // Drop items in room
-      removeObject: false,                    // Remove this object from room
+      failMessages: {                            // Flag-specific fail messages
+        ringEquipped: "Already wearing it."
+      },
+      effects: {
+        setFlags: ["ringEquipped"]
+      }
     },
 
     unequip: {
       allowedVerbs: ["unequip", "remove", "take"],
       requireFlags: ["ringEquipped"],
       message: "You take off the ring.",
-      unsetFlags: ["ringEquipped"],
-      failMessage: "You're not wearing the ring."
-    },
-
-    activate: {
-      allowedVerbs: ["activate", "use"],
-      requireFlags: ["ringEquipped"],
-      message: "The ring glows brightly!",
-      setFlags: ["ringActivated"]
+      failMessage: "You're not wearing the ring.",
+      effects: {
+        unsetFlags: ["ringEquipped"]
+      }
     }
   }
 },
 
 // WEAPON ITEM (used in combat)
 weaponItem: {
-  name: "dagger",
-  aliases: ["dagger", "knife", "blade"],
-  primaryType: "attack",                // Hint that this is a weapon
+  names: ["dagger", "knife", "blade"],
+  primaryType: "attack",                  // Hint that this is a weapon
   examine: "A sharp dagger with a worn handle.",
   description: "A dagger lies on the ground.",
   setFlag: "daggerTaken",
+},
+
+// ITEM WITH CANTAKE (declarative deny conditions)
+restrictedItem: {
+  names: ["dynamite", "explosive", "stick"],
+  examine: "A stick of dynamite.",
+  description: "A stick of dynamite rests here.",
+  infinite: true,                                 // Stays in room after taking
+  canTake: [                                      // Array of deny conditions (first match blocks)
+    {
+      unless: { hasItem: "dynamite" },            // Blocked when player has this item
+      message: "I'm not taking more."
+    },
+    {
+      unless: { hasFlag: "explosivesDisabled" },  // Blocked when flag exists
+      message: "Explosives have been disabled."
+    },
+    {
+      unless: { notHasFlag: "explosivesAllowed" }, // Blocked when flag absent
+      message: "I'm not allowed to take that."
+    },
+    {
+      unless: { inRoom: "dangerZone" },           // Blocked in specific room
+      message: "Not here."
+    },
+    {
+      unless: { itemPlacedAnywhere: "dynamite" }, // Blocked when item placed in any room
+      message: "I've already placed one somewhere."
+    }
+  ],
+  // Condition types: hasItem, hasFlag, notHasFlag, inRoom, itemPlacedAnywhere
+},
+
+// ITEM WITH TEMPORARY COUNTDOWN
+temporaryItem: {
+  names: ["lit torch", "torch"],
+  primaryType: "operate",
+  examine: "A lit torch.",
+  description: "A lit torch rests here.",
+  temporary: {                                    // Countdown config (plain object, not function)
+    requireFlags: ["torchLit"],                   // Only counts when all flags present
+    duration: 500,                                // Commands until expiration
+    messages: {                                   // Warning messages at specific counts
+      100: "The torch flickers.",
+      400: "The torch is getting dim.",
+      480: "The torch is nearly out."
+    },
+    onExpire: "extinguish",                       // Action: "extinguish" or "destroy"
+    onExpireMessage: {
+      inventory: "The torch goes out.",           // Message when in inventory
+      floor: "The torch on the floor goes out."   // Message when in room
+    },
+    actionSetFlags: ["torchOut"],                 // Flags to set on expiration
+    actionUnsetFlags: ["torchLit"]                // Flags to unset on expiration
+  },
+},
+
+// ITEM WITH SOFTLOCKABLE (room-conditional vital)
+softlockableItem: {
+  names: ["purple map", "map"],
+  examine: "A glowing purple map.",
+  description: "A glowing purple map has been left here.",
+  softlockable: {                                 // Room-conditional protection from blue cake theft
+    rooms: ["start", "cellar", "five"],           // Rooms where item is protected
+    reaction: "vital"                             // Treat as vital in those rooms
+  },
+  // Compare with unconditional protection:
+  // vital: true                                  // Always protected from loseNonvitalItems
+},
+
+// ITEM WITH APPLYTO (can be used on objects)
+applyItem: {
+  names: ["iron key", "key"],
+  primaryType: "tool",
+  examine: "A heavy iron key.",
+  description: "An iron key rests here.",
+  applyWith: {
+    lockedDoor: {
+      message: "You unlock the door with the key.",
+      consumeItem: true,
+      effects: {
+        setFlags: ["doorUnlocked"]
+      }
+    }
+  }
 },
 
 
@@ -184,12 +316,25 @@ basicObject: {
       allowedVerbs: ["pull", "use", "yank", "activate"],
       requireNotFlags: ["leverPulled"],
       message: "You pull the lever. Something clicks in the distance.",
-      setFlags: ["leverPulled"],
-      dropItems: [],                      // Optional: drop items in room
-      removeObject: false,                // Optional: remove after use
-      failMessage: "The lever is already pulled."
+      failMessage: "The lever is already pulled.",
+      effects: {
+        setFlags: ["leverPulled"]
+      }
     }
   }
+},
+
+// OBJECT WITH ONEXAMINE EFFECTS
+sequenceObject: {
+  names: ["code", "pattern", "skylight"],
+  description: "Light filters through coloured glass, casting patterns on the floor.",
+  onExamine: {                                    // Effects to run before showing examine text
+    generateSequence: {
+      storeName: "colorCode",                     // Key in gameState.sequences
+      values: ["red", "blue", "yellow", "green"]  // Shuffled on first examine
+    }
+  },
+  examine: "The pattern shows: {{gameState.sequences.colorCode}}.",  // Template resolved at runtime
 },
 
 // OBJECT WITH APPLY INTERACTIONS (use items on it)
@@ -204,26 +349,13 @@ applyObject: {
       requireNotFlags: ["doorUnlocked"], // Optional: can't have these flags
       message: "You unlock the door with the iron key.",
       failMessage: "The door is already unlocked.",
-
-      setFlags: ["doorUnlocked"],       // Add flags
-      unsetFlags: [],                   // Remove flags
       consumeItem: false,               // true = item removed from inventory
-      removeObject: false,              // true = remove this object from room
 
-      giveItems: [],                    // Add items to player inventory
-      dropItems: [],                    // Drop items in room
-
-      // Remove object only if ALL these flags exist
-      removeObjectIfAllFlags: ["doorUnlocked", "doorOpen"],
-
-      // Trigger effects on OTHER objects
-      triggerEffects: [
-        {
-          objectId: "otherObject",      // Which object to affect
-          setFlags: ["flagName"],
-          dropItems: ["itemId"]
-        }
-      ]
+      effects: {
+        setFlags: ["doorUnlocked"],
+        removeObjects: { objects: ["doorLock"] },
+        spawnItems: { items: ["brokenKey"], room: "hallway" }
+      }
     },
 
     // Using multiple items together on this object
@@ -234,8 +366,9 @@ applyObject: {
         message: "You board up the door!",
         consumeItems: ["plank", "nails"],     // Which items get consumed
         retainItems: ["hammer"],              // Which items stay in inventory
-        setFlags: ["doorBoarded"],
-        removeObject: false
+        effects: {
+          setFlags: ["doorBoarded"]
+        }
       }
     ],
 
@@ -318,65 +451,44 @@ combatObject: {
     requiredFlags: ["dragonWeakened"],      // Optional: need flags to fight
     requiredFlagsFailMessage: "The dragon is too powerful!",
 
-    // ===== ON KILL OUTCOMES =====
-    setFlags: ["dragonSlain"],              // Flags to add on death
-    unsetFlags: ["dragonAlive"],            // Flags to remove on death
-    removeOnKill: true,                     // Remove object from room
-    dropItems: ["dragonScale", "treasure"], // Items dropped on death
-    giveItems: ["experience"],              // Items given to player on death
-    addObjects: ["dragonCorpse"],           // Objects added to room on death
-  }
-},
-
-// NON-AGGRESSIVE COMBAT OBJECT (doesn't attack first)
-passiveCombatObject: {
-  names: ["guard", "sentinel", "warrior"],
-  examine: "A heavily armored guard stands watch.",
-
-  combat: {
-    successfulWeapons: ["sword"],
-    aggressive: false,                      // Won't counter-attack
-
-    instakillMessage: ["The guard falls instantly!"],
-    killMessage: ["The guard is defeated!"],
-
-    removeOnKill: true,
-    setFlags: ["guardDefeated"],
-  }
-},
-
-// OBJECT WITH BOTH APPLY AND COMBAT
-complexObject: {
-  names: ["statue", "stone-warrior", "guardian"],
-  examine: "An ancient stone statue. It appears dormant.",
-
-  // Can use items on it to activate/modify
-  applyWith: {
-    ancientGem: {
-      message: "The statue comes to life!",
-      setFlags: ["statueActive"],
-      consumeItem: true
+    // ===== ON KILL EFFECTS =====
+    effects: {
+      setFlags: ["dragonSlain"],
+      unsetFlags: ["dragonAlive"],
+      spawnItems: { items: ["dragonScale", "treasure"] },
+      giveItems: ["experience"],
+      spawnObjects: { objects: ["dragonCorpse"] }
     },
-    _default: {
-      message: "Nothing happens."
+    removeOnKill: true,                     // Remove object from room
+  }
+},
+
+// OBJECT WITH CHECKSEQUENCE (puzzle buttons)
+puzzleButton: {
+  names: ["red button", "button"],
+  examine: "A red button on the wall.",
+
+  operate: {
+    push: {
+      allowedVerbs: ["push", "press", "use"],
+      // No message here - handled by the checkSequence effect
+      effects: {
+        checkSequence: {
+          message: "*click*",                         // Shown when sequence exists
+          sequencelessMessage: "You push the button.", // Shown when no sequence generated yet
+          solveOnce: true,                            // Can only be solved once
+          storeName: "buttonsPressed",                // Tracks player's input sequence
+          key: "red",                                 // Value added to sequence
+          correctSequenceStore: "colorCode",          // gameState.sequences key with correct answer
+          duplicateCode: false,                       // Allow duplicate entries
+          successMessage: "The door opens!",
+          failMessage: "Wrong sequence. Try again.",
+          onSuccessEffects: {
+            setFlags: ["puzzleSolved"]
+          }
+        }
+      }
     }
-  },
-
-  // Can fight it once active
-  combat: {
-    requiredFlags: ["statueActive"],
-    requiredFlagsFailMessage: "The statue is still dormant.",
-    successfulWeapons: ["hammer"],
-
-    aggressive: true,
-    dodgeChance: 0.4,
-    damageToPlayer: { default: 2 },
-
-    instakillMessage: ["You shatter the statue!"],
-    killMessage: ["The statue crumbles!"],
-
-    removeOnKill: true,
-    dropItems: ["ancientGem"],
   }
 },
 
@@ -389,9 +501,11 @@ progressObject: {
   applyWith: {
     crystalKey: {
       message: "The barrier flickers and fades.",
-      setFlags: ["barrierCleared"],
-      removeObject: true,
-      consumeItem: true
+      consumeItem: true,
+      effects: {
+        setFlags: ["barrierCleared"],
+        removeObjects: { objects: ["barrier"] }
+      }
     },
     _default: {
       message: "The barrier remains solid."
@@ -403,6 +517,28 @@ progressObject: {
 
 // ===== NOTES =====
 //
+// DATA-DRIVEN ENGINE:
+// - No functions allowed in data files (map.js, items.js, objects.js)
+// - Use structured conditionals ({ base, parts }) for flag-dependent text
+// - Use templates ({{gameState.x.y}}) for runtime value substitution
+// - Use dynamic flags in game.js for state-derived flags
+// - Use effects for game state changes
+//
+// STRUCTURED CONDITIONAL TEXT:
+// - Supported fields: room.name, room.look, entryMessages, item examine,
+//   object examine, scenery message, scenery examine, operate action message
+// - Resolved by resolveConditionalText() in environment.js
+// - Conditions take arrays of flag strings, not single strings
+//
+// TEMPLATE SUBSTITUTION:
+// - {{gameState.x.y}} resolved at runtime by resolveTemplates()
+// - Arrays are auto-joined with ", "
+// - Works in all fields processed by resolveConditionalText()
+//
+// DYNAMIC FLAGS (game.js):
+// - { flag: "hasMap", ifHasItem: "map" }          // Set when item in inventory, unset when not
+// - { flag: "visitedRoom", ifVisitedRoom: "room" } // Set when room visited (never unset)
+//
 // COMBAT SYSTEM:
 // - Turn 1 (first attack): Uses instakillMessage if hit, starts combat if miss
 // - Turn 2+: Normal combat with dodging, damage, counter-attacks
@@ -413,52 +549,29 @@ progressObject: {
 // FLAGS:
 // - Use requireFlags to check if player has flags
 // - Use requireNotFlags to check if player doesn't have flags
-// - Use setFlags to add flags when action succeeds
-// - Use unsetFlags to remove flags when action succeeds
+// - Use effects.setFlags to add flags when action succeeds
+// - Use effects.unsetFlags to remove flags when action succeeds
 //
 // MESSAGES:
 // - All combat messages should be arrays (random selection)
 // - failMessage is shown when requirements aren't met
-// - message is shown when action succeeds
+// - message is shown when action succeeds (string or {base, parts} object)
 //
 // ITEMS VS OBJECTS:
 // - Items: Can be picked up and go in inventory
 // - Objects: Fixed in rooms, can't be picked up
 // - Objects can have operate (use directly) and applyWith (use items on them)
 //
+// CANTAKE CONDITIONS:
+// - Array of deny conditions, first match blocks the take
+// - unless: { hasItem, hasFlag, notHasFlag, inRoom, itemPlacedAnywhere }
+//
+// TEMPORARY ITEMS:
+// - Plain object with countdown config (not a function)
+// - requireFlags: countdown only ticks when all flags present
+// - onExpire: "extinguish" (turn off) or "destroy" (explode)
+//
 // CHECKPOINT ROOMS:
 // - When player first visits a checkpoint room, it becomes their respawn point
 // - On death, player returns to last checkpoint with state from that checkpoint
-// - In map.js, add isCheckpoint: true to the room definition:
-//
-//   hubRoom: {
-//     name: "Central Hub",
-//     look: "A safe room with passages in all directions.",
-//     isCheckpoint: true,  // This is a checkpoint room
-//     passages: { north: "someRoom", south: "otherRoom" }
-//   }
-//
-// - When player enters checkpoint for first time, save to gameState.lastCheckpoint
-// - On death, load state from when checkpoint was reached
-//
-// SAVE ITEM:
-// - An item that saves the game when used (like a save crystal)
-// - Example structure:
-//
-//   saveCrystal: {
-//     name: "crystal",
-//     aliases: ["crystal", "save crystal", "gem"],
-//     primaryType: "operate",
-//     examine: "A glowing crystal that preserves moments in time.",
-//     description: "A crystal glimmers on the ground.",
-//
-//     operate: {
-//       use: {
-//         allowedVerbs: ["use", "activate", "touch"],
-//         message: "The crystal glows brightly. Your progress has been saved.",
-//         action: "save"  // Special action that triggers saveGame()
-//       }
-//     }
-//   }
-//
-// - In the operate handler, check if action === "save" and call saveGame()
+// - In map.js, add isCheckpoint: true to the room definition

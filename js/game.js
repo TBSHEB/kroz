@@ -49,12 +49,12 @@ const damageMessages = [
     }
 ];
 
-const holdingFlags = {
-    map: {
-        item: "map",
-        flag: "hasMap"
-    }
-};
+const dynamicFlags = [
+    { flag: "hasMap", ifHasItem: "map" },
+    { flag: "visitedCandle", ifVisitedRoom: "candle" },
+    { flag: "visitedRiddle2", ifVisitedRoom: "riddle2" },
+    { flag: "visitedRiddle3", ifVisitedRoom: "riddle3" }
+];
 
 // DOM element references
 const outputElement = document.getElementById('output');

@@ -16,6 +16,57 @@ function getDamageMessage(amount) {
   return messages.length ? pickRandom(messages) : null;
 }
 
+// Evaluate a canTake conditions array, returns denial message or null
+// TODO: Add support for if, ifAny, and unlessAny condition keywords
+function evaluateCanTake(conditions) {
+  for (const condition of conditions) {
+    let denied = false;
+    if (condition.unless) {
+      const check = condition.unless;
+      if (check.hasItem) denied = denied || gameState.inventory.includes(check.hasItem);
+      if (check.hasFlag) denied = denied || gameState.flags.includes(check.hasFlag);
+      if (check.notHasFlag) denied = denied || !gameState.flags.includes(check.notHasFlag);
+      if (check.inRoom) denied = denied || gameState.currentRoom === check.inRoom;
+      if (check.itemPlacedAnywhere) denied = denied || (gameState.roomChanges && Object.values(gameState.roomChanges).some(changes =>
+        changes.items?.added?.includes(check.itemPlacedAnywhere)
+      ));
+    }
+    if (denied) return condition.message;
+  }
+  return null;
+}
+
+// Resolve {{gameState.x.y}} templates in a string
+function resolveTemplates(text) {
+  return text.replace(/\{\{(.+?)\}\}/g, (match, path) => {
+    const parts = path.split('.');
+    let val = window;
+    for (const part of parts) {
+      val = val?.[part];
+      if (val === undefined) return match;
+    }
+    return Array.isArray(val) ? val.join(', ') : val;
+  });
+}
+
+// Resolve a value that may be a string or { base, parts } object
+function resolveConditionalText(value) {
+  if (typeof value === 'string') return resolveTemplates(value);
+  if (typeof value === 'object' && value !== null && value.parts) {
+    let text = value.base ?? '';
+    for (const part of value.parts) {
+      if (part.if && !part.if.every(f => gameState.flags.includes(f))) continue;
+      if (part.unless && !part.unless.every(f => !gameState.flags.includes(f))) continue;
+      if (part.ifAny && !part.ifAny.some(f => gameState.flags.includes(f))) continue;
+      if (part.unlessAny && !part.unlessAny.some(f => !gameState.flags.includes(f))) continue;
+      if (text) text += ' ';
+      text += part.text;
+    }
+    return resolveTemplates(text);
+  }
+  return '';
+}
+
 // Helper: Check if two arrays contain the same elements (order doesn't matter)
 function arraysMatchUnordered(arr1, arr2) {
   if (arr1.length !== arr2.length) return false;
@@ -200,7 +251,7 @@ function checkKillIfInventory(currentRoom) {
 // Process temporary item countdowns and expiration
 function processTemporaryItems(currentRoom) {
     for (const itemId of gameState.inventory) {
-        const tempConfig = typeof items[itemId]?.temporary === "function" ? items[itemId].temporary() : items[itemId]?.temporary;
+        const tempConfig = items[itemId]?.temporary;
 
         if (tempConfig && gameState.itemCountdowns[itemId] === undefined) {
             gameState.itemCountdowns[itemId] = 0;
@@ -208,9 +259,13 @@ function processTemporaryItems(currentRoom) {
     }
 
     for (const [item, count] of Object.entries(gameState.itemCountdowns)) {
-        const tempConfig = typeof items[item]?.temporary === "function" ? items[item].temporary() : items[item]?.temporary;
+        const tempConfig = items[item]?.temporary;
 
         if (!tempConfig) {
+            continue;
+        }
+
+        if (tempConfig.requireFlags && !tempConfig.requireFlags.every(f => gameState.flags.includes(f))) {
             continue;
         }
 
@@ -283,17 +338,20 @@ function processTemporaryItems(currentRoom) {
     }
 }
 
-// Sync inventory-dependent flags
-function updateHoldingFlags() {
-    for (const item in holdingFlags) {
-        if (gameState.inventory.includes(holdingFlags[item].item)) {
-            if (!gameState.flags.includes(holdingFlags[item].flag)) {
-                setGameState("flags", holdingFlags[item].flag);
-            }
-        } else {
-            if (gameState.flags.includes(holdingFlags[item].flag)) {
-                setGameState("flags", holdingFlags[item].flag, false);
-            }
+// Evaluate dynamic flags each turn
+function evaluateDynamicFlags() {
+    for (const entry of dynamicFlags) {
+        let met = false;
+        if (entry.ifHasItem) {
+            met = gameState.inventory.includes(entry.ifHasItem);
+        } else if (entry.ifVisitedRoom) {
+            met = gameState.visitedRooms.includes(entry.ifVisitedRoom);
+        }
+        const hasFlag = gameState.flags.includes(entry.flag);
+        if (met && !hasFlag) {
+            setGameState("flags", entry.flag);
+        } else if (!met && hasFlag) {
+            setGameState("flags", entry.flag, false);
         }
     }
 }
@@ -384,7 +442,13 @@ function applyEffects(data) {
         if (gameState.inventory.length > 0) {
           const itemsToLose = [];
           for (const item of gameState.inventory) {
-            const isVital = typeof items[item].vital === 'function' ? items[item].vital() : items[item].vital;
+            let isVital = items[item].vital;
+            if (!isVital && items[item].softlockable) {
+              const sl = items[item].softlockable;
+              if (sl.rooms.includes(gameState.currentRoom) && sl.reaction === 'vital') {
+                isVital = true;
+              }
+            }
             if (!isVital) {
               itemsToLose.push(item);
             }
@@ -429,7 +493,12 @@ function applyEffects(data) {
         const key = data[effect].key;
         const sequence = data[effect].correctSequenceStore;
 
-        if (!gameState.sequences[sequence]) continue;
+        if (!gameState.sequences[sequence]) {
+          if (data[effect].sequencelessMessage) displayText(data[effect].sequencelessMessage);
+          continue;
+        }
+
+        if (data[effect].message) displayText(data[effect].message);
 
         if (!gameState.sequences[store]) {
           gameState.sequences[store] = [];
@@ -450,6 +519,18 @@ function applyEffects(data) {
             displayText(data[effect].failMessage);
             gameState.sequences[store] = [];
           }
+        }
+        break;
+      }
+      case "generateSequence": {
+        const config = data[effect];
+        if (!gameState.sequences[config.storeName]) {
+          const sequence = [...config.values];
+          for (let i = sequence.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [sequence[i], sequence[j]] = [sequence[j], sequence[i]];
+          }
+          gameState.sequences[config.storeName] = sequence;
         }
         break;
       }

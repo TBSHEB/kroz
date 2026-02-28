@@ -51,6 +51,37 @@ scenery: {
 - Use present tense ("The walls are..." not "The walls were...")
 - Examine text should end with a period
 
+### Conditional Text (message and examine)
+Both `message` and `examine` can be a plain string or a `{ base, parts }` object for flag-dependent text. `base` is optional.
+
+Condition types (all take arrays of flag strings):
+- `if`: all flags must be present (AND)
+- `unless`: all flags must be absent (AND)
+- `ifAny`: at least one flag must be present (OR)
+- `unlessAny`: at least one flag must be absent (OR)
+
+Multiple conditions can combine on a single part (all must pass).
+
+```javascript
+examine: {
+  base: "An old brass lantern.",
+  parts: [
+    { text: "It's lit.", if: ["lanternLit"] },
+    { text: "It's dead.", if: ["lanternOut"] },
+    { text: "It's off.", unlessAny: ["lanternLit", "lanternOut"] }
+  ]
+}
+```
+
+```javascript
+message: {
+  parts: [
+    { text: "The chains are broken.", if: ["dungeonLampTaken"] },
+    { text: "The chains are firmly anchored.", unless: ["dungeonLampTaken"] }
+  ]
+}
+```
+
 ### allIgnore Property
 - Set `allIgnore: true` for ambient/atmospheric elements that shouldn't appear in takeAll
 - Examples: shadows, darkness, air, atmosphere, ambience
