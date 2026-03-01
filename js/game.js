@@ -163,16 +163,20 @@ function handleCommand() {
             complicatedCommands[mainCommand].singleCommand(mainCommand);
           } else if (knownWords[mainCommand]) {
             displayText(knownWords[mainCommand]);
-          } else if (rooms[gameState.currentRoom].objects) {
-            for (const objectId of rooms[gameState.currentRoom].objects) {
+          } else {
+            let commandFound = false;
+            for (const objectId of (rooms[gameState.currentRoom].objects || [])) {
               const object = objects[objectId];
               if (object.answer && object.answer.answer.some((ans) => ans.toLowerCase() === mainCommand)) {
                 say(mainCommand);
+                commandFound = true;
                 break;
               }
             }
-          } else {
-            displayText("I don't know that word.");
+            if (!commandFound) {
+              displayText("I don't know that word.");
+            }
+
           }
         } else if (simpleCommands[mainCommand]) {
           // Simple command with extra words - use failedCommand with the extra words
