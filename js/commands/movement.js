@@ -57,29 +57,11 @@ function move(direction) {
     if (currentRoom.restrictedPassages && currentRoom.restrictedPassages[direction]) {
       const restrictedPassage = currentRoom.restrictedPassages[direction];
 
-      // Check requirements in order, show fail message for first unmet requirement
       if (restrictedPassage.requirements) {
-        for (const requirement of restrictedPassage.requirements) {
-          if (requirement.flag && !gameState.flags.includes(requirement.flag)) {
-            displayText(requirement.failMessage);
-            return;
-          }
-          if (requirement.item && !gameState.inventory.includes(requirement.item)) {
-            displayText(requirement.failMessage);
-            return;
-          }
-          if (requirement.roomItems) {
-            let foundItem = false;
-            for (const roomItem of requirement.roomItems) {
-              if (currentRoom.items && currentRoom.items.includes(roomItem)) {
-                foundItem = true;
-              }
-            }
-            if (foundItem === false) {
-              displayText(requirement.failMessage);
-              return;
-            }
-          }
+        const result = checkPassageRequirements(restrictedPassage.requirements, currentRoom);
+        if (!result.met) {
+          displayText(result.firstUnmet.failMessage);
+          return;
         }
       }
 
@@ -106,6 +88,9 @@ function move(direction) {
       } else {
         displayText("I can't go back.");
       }
+    } else if (!gameState.previousRoom) {
+      // TODO: flavour text for first room (previousRoom === "") vs teleport (previousRoom === null)
+      displayText("That's going to be a little tricky.");
     } else {
       let foundDirection = false;
 
@@ -135,41 +120,11 @@ function move(direction) {
               move(direction);
               return;
             }
-            // Check if requirements are met
             if (currentRoom.restrictedPassages[direction].requirements) {
-              for (const requirement of currentRoom.restrictedPassages[direction].requirements) {
-                if (requirement.flag && !gameState.flags.includes(requirement.flag)) {
-                  if (requirement.backFailMessage) {
-                    displayText(requirement.backFailMessage);
-                  } else {
-                    displayText("You can't go back that way.");
-                  }
-                  return;
-                }
-                if (requirement.item && !gameState.inventory.includes(requirement.item)) {
-                  if (requirement.backFailMessage) {
-                    displayText(requirement.backFailMessage);
-                  } else {
-                    displayText("You can't go back that way.");
-                  }
-                  return;
-                }
-                if (requirement.roomItems) {
-                  let foundItem = false;
-                  for (const roomItem of requirement.roomItems) {
-                    if (currentRoom.items && currentRoom.items.includes(roomItem)) {
-                      foundItem = true;
-                    }
-                  }
-                  if (foundItem === false) {
-                    if (requirement.backFailMessage) {
-                      displayText(requirement.backFailMessage);
-                    } else {
-                      displayText("You can't go back that way.");
-                    }
-                    return;
-                  }
-                }
+              const result = checkPassageRequirements(currentRoom.restrictedPassages[direction].requirements, currentRoom);
+              if (!result.met) {
+                displayText(result.firstUnmet.backFailMessage || "You can't go back that way.");
+                return;
               }
             }
 
@@ -190,4 +145,38 @@ function move(direction) {
       }
     }
   }
+}
+
+function teleportSingle(alias) {
+  if (alias === "tp") alias = "teleport";
+  gameState.partCommand = "teleport";
+  displayText(`${alias[0].toUpperCase() + alias.slice(1)} where?`);
+}
+
+function performTeleport(targetRoom) {
+  if (!gameState.flags.includes("teleportEnabled")) {
+    displayText("As much as I'd like to just teleport out of here, I can't do that...");
+    return;
+  }
+
+  if (!rooms[targetRoom] || !gameState.visitedRooms.includes(targetRoom)) {
+    const matches = gameState.visitedRooms.filter(room => room.includes(targetRoom));
+    if (matches.length === 1) {
+      targetRoom = matches[0];
+    } else if (matches.length > 1) {
+      displayText("I'm not sure exactly where you want me to go.");
+      return;
+    } else {
+      displayText("I don't know where that is.");
+      return;
+    }
+  }
+
+  if (gameState.currentRoom === targetRoom) {
+    displayText("You teleport into the... oh wait, I'm already here.");
+    return;
+  }
+
+  performRoomTransition(null, targetRoom);
+  gameState.previousRoom = null;
 }

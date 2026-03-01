@@ -43,7 +43,7 @@ function handleOperate(verb, item) {
   }
 
   if (!matchedAction) {
-    displayText(`You can't ${verb} the ${item.names[0]}`);
+    displayText(`You can't ${verb} the ${item.names[0]}.`);
     return false;
   }
 

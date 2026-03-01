@@ -30,7 +30,7 @@ function handleUseCommand(alias, things) {
 
     if (multiIndex < things.length - 1) {
       const targetWord = things[multiIndex + 1];
-      const interactables = buildInteractablesList();
+      const interactables = getInteractablesList();
       const matches = findAllMatching(targetWord, interactables);
 
       if (matches.length > 0) {
@@ -57,7 +57,7 @@ function handleUseCommand(alias, things) {
   }
 
   if (parsed.items.length > 0) {
-    const interactables = buildInteractablesList();
+    const interactables = getInteractablesList();
     const expandedItems = [];
 
     for (const itemName of parsed.items) {
@@ -84,7 +84,7 @@ function handleUseCommand(alias, things) {
   }
 
   if (actionType === "use" || actionType === null) {
-    const interactables = buildInteractablesList();
+    const interactables = getInteractablesList();
     const smartResult = resolveSmartUse(parsed, interactables);
 
     if (smartResult.action === "fail") {
@@ -133,7 +133,7 @@ function handleUseCommand(alias, things) {
     if (parsed.items.length > 0 && parsed.target.length === 0) {
       // Have item but no target - validate item first
       const itemName = parsed.items[0];
-      const interactables = buildInteractablesList();
+      const interactables = getInteractablesList();
       const item = findInteractable(itemName, interactables);
 
       // Check if item exists
@@ -172,7 +172,7 @@ function handleUseCommand(alias, things) {
       return;
     }
 
-    const interactables = buildInteractablesList();
+    const interactables = getInteractablesList();
     const itemObjects = parsed.items.map((name) => findInteractable(name, interactables));
     const targetObject = findInteractable(parsed.target[0], interactables);
     const combination = checkCombinations(itemObjects, targetObject);
@@ -187,7 +187,7 @@ function handleUseCommand(alias, things) {
     if (parsed.target.length > 0 && parsed.items.length === 0) {
       // Have target but no weapon - validate target first
       const targetName = parsed.target[0];
-      const interactables = buildInteractablesList();
+      const interactables = getInteractablesList();
       const target = findInteractable(targetName, interactables);
 
       // Check if target exists

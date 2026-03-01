@@ -180,7 +180,7 @@ function resolveAction(actionType, parsed, verb) {
     actionType = "use";
   }
 
-  const interactables = buildInteractablesList();
+  const interactables = getInteractablesList();
 
   // Find the item (tool/weapon being used)
   const item = parsed.items.length > 0 ? findInteractable(parsed.items[0], interactables) : null;

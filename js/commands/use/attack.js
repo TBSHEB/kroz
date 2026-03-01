@@ -54,7 +54,7 @@ function handleAttack(item, target) {
     if (target.combat.requiredFlagsFailMessage) {
       displayText(target.combat.requiredFlagsFailMessage);
     } else {
-      displayText(`You can't attack the ${target}`);
+      displayText(`You can't attack the ${target}.`);
     }
     return false;
   }

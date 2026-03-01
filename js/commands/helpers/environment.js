@@ -7,6 +7,32 @@ function formatList(names, conjunction = "or") {
   return `${allButLast}, ${conjunction} ${names[names.length - 1]}`;
 }
 
+/**
+ * Checks if all requirements for a passage are met.
+ * @param {Array} requirements
+ * @param {Object} room
+ * @returns {{ met: boolean, firstUnmet: Object|null }}
+ */
+function checkPassageRequirements(requirements, room) {
+  for (const requirement of requirements) {
+    const flagMet = !requirement.flag || gameState.flags.includes(requirement.flag);
+    const itemMet = !requirement.item || gameState.inventory.includes(requirement.item);
+
+    let roomItemMet = true;
+    if (requirement.roomItems) {
+      const allowedItems = Array.isArray(requirement.roomItems)
+        ? requirement.roomItems
+        : [requirement.roomItems];
+      roomItemMet = allowedItems.some((item) => room.items?.includes(item));
+    }
+
+    if (!flagMet || !itemMet || !roomItemMet) {
+      return { met: false, firstUnmet: requirement };
+    }
+  }
+  return { met: true, firstUnmet: null };
+}
+
 function isDark() {
   return !rooms[gameState.currentRoom].light && !gameState.flags.includes("lanternLit");
 }

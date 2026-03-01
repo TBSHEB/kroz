@@ -63,7 +63,7 @@ function processEnemyTurns() {
             const randomMessage = pickRandom(enemy.combat.playerDodgeMessage);
             displayText(randomMessage);
           } else {
-            displayText("You dodge");
+            displayText("You dodge.");
           }
         } else {
           //The enemy hits the player

@@ -3,6 +3,23 @@
 const SAVE_PREFIX = "kroz-save-";
 const AUTO_SAVE_KEY = "kroz-save-auto";
 const SAVE_LIST_KEY = "kroz-save-list";
+const SAVE_NAME_MAX_LENGTH = 30;
+const SAVE_NAME_PATTERN = /^[a-zA-Z0-9 _-]+$/;
+
+/**
+ * Validates a save name for length and allowed characters.
+ * @param {string} name
+ * @returns {string|null} Error message if invalid, null if valid.
+ */
+function validateSaveName(name) {
+  if (name.length > SAVE_NAME_MAX_LENGTH) {
+    return `Save name too long (max ${SAVE_NAME_MAX_LENGTH} characters).`;
+  }
+  if (!SAVE_NAME_PATTERN.test(name)) {
+    return 'Invalid save name. Use only letters, numbers, spaces, hyphens, and underscores.';
+  }
+  return null;
+}
 
 // Save game state to localStorage
 function saveGame(gameState, saveName = null) {
@@ -50,7 +67,17 @@ function loadGame(saveName = null) {
 
     const loadedState = JSON.parse(saveData);
 
-    if (!loadedState.currentRoom || !loadedState.inventory) {
+    if (
+      typeof loadedState.currentRoom !== 'string' ||
+      !Array.isArray(loadedState.inventory) ||
+      !Array.isArray(loadedState.flags) ||
+      !Array.isArray(loadedState.visitedRooms) ||
+      typeof loadedState.healthState !== 'number' ||
+      loadedState.combatState === null || typeof loadedState.combatState !== 'object' ||
+      loadedState.roomChanges === null || typeof loadedState.roomChanges !== 'object' ||
+      loadedState.sequences === null || typeof loadedState.sequences !== 'object' ||
+      typeof loadedState.commandCount !== 'number'
+    ) {
       console.error("Invalid save data structure");
       return null;
     }

@@ -3,7 +3,7 @@
 // Crafting handler - checks recipes and creates items
 function handleCraft(itemNames) {
   // Convert item names to IDs - track which ones we find
-  const interactables = buildInteractablesList();
+  const interactables = getInteractablesList();
   const foundItems = itemNames.map((name) => {
     const found = findInteractable(name, interactables);
     return { name, id: found?.id };

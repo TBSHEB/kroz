@@ -89,7 +89,6 @@ Kroz/
 │   └── storage.js     # localStorage handling
 ├── README.md          # Human-readable project info
 ├── TODO.md            # Development task list
-├── COMBAT.md          # Combat system design document
 └── AGENTS.md          # This file
 ```
 
@@ -319,23 +318,49 @@ The command system is modular:
   - **craft.js**: Handles craft verb (creating items from components)
   - **resolution.js**: Routes use commands to appropriate handlers
   - **use.js**: Main use command entry point
-- **actions.js**: Action commands (take, drop, etc.)
+- **actions.js**: Action commands (take, drop, etc.). Examine priority: room objects → room items → inventory items → scenery → genericExamines → fallback
 - **movement.js**: Movement commands (north, south, up, down, etc.)
 - **information.js**: Info commands (look, examine, inventory)
-- **registry.js**: Maps command strings to functions with aliases
+- **registry.js**: Command registration, aliases, and dispatch tables
 
 ```javascript
-// In registry.js
-const commands = {
-  "inventory": inventory,
-  "i": inventory,        // Alias points to same function
-  "north": north
+// aliasToAction: maps use-command verbs to action types
+const aliasToAction = {
+  use: null,          // Generic - inferred from context
+  attack: "attack",   // Combat
+  combine: "craft",   // Crafting
+  equip: "operate",   // Equipment
+  eat: "operate",     // Consumables
+  // ...
 };
+
+// commandData: simple commands with aliases and fail handlers
+const commandData = {
+  look: { command: look, failedCommand: (s) => `...`, aliases: ["l"] },
+  north: { command: () => move("north"), aliases: ["n"] },
+  save: { command: () => save([]), aliases: [] },
+  // ...
+};
+// Built into simpleCommands object with aliases pre-populated
+
+// complicatedCommands: commands that take subjects (take, drop, examine, say)
+const complicatedCommands = {
+  take: { command: (things) => take(things), singleCommand: (a) => takeSingle(a), aliases: ["grab", "get"] },
+  // ...
+};
+
+// knownWords: recognised words with flavour responses
+const knownWords = { jump: "You jump up and down.", wait: "Time passes.", /* ... */ };
 ```
 
 ### Game State (storage.js)
 
-Save format stored in localStorage under key `'kroz-save'`:
+Save keys in localStorage:
+- `kroz-save-auto`: auto-save
+- `kroz-save-<name>`: named saves
+- `kroz-save-list`: array of named save names
+
+Save format:
 
 ```javascript
 {
@@ -390,11 +415,17 @@ Save format stored in localStorage under key `'kroz-save'`:
 Open DevTools (F12) → Console tab:
 
 ```javascript
-// View current save data
-JSON.parse(localStorage.getItem('kroz-save'));
+// View current auto-save data
+JSON.parse(localStorage.getItem('kroz-save-auto'));
 
-// Clear save for testing
-localStorage.removeItem('kroz-save');
+// View named save
+JSON.parse(localStorage.getItem('kroz-save-mysave'));
+
+// List all named saves
+JSON.parse(localStorage.getItem('kroz-save-list'));
+
+// Clear auto-save for testing
+localStorage.removeItem('kroz-save-auto');
 
 // Check if storage is available
 typeof(Storage) !== "undefined";
@@ -455,33 +486,36 @@ Open browser DevTools (F12) → Console tab to see:
    - Movement → `movement.js`
    - Actions → `actions.js`
    - Information → `information.js`
-2. Add to `commands` object in `registry.js` with any aliases:
-   ```javascript
-   "jump": jump,
-   "j": jump
-   ```
+2. Register in `registry.js`:
+   - Simple commands (no subject): add to `commandData` with `command`, `failedCommand`, and `aliases`
+   - Complex commands (take subject): add to `complicatedCommands` with `command`, `singleCommand`, `failedCommand`, and `aliases`
+   - Use-verb aliases: add to `aliasToAction` mapping to the action type
+   - Flavour responses: add to `knownWords`
 
 ### Debugging Save/Load
 
 ```javascript
-// View current save
-console.log(JSON.parse(localStorage.getItem('kroz-save')));
+// View current auto-save
+console.log(JSON.parse(localStorage.getItem('kroz-save-auto')));
 
-// Manually set test state
-localStorage.setItem('kroz-save', JSON.stringify({
-  currentRoom: 'start',
-  inventory: [],
-  gameFlags: {}
-}));
+// View named save
+console.log(JSON.parse(localStorage.getItem('kroz-save-mysave')));
 
-// Clear corrupted save
-localStorage.removeItem('kroz-save');
+// Clear corrupted auto-save
+localStorage.removeItem('kroz-save-auto');
 
-// Test save function
-saveGame();
+// Clear all saves
+deleteAllSaves();
+
+// Test save function (auto-save)
+saveGame(gameState);
+
+// Test named save
+saveGame(gameState, 'test');
 
 // Test load function
 loadGame();
+loadGame('test');
 ```
 
 ## Security Considerations
@@ -514,7 +548,7 @@ element.textContent = userInput;
 
 ### Combat System
 
-Kroz features a turn-based combat system with instakill mechanics. See `COMBAT.md` for full specification.
+Kroz features a turn-based combat system with instakill mechanics.
 
 **Key Points:**
 - First engagement with correct item = instant kill
@@ -531,7 +565,6 @@ Kroz features a turn-based combat system with instakill mechanics. See `COMBAT.m
   dodgeChance: 0.5,
   dodgeChanceDamaged: 0.7,
   defensiveChance: 0.25,
-  // See COMBAT.md for full structure
 }
 ```
 
@@ -564,6 +597,17 @@ Rooms without `light: true` are dark and restrict commands:
 - **Works normally:** movement, inventory, drop, use items
 - **Lantern:** Setting `lanternLit` flag enables all commands in dark rooms
 - **Display:** Dark rooms show title "A dark room" and message "It's too dark to see!"
+
+### Teleport System
+
+Player command to instantly travel to a previously visited room. Gated behind the `teleportEnabled` flag.
+
+- Command: `teleport`, `tp`, `warp` (registered in `complicatedCommands`)
+- Supports multi-step: typing `teleport` alone prompts "Teleport where?"
+- Target must be an exact room key match against `gameState.visitedRooms`
+- Partial key matching: if input isn't an exact key but matches part of exactly one visited room key, resolves to that room. Multiple partial matches gives an ambiguous hint message.
+- Uses `performRoomTransition(null, targetRoom)` for standard room entry behaviour
+- Sets `gameState.previousRoom = null` after transition, causing `back` to display a custom message instead of attempting to return
 
 ### Checkpoint System
 
@@ -758,6 +802,7 @@ See `TODO.md` for current task list and priorities.
 - Temporary item requireFlags (countdown gated by flags)
 - Object onExamine effects (generateSequence)
 - checkSequence message/sequencelessMessage support
+- Teleport system (flag-gated fast travel to visited rooms with partial key matching)
 
 **Remaining Content:**
 - Door room ending text (placeholder)

@@ -12,7 +12,7 @@ function take(things, all = false) {
   } else {
     // Check for ambiguous items first (unless taking all)
     if (!all) {
-      const interactables = buildInteractablesList();
+      const interactables = getInteractablesList();
       for (const thing of things) {
         const result = disambiguateItem(thing, interactables, "take");
         if (result === "AMBIGUOUS") {
@@ -179,7 +179,7 @@ function drop(things) {
     return;
   } else {
     // Check for ambiguous items first
-    const interactables = buildInteractablesList();
+    const interactables = getInteractablesList();
     for (const thing of things) {
       const result = disambiguateItem(thing, interactables, "drop");
       if (result === "AMBIGUOUS") {
@@ -254,7 +254,7 @@ function examine(things) {
     return;
   } else {
     // Check for ambiguous items first
-    const interactables = buildInteractablesList();
+    const interactables = getInteractablesList();
     for (const thing of things) {
       const result = disambiguateItem(thing, interactables, "examine");
       if (result === "AMBIGUOUS") {
@@ -405,7 +405,7 @@ function takeAll() {
     return;
   }
 
-  const interactables = buildInteractablesList();
+  const interactables = getInteractablesList();
 
   // Filter items in the room, excluding those with allIgnore: true
   let takes = interactables.filter((item) => item.location === "room" && !item.allIgnore);

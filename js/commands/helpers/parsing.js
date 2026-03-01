@@ -14,9 +14,16 @@ function buildAliasMap(itemIds) {
   return aliasToItemId;
 }
 
+let _interactablesCache = null;
+
+function invalidateInteractablesCache() {
+  _interactablesCache = null;
+}
+
 // Build a list of all things the player can currently interact with
 // Includes: room objects, room items, inventory items, generic disallowed items
-function buildInteractablesList() {
+function getInteractablesList() {
+  if (_interactablesCache) return _interactablesCache;
   const currentRoom = rooms[gameState.currentRoom];
   const interactables = [];
 
@@ -100,6 +107,7 @@ function buildInteractablesList() {
     });
   });
 
+  _interactablesCache = interactables;
   return interactables;
 }
 
@@ -284,7 +292,7 @@ function matchItemPhrase(things, aliasToItemId) {
 
 function replaceSplitWordsWithFullName(words) {
   const aliasToInteractableId = {};
-  const interactables = buildInteractablesList();
+  const interactables = getInteractablesList();
   if (interactables) {
     interactables.forEach((int) => {
       if (int.type === "item" && items[int.id].names) {

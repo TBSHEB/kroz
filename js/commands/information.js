@@ -183,38 +183,14 @@ function look() {
       }
 
       if (passage.hidden !== true) {
-        let allRequirementsMet = true;
-        let firstUnmetRequirement = null;
+        const result = passage.requirements
+          ? checkPassageRequirements(passage.requirements, currentRoom)
+          : { met: true, firstUnmet: null };
 
-        // Check all requirements
-        if (passage.requirements) {
-          for (const requirement of passage.requirements) {
-            const flagMet = !requirement.flag || gameState.flags.includes(requirement.flag);
-            const itemMet = !requirement.item || gameState.inventory.includes(requirement.item);
-
-            // Check roomItem requirement
-            let roomItemMet = true;
-            if (requirement.roomItems) {
-              const allowedItems = Array.isArray(requirement.roomItems)
-                ? requirement.roomItems
-                : [requirement.roomItems];
-              roomItemMet = allowedItems.some((item) => currentRoom.items?.includes(item));
-            }
-
-            if (!flagMet || !itemMet || !roomItemMet) {
-              allRequirementsMet = false;
-              if (!firstUnmetRequirement) {
-                firstUnmetRequirement = requirement;
-              }
-            }
-          }
-        }
-
-        // Show appropriate description
-        if (allRequirementsMet && passage.metDescription) {
+        if (result.met && passage.metDescription) {
           look += `\n${passage.metDescription}`;
-        } else if (!allRequirementsMet && firstUnmetRequirement?.unmetDescription) {
-          look += `\n${firstUnmetRequirement.unmetDescription}`;
+        } else if (!result.met && result.firstUnmet?.unmetDescription) {
+          look += `\n${result.firstUnmet.unmetDescription}`;
         }
       }
     }
@@ -225,26 +201,19 @@ function look() {
     let itemTexts = [];
 
     for (const itemId of currentRoom.items) {
-      // Skip items that this room wants to handle manually
-      if (currentRoom.hideItemDescriptions && currentRoom.hideItemDescriptions.includes(itemId)) {
-        continue;
-      }
-
-      // Skip nails in sand room if not taken yet
-      if (gameState.currentRoom === "sand" && itemId === "nails" && !gameState.flags.includes("nailsTaken")) {
-        continue;
-      }
-
       const item = items[itemId];
       if (item) {
         let desc = "";
 
         // Check if item has been taken by looking at its setFlag
         const itemTaken = item.setFlag && gameState.flags.includes(item.setFlag);
+        const hideInitial = currentRoom.hideItemDescriptions && currentRoom.hideItemDescriptions.includes(itemId);
 
         // Use initialDescription if item hasn't been taken and it exists
         if (!itemTaken && item.initialDescription) {
-          desc = item.initialDescription;
+          if (!hideInitial) {
+            desc = item.initialDescription;
+          }
         } else if (item.description) {
           desc = item.description;
         }
@@ -284,6 +253,11 @@ function save(name) {
   const saveName = name && name.length > 0 ? name.join(" ") : null;
 
   if (saveName) {
+    const nameError = validateSaveName(saveName);
+    if (nameError) {
+      displayText(nameError);
+      return;
+    }
     if (saveGame(gameState, saveName)) {
       displayText(`Game saved as "${saveName}".`);
     } else {
@@ -300,6 +274,14 @@ function save(name) {
 
 function load(name) {
   const saveName = name && name.length > 0 ? name.join(" ") : null;
+
+  if (saveName !== null) {
+    const nameError = validateSaveName(saveName);
+    if (nameError) {
+      displayText(nameError);
+      return;
+    }
+  }
 
   let loadedState;
 

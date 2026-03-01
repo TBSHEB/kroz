@@ -4,21 +4,21 @@
 const items = {
   dungeonKey: {
     names: ["key", "keys"],
-    examine: "A simple key made from chain loops",
+    examine: "A simple key made from chain loops.",
     initialDescription: "Among the shattered remains of the hanging lantern lies a key made from chain loops.",
     description: "A key made from twisted chain loops lies here.",
     setFlag: "dungeonKeyTaken"
   },
   dungeonWood: {
     names: ["wood", "planks", "boards", "floorboards"],
-    examine: "Wooden planks, quite strong",
+    examine: "Wooden planks, quite strong.",
     initialDescription: "The floor is made out of loose wooden boards.",
     description: "Wooden planks lie scattered on the floor.",
     setFlag: "dungeonWoodTaken"
   },
   stepladder: {
     names: ["stepladder", "step-ladder", "steps", "ladder", "step ladder"],
-    examine: "A short stepladder. Not useful for much, but could give you a bit of extra height",
+    examine: "A short stepladder. Not useful for much, but could give you a bit of extra height.",
     initialDescription: "There's a short stepladder propped against the wall.",
     description: "A stepladder stands against the wall.",
     setFlag: "stepladderTaken",
@@ -84,7 +84,7 @@ const items = {
   },
   compass: {
     names: ["compass"],
-    examine: "I know which way north is",
+    examine: "I know which way north is.",
     initialDescription: "A compass lies in the dust.",
     description: "A compass lies on the ground.",
     setFlag: "compassTaken",
@@ -105,29 +105,29 @@ const items = {
   },
   skull: {
     names: ["skull", "head"],
-    examine: "A very nice specimen, although it appears to be human",
+    examine: "A very nice specimen, although it appears to be human.",
     initialDescription: "A human skull sits ominously in the centre of the room.",
     description: "A skull rests on the floor.",
     setFlag: "skullTaken"
   },
   pick1: {
     names: ["pickaxe", "pick", "axe"],
-    examine: "Frail looking, can't be good for more than one or two uses",
+    examine: "Frail looking, can't be good for more than one or two uses.",
     initialDescription: "There's a weathered pickaxe propped in the corner.",
     description: "A pickaxe leans against the wall.",
     setFlag: "pick1Taken",
     stackId: "pickaxe"
   },
   ladder: {
-    names: ["ladder"],
-    examine: "A tall, sturdy ladder made out of floorboards",
+    names: ["ladder", "tall ladder", "tall-ladder"],
+    examine: "A tall, sturdy ladder made out of floorboards.",
     initialDescription: "",
     description: "A tall ladder rests against the wall.",
     vital: true
   },
   map: {
     names: ["purple map", "map", "purple"],
-    examine: "It's faintly glowing, and appears to be of a great underground empire",
+    examine: "It's faintly glowing, and appears to be of a great underground empire.",
     initialDescription: "",
     description: "A glowing purple map has been left here.",
     softlockable: {
@@ -152,14 +152,14 @@ const items = {
   sword: {
     names: ["sword", "blade", "weapon"],
     primaryType: "combat",
-    examine: "Sharp, deadly, slightly sentient",
+    examine: "Sharp, deadly, slightly sentient.",
     initialDescription: "A gleaming sword leans against the wall.",
     description: "A gleaming sword rests here.",
     setFlag: "swordTaken"
   },
   pick2: {
     names: ["pickaxe", "pick", "axe"],
-    examine: "Frail looking, can't be good for more than one or two uses",
+    examine: "Frail looking, can't be good for more than one or two uses.",
     initialDescription: "A pickaxe lies among the debris.",
     description: "A pickaxe lies on the ground.",
     setFlag: "pick2Taken",
@@ -196,7 +196,7 @@ const items = {
   parachute: {
     names: ["parachute", "chute", "backpack"],
     primaryType: "operate",
-    examine: "A backpack parachute, should help me survive an otherwise deadly drop",
+    examine: "A backpack parachute, should help me survive an otherwise deadly drop.",
     initialDescription: "A parachute rests on a pedestal.",
     description: "A folded parachute lies here.",
     setFlag: "parachuteTaken",
@@ -533,7 +533,7 @@ const items = {
   },
   brassHammer: {
     names: ["brass hammer", "hammer", "brass", "mallet"],
-    examine: "A hammer, cast entirely from brass. Tapping it gives a nice ring",
+    examine: "A hammer, cast entirely from brass. Tapping it gives a nice ring.",
     initialDescription: "A brass hammer lies on a workbench.",
     description: "A brass hammer rests here.",
     setFlag: "brassHammerTaken"
@@ -622,7 +622,7 @@ const items = {
         allowedVerbs: ["drink", "consume", "sip", "gulp", "swallow"],
         message: "You drink the water. It tastes strange, almost electric, and leaves your mouth feeling numb.",
         effects: {
-          setFlags: ["waterDrunk"],
+          setFlags: ["waterDrunk", "teleportEnabled"],
           removeItems: ["mineralWater"]
         }
       }
@@ -648,7 +648,7 @@ const recipes = {
   ladder: {
     requires: ["dungeonWood", "nails", "hammer"],
     retains: ["hammer"],
-    message: "You make a ladder out of the hammer, nails and wood",
+    message: "You make a ladder out of the hammer, nails and wood.",
     effects: {
       setFlags: []
     }

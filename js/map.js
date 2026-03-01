@@ -219,6 +219,7 @@ const rooms = {
     },
     passages: { west: "five", northeast: "pick1" },
     items: ["nails"],
+    hideItemDescriptions: ["nails"],
     scenery: {
       sand: {
         names: ["sand"],
@@ -306,7 +307,7 @@ const rooms = {
         requirements: [
           {
             roomItems: ["ladder"],
-            failMessage: "The hole is too high to reach",
+            failMessage: "The hole is too high to reach.",
             unmetDescription: "A hole can be seen far above."
           }
         ],
@@ -332,7 +333,7 @@ const rooms = {
         requirements: [
           {
             flag: "caveinRemoved",
-            failMessage: "The passage west is blocked by rubble",
+            failMessage: "The passage west is blocked by rubble.",
             unmetDescription: "The western passage is blocked by a cave-in."
           }
         ],
@@ -343,7 +344,7 @@ const rooms = {
         requirements: [
           {
             flag: "trollGone",
-            failMessage: "A troll blocks the southeastern passage",
+            failMessage: "A troll blocks the southeastern passage.",
             unmetDescription: "A troll is standing in front of the southeastern passage."
           }
         ],
@@ -378,7 +379,7 @@ const rooms = {
     restrictedPassages: {
       down: {
         requirements: [
-          { flag: "parachuteEquipped", failMessage: "The drop looks deadly. I need something to break my fall" }
+          { flag: "parachuteEquipped", failMessage: "The drop looks deadly. I need something to break my fall." }
         ],
         room: "hub",
         metDescription: "With the parachute equipped, I could safely jump down the hole."
@@ -518,17 +519,17 @@ const rooms = {
     scenery: {
       shrine: {
         names: ["shrine"],
-        message: "I can't pick up something while I'm inside of it",
+        message: "I can't pick up something while I'm inside of it.",
         examine: "A small shrine. The pedestal in the center seems to be the focal point."
       },
       pedestal: {
         names: ["pedestal", "stand"],
-        message: "The pedestal is far too heavy to pick up",
+        message: "The pedestal is far too heavy to pick up.",
         examine: "A short pedestal, carved from a single block of marble, like everything in this place."
       },
       hole: {
         names: ["hole", "opening"],
-        message: "I can't take a hole",
+        message: "I can't take a hole.",
         examine: "As far as I can see, it goes straight up. No chance that's a path I can go.",
         allIgnore: true
       }
@@ -543,58 +544,58 @@ const rooms = {
     scenery: {
       bones: {
         names: ["bones"],
-        message: "I'd rather not touch those",
+        message: "I'd rather not touch those.",
         examine:
           "They are a variety of sizes, and as such likely come from a variety of sources... That's a nice thought."
       },
       bone: {
         names: ["bone"],
-        message: "I'd rather not touch that",
+        message: "I'd rather not touch that.",
         examine: "One bone among many scattered across the floor.",
         allIgnore: true
       },
       corpse: {
         names: ["corpse", "body", "remains"],
-        message: "I don't know what these bones belonged to, but I'm not touching them",
+        message: "I don't know what these bones belonged to, but I'm not touching them.",
         examine:
           "An old set of bones, scraps of old skin holding them in shape. I don't recognize the creature it used to be."
       },
       skeleton: {
         names: ["skeleton"],
-        message: "Best left alone",
+        message: "Best left alone.",
         examine:
           "Thankfully, it doesn't seem to be human, although it's been mauled badly enough that I guess it could be?"
       },
       cave: {
         names: ["cave", "den"],
-        message: "The cave is rather large to carry",
+        message: "The cave is rather large to carry.",
         examine:
           "A small cave, fashioned as a home. I don't think the resident will be making an appearance for a while."
       },
       debris: {
         names: ["debris", "rubble", "refuse"],
-        message: "I'm not touching that. It is an unrecognizable pile of filth",
+        message: "I'm not touching that. It is an unrecognizable pile of filth.",
         examine: "An unrecognizable pile of filth."
       },
       smell: {
         names: ["smell", "stench", "odor", "reek"],
-        message: "Even if I could take it I wouldn't want to",
+        message: "Even if I could take it I wouldn't want to.",
         examine: "It smells primarily of rotting flesh, but with a hint of something you've never smelt before.",
         allIgnore: true
       },
       skin: {
         names: ["skin"],
-        message: "I'd rather not touch that",
+        message: "I'd rather not touch that.",
         examine: "It's dry, and stretched taut. There are little bits of fur clinging to it."
       },
       flesh: {
         names: ["flesh", "rotting flesh", "rot"],
-        message: "I can't actually find any of that here, it just smells like it",
+        message: "I can't actually find any of that here, it just smells like it.",
         examine: "I can't actually find any of that here, it just smells like it."
       },
       filth: {
         names: ["filth"],
-        message: "Yeah no",
+        message: "Yeah no.",
         examine: "It looks disgusting."
       }
     }
@@ -608,23 +609,23 @@ const rooms = {
     scenery: {
       weapons: {
         names: ["weapons"],
-        message: "There are no weapons left to take",
+        message: "There are no weapons left to take.",
         examine: "There's none here."
       },
       weapon: {
         names: ["weapon"],
-        message: "There is no weapon left to take",
+        message: "There is no weapon left to take.",
         examine: "There's none here.",
         allIgnore: true
       },
       armory: {
         names: ["armory"],
-        message: "I can't take an armory",
+        message: "I can't take an armory.",
         examine: "It looks like it used to store weapons. For what, I have no clue..."
       },
       rack: {
         names: ["rack", "stand"],
-        message: "It's bolted to the wall",
+        message: "It's bolted to the wall.",
         examine: "It's empty."
       }
     }
@@ -657,7 +658,7 @@ const rooms = {
     scenery: {
       hole: {
         names: ["hole", "opening"],
-        message: "I can't take a hole",
+        message: "I can't take a hole.",
         examine: "That leads back up, although I have no way of going that way.",
         allIgnore: true
       }
@@ -680,7 +681,7 @@ const rooms = {
     scenery: {
       porcelain: {
         names: ["porcelain"],
-        message: "The porcelain is part of the sink",
+        message: "The porcelain is part of the sink.",
         examine: "White porcelain, slightly stained from age.",
         allIgnore: true
       }
@@ -702,29 +703,29 @@ const rooms = {
     scenery: {
       table: {
         names: ["table"],
-        message: "It's stuck to the floor with... red paint",
+        message: "It's stuck to the floor with... red paint.",
         examine: "A short coffee table, ideal for holding cakes."
       },
       lights: {
         names: ["lights"],
-        message: "I'm not sure how you want me to accomplish that",
+        message: "I'm not sure how you want me to accomplish that.",
         examine: "The light is being filtered through red glass of some kind."
       },
       light: {
         names: ["light"],
-        message: "I'm not sure how you want me to accomplish that",
+        message: "I'm not sure how you want me to accomplish that.",
         examine: "The light is being filtered through red glass of some kind.",
         allIgnore: true
       },
       red: {
         names: ["red", "redness", "color", "colour"],
-        message: "You are now red",
+        message: "You are now red.",
         examine: "It's bright red, and a little overwhelming.",
         allIgnore: true
       },
       glass: {
         names: ["glass"],
-        message: "It's in the wall",
+        message: "It's in the wall.",
         examine: "It's tinted red."
       }
     },
@@ -742,29 +743,29 @@ const rooms = {
     scenery: {
       bench: {
         names: ["bench"],
-        message: "It's stuck to the floor with... green paint",
+        message: "It's stuck to the floor with... green paint.",
         examine: "A short bench, ideal for holding cakes."
       },
       lights: {
         names: ["lights"],
-        message: "I'm not sure how you want me to accomplish that",
+        message: "I'm not sure how you want me to accomplish that.",
         examine: "The light is being filtered through green glass of some kind."
       },
       light: {
         names: ["light"],
-        message: "I'm not sure how you want me to accomplish that",
+        message: "I'm not sure how you want me to accomplish that.",
         examine: "The light is being filtered through green glass of some kind.",
         allIgnore: true
       },
       green: {
         names: ["green", "greenness", "color", "colour"],
-        message: "You are now green",
+        message: "You are now green.",
         examine: "It's bright green, and a little overwhelming.",
         allIgnore: true
       },
       glass: {
         names: ["glass"],
-        message: "It's in the wall",
+        message: "It's in the wall.",
         examine: "It's tinted green."
       }
     },
@@ -783,35 +784,35 @@ const rooms = {
     scenery: {
       lights: {
         names: ["lights"],
-        message: "I'm not sure how you want me to accomplish that",
+        message: "I'm not sure how you want me to accomplish that.",
         examine: "The light is being filtered through blue glass of some kind."
       },
       light: {
         names: ["light"],
-        message: "I'm not sure how you want me to accomplish that",
+        message: "I'm not sure how you want me to accomplish that.",
         examine: "The light is being filtered through blue glass of some kind.",
         allIgnore: true
       },
       blue: {
         names: ["blue", "blueness", "color", "colour"],
-        message: "You are now blue",
+        message: "You are now blue.",
         examine: "It's bright blue, and a little overwhelming.",
         allIgnore: true
       },
       glass: {
         names: ["glass"],
-        message: "It's in the wall",
+        message: "It's in the wall.",
         examine: "It's tinted blue."
       },
       shades: {
         names: ["shades"],
-        message: "You are now multiple shades",
+        message: "You are now multiple shades.",
         examine: "Various shades of blue fill the room.",
         allIgnore: true
       },
       shade: {
         names: ["shade"],
-        message: "You are now a shade",
+        message: "You are now a shade.",
         examine: "One of many shades of blue in the room.",
         allIgnore: true
       }
@@ -835,7 +836,7 @@ const rooms = {
     scenery: {
       dust: {
         names: ["dust"],
-        message: "I'm not picking up dust",
+        message: "I'm not picking up dust.",
         examine: "It's quite thick, suggesting it's been building up for quite some time."
       }
     }
@@ -857,7 +858,7 @@ const rooms = {
     scenery: {
       dust: {
         names: ["dust"],
-        message: "I'm not picking up dust",
+        message: "I'm not picking up dust.",
         examine: "It's quite thick, suggesting it's been building up for quite some time."
       }
     }
@@ -888,23 +889,23 @@ const rooms = {
     scenery: {
       snot: {
         names: ["snot", "boogers", "booger", "mucus"],
-        message: "Although this room is shaped exactly like a standard nose, there's no mucus here",
+        message: "Although this room is shaped exactly like a standard nose, there's no mucus here.",
         examine: "Fortunately, there's very little of that here!",
         allIgnore: true
       },
       nosehairs: {
         names: ["nose hairs", "nose hair", "nosehairs", "nosehair", "hairs", "hair"],
-        message: "Even if there were nose hairs here, I'm not going to touch those",
+        message: "Even if there were nose hairs here, I'm not going to touch those.",
         examine: "Thankfully, this isn't actually a giant nose, so there are no nose hairs."
       },
       nose: {
         names: ["nose"],
-        message: "I've already got one of those. I don't need another one",
+        message: "I've already got one of those. I don't need another one.",
         examine: "Just because it looks like a nose, doesn't mean it is one!"
       },
       hole: {
         names: ["hole", "opening"],
-        message: "This hole is actually low enough I can touch it, but I still can't take holes",
+        message: "This hole is actually low enough I can touch it, but I still can't take holes.",
         examine:
           "Looking up through the hole, I can see a staircase above that ends here. I might be able to climb up, but it's just out of reach."
       }
@@ -941,7 +942,7 @@ const rooms = {
       shattered: {
         names: ["shattered remains", "remains", "shards", "shattered glass", "broken glass"],
         hiddenUnlessHasFlag: "glassBroken",
-        message: "I'd rather not cut my hands trying to pick it up",
+        message: "I'd rather not cut my hands trying to pick it up.",
         examine: "Many tiny fragments of sharp glass. I probably shouldn't touch those."
       }
     },
@@ -979,7 +980,7 @@ const rooms = {
       shattered: {
         names: ["shattered remains", "remains", "shards", "shattered glass", "broken glass"],
         hiddenUnlessHasFlag: "glassBroken",
-        message: "I'd rather not cut my hands trying to pick it up",
+        message: "I'd rather not cut my hands trying to pick it up.",
         examine: "Many tiny fragments of sharp glass. I probably shouldn't touch those."
       }
     },
@@ -998,7 +999,7 @@ const rooms = {
     scenery: {
       features: {
         names: ["identifying features", "features", "feature"],
-        message: "Yeah there's none of those here",
+        message: "Yeah there's none of those here.",
         examine: "I wish there was something to tell these rooms apart, but alas, there's not."
       }
     }
@@ -1016,7 +1017,7 @@ const rooms = {
     scenery: {
       features: {
         names: ["identifying features", "features", "feature"],
-        message: "Yeah there's none of those here",
+        message: "Yeah there's none of those here.",
         examine: "I wish there was something to tell these rooms apart, but alas, there's not."
       }
     }
@@ -1034,7 +1035,7 @@ const rooms = {
     scenery: {
       features: {
         names: ["identifying features", "features", "feature"],
-        message: "Yeah there's none of those here",
+        message: "Yeah there's none of those here.",
         examine: "I wish there was something to tell these rooms apart, but alas, there's not."
       }
     }
@@ -1052,7 +1053,7 @@ const rooms = {
     scenery: {
       features: {
         names: ["identifying features", "features", "feature"],
-        message: "Yeah there's none of those here",
+        message: "Yeah there's none of those here.",
         examine: "I wish there was something to tell these rooms apart, but alas, there's not."
       }
     }
@@ -1070,7 +1071,7 @@ const rooms = {
     scenery: {
       features: {
         names: ["identifying features", "features", "feature"],
-        message: "Yeah there's none of those here",
+        message: "Yeah there's none of those here.",
         examine: "I wish there was something to tell these rooms apart, but alas, there's not."
       }
     }
@@ -1088,7 +1089,7 @@ const rooms = {
     scenery: {
       features: {
         names: ["identifying features", "features", "feature"],
-        message: "Yeah there's none of those here",
+        message: "Yeah there's none of those here.",
         examine: "I wish there was something to tell these rooms apart, but alas, there's not."
       }
     }
@@ -1106,7 +1107,7 @@ const rooms = {
     scenery: {
       features: {
         names: ["identifying features", "features", "feature"],
-        message: "Yeah there's none of those here",
+        message: "Yeah there's none of those here.",
         examine: "I wish there was something to tell these rooms apart, but alas, there's not."
       }
     }
@@ -1124,7 +1125,7 @@ const rooms = {
     scenery: {
       features: {
         names: ["identifying features", "features", "feature"],
-        message: "Yeah there's none of those here",
+        message: "Yeah there's none of those here.",
         examine: "I wish there was something to tell these rooms apart, but alas, there's not."
       }
     }
@@ -1143,7 +1144,7 @@ const rooms = {
     scenery: {
       features: {
         names: ["identifying features", "features", "feature"],
-        message: "Yeah there's none of those here",
+        message: "Yeah there's none of those here.",
         examine: "I wish there was something to tell these rooms apart, but alas, there's not."
       }
     }
@@ -1161,7 +1162,7 @@ const rooms = {
     scenery: {
       features: {
         names: ["identifying features", "features", "feature"],
-        message: "Yeah there's none of those here",
+        message: "Yeah there's none of those here.",
         examine: "I wish there was something to tell these rooms apart, but alas, there's not."
       }
     }
@@ -1179,7 +1180,7 @@ const rooms = {
     scenery: {
       features: {
         names: ["identifying features", "features", "feature"],
-        message: "Yeah there's none of those here",
+        message: "Yeah there's none of those here.",
         examine: "I wish there was something to tell these rooms apart, but alas, there's not."
       }
     }
@@ -1197,7 +1198,7 @@ const rooms = {
     scenery: {
       features: {
         names: ["identifying features", "features", "feature"],
-        message: "Yeah there's none of those here",
+        message: "Yeah there's none of those here.",
         examine: "I wish there was something to tell these rooms apart, but alas, there's not."
       }
     }
@@ -1229,7 +1230,7 @@ const rooms = {
     scenery: {
       features: {
         names: ["identifying features", "features", "feature"],
-        message: "Yeah there's none of those here",
+        message: "Yeah there's none of those here.",
         examine: "I wish there was something to tell these rooms apart, but alas, there's not."
       }
     }
@@ -1242,12 +1243,12 @@ const rooms = {
     scenery: {
       body: {
         names: ["dead person", "person", "body", "corpse"],
-        message: "I don't think I should touch it",
+        message: "I don't think I should touch it.",
         examine: "He's been here quite a while, there's not much left of him."
       },
       cadaver: {
         names: ["cadaver"],
-        message: "No",
+        message: "No.",
         examine: "I don't think this is the right situation to use that term."
       }
     }
@@ -1261,7 +1262,7 @@ const rooms = {
         requirements: [
           {
             flag: "holeDug",
-            failMessage: "Although the floor here is dirt, it's still pretty firm",
+            failMessage: "Although the floor here is dirt, it's still pretty firm.",
             unmetDescription: "With the proper tool, I reckon I could dig down."
           }
         ],
@@ -2225,7 +2226,7 @@ const rooms = {
           {
             flag: "cyclopsGone",
             failMessage: "There's a huge cyclops in the way. I don't think he'd let me past.",
-            unmetDescription: "A large cyclops stands, guarding the southern passage. "
+            unmetDescription: "A large cyclops stands, guarding the southern passage."
           }
         ],
         room: "spotty",

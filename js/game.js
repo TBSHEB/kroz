@@ -97,6 +97,7 @@ function initGame() {
 
 // Handle user input submission
 function handleCommand() {
+  invalidateInteractablesCache();
   const rawCommand = inputElement.value;
   const command = rawCommand.trim().toLowerCase();
 

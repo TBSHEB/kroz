@@ -200,19 +200,19 @@ webctl ready
 webctl console --type error
 
 # 4. Start testing (enter first command)
-webctl type "#player-input" "look" --key Enter
+webctl type "#input" "look" --key Enter
 
 # 5. View output
-webctl html --select "#game-output"
+webctl html --select "#output"
 ```
 
 ### During Testing
 
 ```bash
 # Send commands
-webctl type "#player-input" "north" --key Enter
-webctl type "#player-input" "take lantern" --key Enter
-webctl type "#player-input" "inventory" --key Enter
+webctl type "#input" "north" --key Enter
+webctl type "#input" "take lantern" --key Enter
+webctl type "#input" "inventory" --key Enter
 
 # Check game state after actions
 webctl eval "gameState.currentRoom"
@@ -229,25 +229,25 @@ webctl screenshot save
 
 ```bash
 # Test item pickup flow
-webctl type "#player-input" "look" --key Enter
-webctl html --select "#game-output" --find "lantern"
-webctl type "#player-input" "take lantern" --key Enter
+webctl type "#input" "look" --key Enter
+webctl html --select "#output" --find "lantern"
+webctl type "#input" "take lantern" --key Enter
 webctl eval "gameState.inventory.includes('lantern')"
 
 # Test movement
-webctl type "#player-input" "north" --key Enter
+webctl type "#input" "north" --key Enter
 webctl eval "gameState.currentRoom"
 webctl eval "gameState.previousRoom"
 
 # Test combat (if testing combat system)
 webctl eval "gameState.healthState"
-webctl type "#player-input" "attack guard with sword" --key Enter
+webctl type "#input" "attack guard with sword" --key Enter
 webctl eval "gameState.combatState"
 webctl eval "gameState.healthState"
 
 # Test flags
 webctl eval "gameState.flags"
-webctl type "#player-input" "use lantern" --key Enter
+webctl type "#input" "use lantern" --key Enter
 webctl eval "gameState.flags.includes('lanternLit')"
 ```
 
@@ -396,7 +396,7 @@ look();
 "
 
 # View the result
-webctl html --select "#game-output"
+webctl html --select "#output"
 ```
 
 ## Debugging Tips
@@ -432,7 +432,6 @@ webctl html --select "#game-output"
 
 - Read the code in relevant files (map.js, items.js, objects.js, commands/)
 - Check AGENTS.md for system specifications
-- Check COMBAT.md for combat mechanics
 - Ask the developer for clarification
 
 ## Test Session Template
@@ -473,7 +472,7 @@ webctl html --select "#game-output"
 ```bash
 # Test multiple commands quickly
 for cmd in "look" "north" "take sword" "inventory" "south"; do
-  webctl type "#player-input" "$cmd" --key Enter
+  webctl type "#input" "$cmd" --key Enter
   sleep 0.5
 done
 ```

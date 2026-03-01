@@ -162,6 +162,12 @@ const complicatedCommands = {
     singleCommand: (alias) => saySingle(alias),
     failedCommand: (subject) => subject,
     aliases: ["say", "speak", "answer"]
+  },
+  teleport: {
+    command: (things) => performTeleport(things[0]),
+    singleCommand: (alias) => teleportSingle(alias),
+    failedCommand: "I can't teleport there.",
+    aliases: ["tp", "warp"]
   }
 };
 

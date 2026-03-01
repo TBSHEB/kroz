@@ -26,7 +26,7 @@ const objects = {
   },
 
   dungeonTrapdoor: {
-    names: ["trapdoor", "trap-door", "door", "hatch", "floor-door"],
+    names: ["trapdoor", "trap door", "trap-door", "door", "hatch", "floor door", "floor-door"],
     examine: "It's locked, however there is a keyhole.",
     togglable: true,
     hiddenUnlessHasFlag: "dungeonWoodTaken",
@@ -53,7 +53,7 @@ const objects = {
     applyWith: {
       dungeonKey: {
         requireFlags: ["dungeonWoodTaken"],
-        message: "You unlock the trapdoor",
+        message: "You unlock the trapdoor.",
         failMessage: "What trapdoor?",
         effects: {
           setFlags: ["dungeonTrapdoorUnlocked"],
@@ -281,7 +281,7 @@ const objects = {
   },
 
   glass: {
-    names: ["glass", "window", "barrier", "pane"],
+    names: ["glass", "window", "barrier", "pane", "glass wall", "glass-wall"],
     examine: "A thick glass wall. Rather glassy looking glass if you ask me.",
     applyWith: {
       brick1: {
@@ -422,7 +422,7 @@ const objects = {
   },
 
   barricade: {
-    names: ["barricaded wooden door", "barricade", "door", "wooden door"],
+    names: ["barricaded wooden door", "barricaded-wooden-door", "barricade", "door", "wooden door", "wooden-door", "barricaded door", "barricaded-door"],
     examine:
       "A battered wooden door. It's been covered with wooden boards, and is completely unusable in its current state.",
     operate: {
@@ -726,7 +726,7 @@ const objects = {
   },
 
   marshmallow: {
-    names: ["marshmallow", "enemy", "creature", "monster"],
+    names: ["marshmallow", "enemy", "creature", "monster", "marshmallow monster", "marshmallow-monster"],
     examine: "A massive mutant marshmallow monster. It doesn't look happy that I'm in its lair.",
     operate: {
       eat: {
@@ -915,7 +915,7 @@ const objects = {
   },
 
   lake: {
-    names: ["lake", "water"],
+    names: ["lake", "water", "dark water", "dark-water"],
     examine: "A vast underground lake of dark, still water. Far too deep and cold to cross safely.",
     applyWith: {
       sawdust: {
@@ -948,7 +948,7 @@ const objects = {
   },
 
   cyclops: {
-    names: ["cyclops", "giant", "monster", "enemy", "creature"],
+    names: ["cyclops", "giant", "monster", "enemy", "creature", "beast"],
     examine:
       "From here, I can see a pretty standard looking cyclops, and I'm not going any closer to further examine it.",
     sayTrigger: {
@@ -1008,7 +1008,7 @@ const objects = {
   },
 
   bell: {
-    names: ["bell", "church-bell", "tower-bell"],
+    names: ["bell", "church bell", "church-bell", "tower bell", "tower-bell", "brass bell", "brass-bell"],
     description: "A large brass bell is suspended overhead. It's missing its clapper.",
     examine: "A massive brass bell hanging from the ceiling. Tarnished with age.",
     applyWith: {
@@ -1029,7 +1029,7 @@ const objects = {
   },
 
   case: {
-    names: ["case", "glass-case", "display-case", "display"],
+    names: ["case", "glass case", "glass-case", "display case", "display-case", "display", "trophy case", "trophy-case"],
     description: "A glass display case shows off its treasure, a glowing green key.",
     examine: "A glass trophy case. Contained inside is a glowing green key.",
     triggerEffects: {
