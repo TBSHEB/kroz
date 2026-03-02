@@ -329,10 +329,12 @@ const rooms = {
     restrictedPassages: {
       east: {
         requirements: [
-          { item: "map", failMessage: "There's a wall there.", backFailMessage: "I can't go back without the map." }
+          { item: "map", failMessage: "There's a wall there.", backFailMessage: "I can't go back without the map.", unmetDescription: "The eastern wall shimmers." }
         ],
         room: "three",
-        hidden: true
+        metDescription: "There's a passage to the east",
+        showAsNormal: true,
+        hiddenUnlessHasFlag: "hasMap"
       },
       west: {
         requirements: [
@@ -354,7 +356,7 @@ const rooms = {
           }
         ],
         room: "pick2",
-        metDescription: "A passage to the southeast leads over the troll's corpse."
+        metDescription: "Now that the troll is dead, the southeast passage is free to use."
       }
     },
     objects: ["cavein", "troll"],
