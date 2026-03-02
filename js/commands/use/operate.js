@@ -47,50 +47,7 @@ function handleOperate(verb, item) {
     return false;
   }
 
-  // Do you have all flags required for the operation of the item?
-  if (matchedAction.requireFlags) {
-    let allowed = true;
-    for (const flag of matchedAction.requireFlags) {
-      if (!gameState.flags.includes(flag)) {
-        allowed = false;
-      }
-    }
-
-    if (allowed === false) {
-      // Don't have required flags
-      if (matchedAction.failMessage) {
-        displayText(matchedAction.failMessage);
-      } else {
-        displayText("Not allowed.");
-      }
-      return false;
-    }
-  }
-
-  // Do you have any flags restricting the operation of the item?
-  if (matchedAction.requireNotFlags) {
-    let allowed = true;
-    let failedFlag = null;
-    for (const flag of matchedAction.requireNotFlags) {
-      if (gameState.flags.includes(flag)) {
-        allowed = false;
-        failedFlag = flag;
-        break;
-      }
-    }
-
-    if (allowed === false) {
-      // Have flags restricting use.
-      if (matchedAction.failMessage) {
-        displayText(matchedAction.failMessage);
-      } else if (matchedAction.failMessages && matchedAction.failMessages[failedFlag]) {
-        displayText(matchedAction.failMessages[failedFlag]);
-      } else {
-        displayText("Not allowed.");
-      }
-      return false;
-    }
-  }
+  if (!checkOperateRequirements(matchedAction)) return false;
 
   if (matchedAction.message) {
     displayText(resolveConditionalText(matchedAction.message));

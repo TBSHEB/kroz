@@ -333,6 +333,15 @@ function replaceSplitWordsWithFullName(words) {
   return result;
 }
 
+// Clear all disambiguation state
+function clearDisambiguationState() {
+  gameState.disambiguationMatches = [];
+  gameState.disambiguationSearchName = "";
+  gameState.disambiguationOriginalCommand = "";
+  gameState.disambiguationUseThings = [];
+  gameState.disambiguationUseIndex = -1;
+}
+
 // Handle disambiguation when multiple items match
 // Returns true if input was consumed (caller should return early)
 function handleDisambiguation(command, mainCommand) {
@@ -346,15 +355,15 @@ function handleDisambiguation(command, mainCommand) {
     complicatedCommands[mainCommand] ||
     knownWords[mainCommand]
   ) {
-    gameState.disambiguationMatches = [];
-    gameState.disambiguationSearchName = "";
-    gameState.disambiguationOriginalCommand = "";
+    clearDisambiguationState();
     return false;
   }
 
   const matches = gameState.disambiguationMatches;
   const previousSearch = gameState.disambiguationSearchName;
   const originalCommand = gameState.disambiguationOriginalCommand;
+  const useThings = gameState.disambiguationUseThings;
+  const useIndex = gameState.disambiguationUseIndex;
 
   const narrowedMatches = matches.filter((match) => {
     const itemData = items[match.id] || objects[match.id];
@@ -369,16 +378,15 @@ function handleDisambiguation(command, mainCommand) {
 
   if (narrowedMatches.length === 0) {
     displayText(`You don't have the ${command} ${previousSearch}.`);
-    gameState.disambiguationMatches = [];
-    gameState.disambiguationSearchName = "";
-    gameState.disambiguationOriginalCommand = "";
+    clearDisambiguationState();
   } else if (narrowedMatches.length === 1) {
     const item = narrowedMatches[0];
-    gameState.disambiguationMatches = [];
-    gameState.disambiguationSearchName = "";
-    gameState.disambiguationOriginalCommand = "";
+    clearDisambiguationState();
 
-    if (originalCommand === "take") {
+    if (useThings.length > 0) {
+      useThings[useIndex] = item.id;
+      handleUseCommand(originalCommand, useThings);
+    } else if (originalCommand === "take") {
       take([item.id]);
     } else if (originalCommand === "drop") {
       drop([item.id]);

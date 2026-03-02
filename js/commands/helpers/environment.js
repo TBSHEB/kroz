@@ -1,5 +1,50 @@
 // ===== ENVIRONMENT & STATE HELPERS =====
 
+/**
+ * Checks requireFlags and requireNotFlags on an action.
+ * @param {object} action - object with requireFlags and/or requireNotFlags
+ * @returns {{ passed: boolean, type?: 'missing'|'restricted', failedFlag?: string }}
+ */
+function checkFlagRequirements(action) {
+  if (action.requireFlags && !action.requireFlags.every((f) => gameState.flags.includes(f))) {
+    return { passed: false, type: 'missing' };
+  }
+
+  if (action.requireNotFlags) {
+    const failedFlag = action.requireNotFlags.find((f) => gameState.flags.includes(f));
+    if (failedFlag) {
+      return { passed: false, type: 'restricted', failedFlag };
+    }
+  }
+
+  return { passed: true };
+}
+
+function checkApplyRequirements(interaction) {
+  const result = checkFlagRequirements(interaction);
+  if (!result.passed) {
+    const fallback = result.type === 'missing' ? "You can't use that yet." : "You've already done that.";
+    displayText(interaction.failMessage || fallback);
+    return false;
+  }
+  return true;
+}
+
+function checkOperateRequirements(action) {
+  const result = checkFlagRequirements(action);
+  if (!result.passed) {
+    if (action.failMessage) {
+      displayText(action.failMessage);
+    } else if (result.failedFlag && action.failMessages?.[result.failedFlag]) {
+      displayText(action.failMessages[result.failedFlag]);
+    } else {
+      displayText('Not allowed.');
+    }
+    return false;
+  }
+  return true;
+}
+
 function formatList(names, conjunction = "or") {
   if (names.length === 1) return names[0];
   if (names.length === 2) return `${names[0]} ${conjunction} ${names[1]}`;
@@ -202,46 +247,26 @@ function trackRoomChange(id, type, added = true, roomOverride) {
 
   const changes = gameState.roomChanges[roomId];
 
-  if (type === "item") {
-    if (added) {
-      if (!changes.items.added.includes(id)) {
-        changes.items.added.push(id);
-      }
+  const key = type === 'item' ? 'items' : 'objects';
+  const bucket = changes[key];
 
-      const removedIndex = changes.items.removed.indexOf(id);
-      if (removedIndex > -1) {
-        changes.items.removed.splice(removedIndex, 1);
-      }
-    } else {
-      if (!changes.items.removed.includes(id)) {
-        changes.items.removed.push(id);
-      }
-
-      const addedIndex = changes.items.added.indexOf(id);
-      if (addedIndex > -1) {
-        changes.items.added.splice(addedIndex, 1);
-      }
+  if (added) {
+    if (!bucket.added.includes(id)) {
+      bucket.added.push(id);
     }
-  }
-  if (type === "object") {
-    if (added) {
-      if (!changes.objects.added.includes(id)) {
-        changes.objects.added.push(id);
-      }
 
-      const removedIndex = changes.objects.removed.indexOf(id);
-      if (removedIndex > -1) {
-        changes.objects.removed.splice(removedIndex, 1);
-      }
-    } else {
-      if (!changes.objects.removed.includes(id)) {
-        changes.objects.removed.push(id);
-      }
+    const removedIndex = bucket.removed.indexOf(id);
+    if (removedIndex > -1) {
+      bucket.removed.splice(removedIndex, 1);
+    }
+  } else {
+    if (!bucket.removed.includes(id)) {
+      bucket.removed.push(id);
+    }
 
-      const addedIndex = changes.objects.added.indexOf(id);
-      if (addedIndex > -1) {
-        changes.objects.added.splice(addedIndex, 1);
-      }
+    const addedIndex = bucket.added.indexOf(id);
+    if (addedIndex > -1) {
+      bucket.added.splice(addedIndex, 1);
     }
   }
 
@@ -372,7 +397,7 @@ function processTemporaryItems(currentRoom) {
       continue;
     }
     if (tempConfig.messages?.[count]) {
-      if (tempConfig.globalMessages || rooms[gameState.currentRoom].items.includes(item)) {
+      if (tempConfig.globalMessages || rooms[gameState.currentRoom].items.includes(item) || gameState.inventory.includes(item)) {
         displayText(tempConfig.messages[count]);
       }
     }

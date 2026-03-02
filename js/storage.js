@@ -39,6 +39,7 @@ function saveGame(gameState, saveName = null) {
       sequences: gameState.sequences,
       commandCount: gameState.commandCount,
       lastCheckpoint: gameState.lastCheckpoint,
+      cheatCount: gameState.cheatCount,
       timestamp: new Date().toISOString()
     };
 

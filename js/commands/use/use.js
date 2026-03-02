@@ -83,6 +83,30 @@ function handleUseCommand(alias, things) {
     parsed.items = expandedItems;
   }
 
+  // Disambiguate items and target left-to-right before resolution
+  {
+    const interactables = getInteractablesList();
+    const namesToCheck = actionType === "attack"
+      ? [...parsed.target, ...parsed.items]
+      : [...parsed.items, ...parsed.target];
+    const disambigThings = [...things];
+
+    for (const name of namesToCheck) {
+      const result = disambiguateItem(name, interactables, alias);
+      if (result === "AMBIGUOUS") {
+        gameState.disambiguationUseThings = disambigThings;
+        gameState.disambiguationUseIndex = disambigThings.indexOf(name);
+        return;
+      }
+      if (result) {
+        const idx = disambigThings.indexOf(name);
+        if (idx > -1) {
+          disambigThings[idx] = result.id;
+        }
+      }
+    }
+  }
+
   if (actionType === "use" || actionType === null) {
     const interactables = getInteractablesList();
     const smartResult = resolveSmartUse(parsed, interactables);

@@ -1,5 +1,44 @@
 // ===== APPLY HANDLERS =====
 
+function processProgressiveCombination(config, target, unusedItems) {
+  for (const itemId of unusedItems) {
+    setGameState('flags', itemId + 'Used');
+    setGameState('inventory', itemId, false);
+  }
+
+  const allUsed = config.items.every((itemId) => gameState.flags.includes(itemId + 'Used'));
+
+  if (allUsed) {
+    displayText(config.completeMessage);
+    if (config.completionFlag) {
+      setGameState('flags', config.completionFlag);
+    }
+    if (config.removeOnComplete) {
+      setRoomState('objects', target.id, false);
+      trackRoomChange(target.id, 'object', false);
+    }
+  } else {
+    const remaining = config.items.filter((itemId) => !gameState.flags.includes(itemId + 'Used')).length;
+
+    if (unusedItems.length === 1) {
+      let message = config.singleMessage || 'You insert a key. It clicks into place.';
+      if (config.incompleteSuffix) {
+        message += config.incompleteSuffix.replace('{remaining}', remaining);
+      }
+      displayText(message);
+    } else {
+      let message = config.multiMessage || `You insert ${unusedItems.length} keys. They click into place.`;
+      message = message.replace('{count}', unusedItems.length);
+      if (config.incompleteSuffix) {
+        message += config.incompleteSuffix.replace('{remaining}', remaining);
+      }
+      displayText(message);
+    }
+  }
+
+  return true;
+}
+
 // Handle applying items to objects/targets
 function handleApply(item, target) {
   // Special case: ladder placement on floor/ground
@@ -30,48 +69,15 @@ function handleApply(item, target) {
 
   // Check if target is an object with applyWith interactions
   if (target.type === "object" && target.applyWith) {
-    // Check for progressive combination with single item
     if (target.applyWith._progressiveCombination) {
       const config = target.applyWith._progressiveCombination;
 
-      // Check if this item is part of the progressive combination
       if (config.items.includes(item.id)) {
-        const flagName = item.id + "Used";
-
-        // Check if already used
-        if (gameState.flags.includes(flagName)) {
+        if (gameState.flags.includes(item.id + 'Used')) {
           displayText("You've already used that key.");
           return true;
         }
-
-        // Set flag and consume item
-        setGameState("flags", flagName);
-        setGameState("inventory", item.id, false);
-
-        // Check completion
-        const allUsed = config.items.every((itemId) => gameState.flags.includes(itemId + "Used"));
-
-        // Display message
-        if (allUsed) {
-          displayText(config.completeMessage);
-          if (config.completionFlag) {
-            setGameState("flags", config.completionFlag);
-          }
-          if (config.removeOnComplete) {
-            setRoomState("objects", target.id, false);
-            trackRoomChange(target.id, "object", false);
-          }
-        } else {
-          const remaining = config.items.filter((itemId) => !gameState.flags.includes(itemId + "Used")).length;
-
-          let message = config.singleMessage || "You insert a key. It clicks into place.";
-          if (config.incompleteSuffix) {
-            message += config.incompleteSuffix.replace("{remaining}", remaining);
-          }
-          displayText(message);
-        }
-
-        return true;
+        return processProgressiveCombination(config, target, [item.id]);
       }
     }
 
@@ -83,16 +89,7 @@ function handleApply(item, target) {
       return false;
     }
 
-    // Check requirements
-    if (interaction.requireFlags && !interaction.requireFlags.every((f) => gameState.flags.includes(f))) {
-      displayText(interaction.failMessage || `You can't use that yet.`);
-      return false;
-    }
-
-    if (interaction.requireNotFlags && interaction.requireNotFlags.some((f) => gameState.flags.includes(f))) {
-      displayText(interaction.failMessage || `You've already done that.`);
-      return false;
-    }
+    if (!checkApplyRequirements(interaction)) return false;
 
     // Execute the interaction
     displayText(resolveConditionalText(interaction.message));
@@ -125,15 +122,12 @@ function handleCombination(itemIds, target) {
 
   // Check if target is an object with applyWith interactions
   if (target.type === "object" && target.applyWith) {
-    // Check for progressive combination with multiple items
     if (target.applyWith._progressiveCombination) {
       const config = target.applyWith._progressiveCombination;
 
-      // Filter to only valid items from the progressive combination
       const validItems = itemIds.filter((itemId) => config.items.includes(itemId));
 
       if (validItems.length === 0) {
-        // No valid items, fall through to default
         const interaction = target.applyWith._default;
         if (interaction) {
           displayText(interaction.message);
@@ -142,57 +136,14 @@ function handleCombination(itemIds, target) {
         return false;
       }
 
-      // Check which items haven't been used yet
-      const unusedItems = validItems.filter((itemId) => {
-        const flagName = itemId + "Used";
-        return !gameState.flags.includes(flagName);
-      });
+      const unusedItems = validItems.filter((itemId) => !gameState.flags.includes(itemId + 'Used'));
 
       if (unusedItems.length === 0) {
         displayText("You've already used those key(s).");
         return true;
       }
 
-      // Set flags and consume items
-      unusedItems.forEach((itemId) => {
-        const flagName = itemId + "Used";
-        setGameState("flags", flagName);
-        setGameState("inventory", itemId, false);
-      });
-
-      // Check completion
-      const allUsed = config.items.every((itemId) => gameState.flags.includes(itemId + "Used"));
-
-      // Display message
-      if (allUsed) {
-        displayText(config.completeMessage);
-        if (config.completionFlag) {
-          setGameState("flags", config.completionFlag);
-        }
-        if (config.removeOnComplete) {
-          setRoomState("objects", target.id, false);
-          trackRoomChange(target.id, "object", false);
-        }
-      } else {
-        const remaining = config.items.filter((itemId) => !gameState.flags.includes(itemId + "Used")).length;
-
-        if (unusedItems.length === 1) {
-          let message = config.singleMessage || "You insert a key. It clicks into place.";
-          if (config.incompleteSuffix) {
-            message += config.incompleteSuffix.replace("{remaining}", remaining);
-          }
-          displayText(message);
-        } else {
-          let message = config.multiMessage || `You insert ${unusedItems.length} keys. They click into place.`;
-          message = message.replace("{count}", unusedItems.length);
-          if (config.incompleteSuffix) {
-            message += config.incompleteSuffix.replace("{remaining}", remaining);
-          }
-          displayText(message);
-        }
-      }
-
-      return true;
+      return processProgressiveCombination(config, target, unusedItems);
     }
   }
 
@@ -211,16 +162,7 @@ function handleCombination(itemIds, target) {
       interaction = target.applyWith._default;
     }
 
-    // Check requirements
-    if (interaction.requireFlags && !interaction.requireFlags.every((f) => gameState.flags.includes(f))) {
-      displayText(interaction.failMessage || `You can't use that yet.`);
-      return false;
-    }
-
-    if (interaction.requireNotFlags && interaction.requireNotFlags.some((f) => gameState.flags.includes(f))) {
-      displayText(interaction.failMessage || `You've already done that.`);
-      return false;
-    }
+    if (!checkApplyRequirements(interaction)) return false;
 
     // Execute the interaction
     displayText(resolveConditionalText(interaction.message));

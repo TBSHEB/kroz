@@ -180,6 +180,11 @@ const rooms = {
         names: ["workshop"],
         message: "I don't think the workshop would fit in my pocket.",
         examine: "It's small, but functional, built for hands-on work."
+      },
+      bench: {
+        names: ["bench", "workbench", "work bench", "work-bench"],
+        message: "It's too heavy.",
+        examine: "A small, sturdy work bench."
       }
     }
   },
@@ -354,8 +359,6 @@ const rooms = {
     },
     objects: ["cavein", "troll"],
     scenery: {
-      "cave-in": "There's too much rubble to carry.",
-      cavein: "There's too much rubble to carry.",
       bear: {
         names: ["bear"],
         message: "While this is the room that would contain bears, unfortunately, they seem to have left.",
@@ -1271,7 +1274,16 @@ const rooms = {
       }
     },
     items: [],
-    objects: ["dirt"]
+    objects: ["dirt"],
+    scenery: {
+      hole: {
+        names: ["hole"],
+        hiddenUnlessHasFlag: "holeDug",
+        message: "I can't take a hole.",
+        examine: "A rough hole dug through the dirt, leading down.",
+        allIgnore: true
+      }
+    }
   },
   small: {
     name: "The Small room",
@@ -1303,8 +1315,27 @@ const rooms = {
     passages: { southeast: "large" },
     items: ["brick1", "brick2"],
     scenery: {
-      machine: "What's left is degraded so much I can't touch it without it crumbling.",
-      machinery: "What's left is degraded so much I can't touch it without it crumbling."
+      machinery: {
+        names: ["machine", "machinery", "equipment", "factory"],
+        message: "What's left is degraded so much I can't touch it without it crumbling.",
+        examine: "Old brick-making equipment, rusted and crumbling with age."
+      },
+      rubble: {
+        names: ["rubble", "debris", "remnants"],
+        message: "I see very little point in picking up rubble and carrying it around with me.",
+        examine: "Large piles of broken bricks and crumbling stone."
+      },
+      rubbish: {
+        names: ["rubbish"],
+        message: "I see very little point in picking up rubbish and carrying it around with me.",
+        examine: "Broken bricks, crumbling stone, remnants of a once vital factory.",
+        allIgnore: true
+      },
+      brickworks: {
+        names: ["brickworks"],
+        message: "It's a little too big.",
+        examine: "Long abandoned. Whatever operation was here ceased a very long time ago."
+      }
     }
   },
   mirror1: {
@@ -1317,9 +1348,6 @@ const rooms = {
     },
     failedBackText: "You walk face first into the mirror.",
     items: [],
-    scenery: {
-      mirror: "It's far too big!"
-    },
     objects: ["mirror"]
   },
   cross: {
@@ -1331,13 +1359,34 @@ const rooms = {
       south: "large",
       west: "gum"
     },
-    items: ["greenKey1"]
+    items: ["greenKey1"],
+    scenery: {
+      crossroads: {
+        names: ["crossroads"],
+        message: "I'm not sure how you want me to do that.",
+        examine: "Two straight passages, intersecting at 90 degree angles.",
+        allIgnore: true
+      }
+    }
   },
   gum: {
     name: "The Chewing gum room",
     look: "The walls here are plastered with old, hardened chewing gum. It's disgusting.",
     passages: { east: "cross" },
-    items: ["gum"]
+    items: ["gum"],
+    scenery: {
+      walls: {
+        names: ["walls", "wall"],
+        message: "I'd have to peel the walls off the walls.",
+        examine: "Covered in old, hardened chewing gum. Absolutely revolting."
+      },
+      plaster: {
+        names: ["plaster"],
+        message: "Yeah no thanks! That stuff is disgusting.",
+        examine: "It's made from old, crusty, disgusting gum.",
+        allIgnore: true
+      }
+    }
   },
   construction: {
     name: "UNDER CONSTRUCTION",
@@ -1350,7 +1399,16 @@ const rooms = {
     },
     items: [],
     scenery: {
-      hoarding: "It's stuck to the wall. Besides, it would be pretty heavy."
+      hoarding: {
+        names: ["hoarding", "boards", "boarding"],
+        message: "It's stuck to the wall. Besides, it would be pretty heavy.",
+        examine: "Tall wooden boards surrounding the walls, blocking off whatever work was being done."
+      },
+      construction: {
+        names: ["construction"],
+        message: "There's no construction here. It must be just above the roof.",
+        examine: "Surprisingly enough, the construction is just above this room. I'd need xray vision to see it."
+      }
     }
   },
   big: {
@@ -1433,7 +1491,15 @@ const rooms = {
       southwest: "ezam10"
     },
     failedBackText: "I'm not the champion climber you think I am...",
-    items: []
+    items: [],
+    scenery: {
+      hole: {
+        names: ["hole", "opening"],
+        message: "I can't take a hole.",
+        examine: "It goes up to the roof. There's no way I'm getting up there.",
+        allIgnore: true
+      }
+    }
   },
   ezam8: {
     name: "Another Maze",
@@ -1983,9 +2049,6 @@ const rooms = {
     },
     failedBackText: "You walk face first into the mirror.",
     items: [],
-    scenery: {
-      mirror: "It's far too big!"
-    },
     objects: ["mirror"]
   },
   case: {
@@ -2559,7 +2622,7 @@ const rooms = {
     },
     objects: ["door"],
     entryMessages: {
-      east: "PLACEHOLDER: Ending message goes here. It took you {{gameState.commandCount}} commands to escape." // TODO: replace with ending text
+      east: "PLACEHOLDER: Ending message goes here. It took you {{gameState.commandCount}} commands to escape.{{gameState.cheatText}}" // TODO: replace with ending text
     },
     onExit: {
       east: { setFlags: ["gameOver"] }

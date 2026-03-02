@@ -14,20 +14,19 @@
 
 22 items completed: punctuation pass (items.js examines, objects.js messages, map.js failMessages and scenery messages, command displayText strings, mechanics.js dodge message).
 
+- [ ] Fix single-object take using multi-item prefix format - `take trapdoor` shows "trapdoor: You can't take that." instead of "You can't take that." (actions.js object check at line 56 always uses prefix)
+- [ ] Fix multi-examine missing newline after room items and inventory items - actions.js lines 360 and 369 don't append `\n`, causing entries to run together
+- [x] setGameState duplicate flags - kept as feature: multiple pushes allow multiple code paths to set the same flag, removal only needs one unset. No active duplicates occur in practice
+- [ ] Make dungeonTrapdoor examine text conditional based on dungeonTrapdoorUnlocked/dungeonTrapdoorOpen flags (objects.js line 30)
+- [x] Fix litDynamite warning messages not displaying when in inventory - added `gameState.inventory.includes(item)` check to environment.js line 400
+- [ ] Temporary item off-by-one: duration 5 takes 6 commands to expire (counts 0 through 5 inclusive) - environment.js checks `duration === count` before incrementing, so expiry fires on tick after count reaches duration. Either change check to `duration === count + 1` or document that duration means "expires after N+1 commands"
+
 24 items completed: save name sanitisation (length + character validation in save/load), structural validation on load (type checks for all fields), puzzle state persistence verified (sequences saved/restored correctly).
 
 ## Code Quality
-3 items completed: helpers.js split, look() === fix, natural language verb support, softlock removal.
+8 items completed: helpers.js split, look() === fix, natural language verb support, softlock removal, cache getInteractablesList(), consolidate trackRoomChange() branches, extract checkFlagRequirements() helper, extract progressive combination handler, consolidate take() paths, consolidate examine() paths, extract checkPassageRequirements() helper.
 
-- [ ] Consider consolidating gameState mutations - some places use setGameState/setRoomState helpers (array operations) while others mutate directly (movement.js sets currentRoom/previousRoom, mechanics.js sets healthState, information.js reset() assigns fields directly). Not urgent but could improve debuggability if a consistent convention is established
-- [x] Cache getInteractablesList() per command cycle - renamed from buildInteractablesList, cached with invalidation at start of handleCommand
-- [ ] Consolidate trackRoomChange() item/object branches - environment.js:167-208 has two near-identical branches differing only in accessing changes.items vs changes.objects. Could use the type parameter to index into the changes object directly
-- [ ] Extract shared checkFlagRequirements() helper - requireFlags/requireNotFlags validation is duplicated in handleApply() (apply.js:91-99), handleCombination() (apply.js:225-233), and handleOperate() (operate.js:53-95) with slightly divergent structures
-- [ ] Extract shared progressive combination handler - apply.js has the same _progressiveCombination logic in both handleApply() (lines 34-79, single item) and handleCombination() (lines 134-205, multiple items). Core state mutation (flag generation, used check, consumption, completion check, message display) is identical
-- [ ] Consolidate take() single/multi-item paths - actions.js has two near-identical code paths (~80 lines) differing only in output formatting (multi-item prefixes with "${thing}: "). Extract core take logic into a helper
-- [ ] Consolidate examine() single/multi-item paths - actions.js:276-402 has two near-identical search cascades (objects, room items, inventory, scenery, generics) differing only in output formatting. Extract the search logic into a helper that returns examine text for a single item, then call from one loop
-- [x] Extract shared checkPassageRequirements() helper - moved to environment.js, used by forward movement, back movement, and look()
-- [ ] Refactor handleCommand() in game.js - 148-line dispatcher with 7 nesting levels mixing disambiguation, multi-step continuation, command routing, save/load special-casing, and riddle checking. Extract dispatch logic into a separate function that returns whether processTick should run
+- [ ] (Optional) Refactor handleCommand() in game.js - 148-line dispatcher with 7 nesting levels mixing disambiguation, multi-step continuation, command routing, save/load special-casing, and riddle checking. Could extract dispatch logic into a separate function, but high risk for marginal gain
 
 ## Map.js Content - COMPLETED
 7 items completed: spelling fixes, room names, room descriptions, incomplete descriptions, scenery, fire room, lake room.
@@ -40,7 +39,7 @@
 ## Examine System Enhancements
 3 items completed: room-specific examines (covered by scenery), examine priority (current order is fine), flag-based dynamic examines (already supported via resolveConditionalText in scenery).
 
-- [ ] Expand genericExamines with comprehensive coverage - add examines for common words: walls, floor, ceiling, dust, darkness, shadows, air, etc.
+- [ ] Expand genericExamines with comprehensive coverage - add examines for common words: walls, floor, ceiling, dust, darkness, shadows, air, etc. Also sync genericDisallowedItems and genericExamines so both cover the same entries (12 examine entries missing take denials, 3 take denials missing examines)
 - [ ] Comprehensive content audit - ensure all nouns mentioned in look descriptions, item descriptions, examines, and other text can be examined or have take denial messages
 
 ## Items/Objects Missing Mechanisms - COMPLETED
@@ -60,38 +59,38 @@
 - [ ] Ensure all room connections are tested
 
 ## Testing
-- [ ] Verify save/load functionality - double-check that saves are working properly, test save persistence and state restoration
-- [ ] Test drop function with all rooms
-- [ ] Test take function with all rooms
-- [ ] Test examine function with items, objects, and inventory
-- [ ] Test that dropped items appear in look() output
-- [ ] Test sand room special case (nails description handling)
-- [ ] Test back command with rooms where passages change destinations
-- [ ] Test checkpoint system (death and respawn at correct location)
-- [ ] Test litDynamite explosion mechanics
-- [ ] Test rorrim room mirrored directions (all cardinal directions flip, back command flips)
-- [ ] Test boring room dynamic text (first visit vs revisit, check leftBoringOnce flag triggers)
-- [ ] Test riddle2 dynamic ordinal (check "second" vs "third" based on riddle3 visited)
-- [ ] Test riddle3 dynamic ordinal (check "second" vs "third" based on riddle2 visited)
-- [ ] Test bell room dynamic article (check "a church" vs "the church" based on candle visited)
-- [ ] Test one-way passages with entryMessages (drop→hub, maze13→parachute, etc.)
-- [ ] Test failedBackText in all destination rooms (hub, parachute, ezam7, nose, armory, mirrors)
-- [ ] Test showAsNormal passages appear in main list but block correctly (hub north, maze13 north/west, dry north)
-- [ ] Test onExit flag setting (boring room sets leftBoringOnce when leaving)
-- [ ] Test lantern power drain (should drain 1 per command when lit)
-- [ ] Test lantern auto-extinguish when power reaches 800 commands
-- [ ] Test battery recharging lantern (craft recipe)
-- [ ] Test dark rooms (can't look/examine/takeAll without lantern lit)
-- [ ] Test fire room damage (1 health every 2 commands)
-- [ ] Test gum room infinite gum (can take gum multiple times)
-- [ ] Test dynamite room infinite dynamite (can only take one at a time, prevents if already have dynamite anywhere)
-- [ ] Test litDynamite countdown and explosion (5 commands with warnings)
-- [ ] Test dynamite instant explosion in fire room
-- [ ] Test fire extinguisher on fire object
-- [ ] Test silverDoor unlocking with silverKey
-- [ ] Test redDoor unlocking with redKey
-- [ ] Test all door objects (purpleDoor, blueDoor, silverDoor, redDoor, final door)
-- [ ] Test teleport system (exact key, partial single match, partial multi match, unvisited room, current room, back after teleport, without teleportEnabled flag, multi-step input)
+- [x] Verify save/load functionality - double-check that saves are working properly, test save persistence and state restoration
+- [x] Test drop function with all rooms
+- [x] Test take function with all rooms
+- [x] Test examine function with items, objects, and inventory
+- [x] Test that dropped items appear in look() output
+- [x] Test sand room special case (nails description handling)
+- [x] Test back command with rooms where passages change destinations
+- [x] Test checkpoint system (death and respawn at correct location)
+- [x] Test litDynamite explosion mechanics
+- [x] Test rorrim room mirrored directions (all cardinal directions flip, back command flips)
+- [x] Test boring room dynamic text (first visit vs revisit, check leftBoringOnce flag triggers)
+- [x] Test riddle2 dynamic ordinal (check "second" vs "third" based on riddle3 visited)
+- [x] Test riddle3 dynamic ordinal (check "second" vs "third" based on riddle2 visited)
+- [x] Test bell room dynamic article (check "a church" vs "the church" based on candle visited)
+- [x] Test one-way passages with entryMessages (drop→hub, maze13→parachute, etc.)
+- [x] Test failedBackText in all destination rooms (hub, parachute, ezam7, nose, armory, mirrors)
+- [x] Test showAsNormal passages appear in main list but block correctly (hub north, maze13 north/west, dry north)
+- [x] Test onExit flag setting (boring room sets leftBoringOnce when leaving)
+- [x] Test lantern power drain (should drain 1 per command when lit)
+- [x] Test lantern auto-extinguish when power reaches 800 commands
+- [x] Test battery recharging lantern (craft recipe)
+- [x] Test dark rooms (can't look/examine/takeAll without lantern lit)
+- [x] Test fire room damage (1 health every 2 commands)
+- [x] Test gum room infinite gum (can take gum multiple times)
+- [x] Test dynamite room infinite dynamite (can only take one at a time, prevents if already have dynamite anywhere)
+- [x] Test litDynamite countdown and explosion (5 commands with warnings)
+- [x] Test dynamite instant explosion in fire room
+- [x] Test fire extinguisher on fire object
+- [x] Test silverDoor unlocking with silverKey
+- [x] Test redDoor unlocking with redKey
+- [x] Test all door objects (purpleDoor, blueDoor, silverDoor, redDoor, final door)
+- [x] Test teleport system (exact key, partial single match, partial multi match, unvisited room, current room, back after teleport, without teleportEnabled flag, multi-step input)
 
 ## Lantern Power System - COMPLETED
 6 items completed: lanternPower state, power drain, auto-extinguish, dynamic examine text, battery recharge, examine messages.
@@ -109,9 +108,14 @@
 1 item completed: save/load commands.
 
 - [x] Differentiate ladder items: added "tall ladder"/"tall-ladder" aliases to ladder for disambiguation from stepladder
-- [ ] Prevent changing game data from browser console (add data validation/protection against tampering)
+- [x] Prevent changing game data from browser console (add data validation/protection against tampering) - implemented via Proxy with DEV_MODE flag; set DEV_MODE to false in game.js when done testing
 - [ ] Document healthState values: 4 = full health, 3 = minor damage, 2 = moderate damage (triggers high dodge enemies), 1 = severely wounded, 0 = dead
+- [x] Add player-facing commands to list saves and delete individual saves (underlying deleteSave/deleteSaveFromList functions exist in storage.js)
 - [x] Update cyclops room restricted passage unmet description
+
+## Scenery
+- [ ] Go through each scenery item and check if it needs operate/apply/attack properties
+- [ ] Add flavoursome take-denial messages to objects (currently gives generic "You can't take that.")
 
 ## Deferred Content
 - [ ] Replace door room entryMessages.east placeholder with ending text (map.js, door room) - function receives gameState.commandCount

@@ -1,6 +1,40 @@
 // Game initialization and core functionality
 
-const gameState = {
+// TODO: Set to false when done testing to enable cheat detection
+const DEV_MODE = true;
+
+let _gameIsProcessing = false;
+const MAX_CHEAT_WARNINGS = 3;
+
+function createGameStateProxy(target) {
+  const handler = {
+    set(obj, prop, value) {
+      if (!_gameIsProcessing) {
+        if (_rawGameState.cheatCount < MAX_CHEAT_WARNINGS) {
+          console.warn(
+            "WARNING: Editing the game data like this isn't how the game was meant to be played and can cause problems. Cheating will only ruin your experience."
+          );
+        }
+        _rawGameState.cheatCount++;
+        const count = _rawGameState.cheatCount;
+        _rawGameState.cheatText = `\n...and you edited the game data ${count === 1 ? '1 time' : `${count} times`}.`;
+      }
+      obj[prop] = value;
+      return true;
+    },
+    get(obj, prop) {
+      const value = obj[prop];
+      if (typeof value === 'object' && value !== null) {
+        return new Proxy(value, handler);
+      }
+      return value;
+    }
+  };
+
+  return new Proxy(target, handler);
+}
+
+const _rawGameState = {
   currentRoom: "start",
   previousRoom: "",
   inventory: [],
@@ -25,8 +59,14 @@ const gameState = {
   lastCheckpoint: "start",
   disambiguationMatches: [],
   disambiguationSearchName: "",
-  disambiguationOriginalCommand: ""
+  disambiguationOriginalCommand: "",
+  disambiguationUseThings: [],
+  disambiguationUseIndex: -1,
+  cheatCount: 0,
+  cheatText: ""
 };
+
+const gameState = DEV_MODE ? _rawGameState : createGameStateProxy(_rawGameState);
 
 const damageMessages = [
   {
@@ -65,6 +105,7 @@ const gameDisplay = outputElement.parentElement; // The scrollable container
 
 // Restore game state from save data
 function resetGameState(saveData) {
+  _gameIsProcessing = true;
   gameState.currentRoom = saveData.currentRoom;
   gameState.previousRoom = saveData.previousRoom;
   gameState.inventory = saveData.inventory || [];
@@ -79,11 +120,16 @@ function resetGameState(saveData) {
   gameState.sequences = saveData.sequences || {};
   gameState.commandCount = saveData.commandCount || 0;
   gameState.lastCheckpoint = saveData.lastCheckpoint;
+  gameState.cheatCount = saveData.cheatCount || 0;
+  const count = gameState.cheatCount;
+  gameState.cheatText = count === 0 ? '' : `\n...and you edited the game data ${count === 1 ? '1 time' : `${count} times`}.`;
   clearUseState();
+  _gameIsProcessing = false;
 }
 
 // Game initialization
 function initGame() {
+  _gameIsProcessing = true;
   const autoSave = loadGame();
   if (autoSave) {
     resetGameState(autoSave);
@@ -93,18 +139,21 @@ function initGame() {
   look();
   updateDebugDisplays();
   console.log("Game initialized");
+  _gameIsProcessing = false;
 }
 
 // Handle user input submission
 function handleCommand() {
+  _gameIsProcessing = true;
   invalidateInteractablesCache();
   const rawCommand = inputElement.value;
   const command = rawCommand.trim().toLowerCase();
 
   if (gameState.flags.includes("gameOver")) {
     const mainWord = command.split(" ")[0];
-    if (mainWord !== "save" && mainWord !== "load" && mainWord !== "reset") {
+    if (mainWord !== "save" && mainWord !== "load" && mainWord !== "saves" && mainWord !== "delete" && mainWord !== "reset") {
       inputElement.value = "";
+      _gameIsProcessing = false;
       return;
     }
   }
@@ -144,12 +193,27 @@ function handleCommand() {
           save(words.slice(1));
           inputElement.value = "";
           saveGame(gameState);
+          _gameIsProcessing = false;
           return;
         }
         if (mainCommand === "load") {
           load(words.slice(1));
           inputElement.value = "";
           saveGame(gameState);
+          _gameIsProcessing = false;
+          return;
+        }
+        if (mainCommand === "saves") {
+          saves(words.slice(1));
+          inputElement.value = "";
+          _gameIsProcessing = false;
+          return;
+        }
+        if (mainCommand === "delete") {
+          deleteSaveCommand(words.slice(1));
+          inputElement.value = "";
+          saveGame(gameState);
+          _gameIsProcessing = false;
           return;
         }
         // Not in multi-step mode
@@ -193,11 +257,16 @@ function handleCommand() {
           } else {
             const things = parseThingsFromWords(words, 1);
             if (
-              (mainCommand === "take" || complicatedCommands[mainCommand] === complicatedCommands.take) &&
               things.length === 1 &&
               (things[0] === "all" || things[0] === "everything")
             ) {
-              takeAll();
+              if (mainCommand === "take" || complicatedCommands[mainCommand] === complicatedCommands.take) {
+                takeAll();
+              } else if (mainCommand === "drop" || complicatedCommands[mainCommand] === complicatedCommands.drop) {
+                displayText("I'm not sure emptying my pockets onto the floor is the best idea.");
+              } else {
+                complicatedCommands[mainCommand].command(things);
+              }
             } else {
               complicatedCommands[mainCommand].command(things);
             }
@@ -253,6 +322,7 @@ function handleCommand() {
     updateDebugDisplays();
     saveGame(gameState);
   }
+  _gameIsProcessing = false;
 }
 
 // Display text to output area

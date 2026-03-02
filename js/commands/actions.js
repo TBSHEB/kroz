@@ -1,5 +1,27 @@
 // ===== ITEM MANIPULATION COMMANDS =====
 
+/**
+ * @param {string} itemId
+ * @returns {string|null} denial message, or null on success
+ */
+function takeItemFromRoom(itemId) {
+  if (items[itemId].canTake) {
+    const denial = evaluateCanTake(items[itemId].canTake);
+    if (denial) return denial;
+  }
+
+  setGameState('inventory', itemId);
+  if (items[itemId].setFlag) {
+    setGameState('flags', items[itemId].setFlag);
+  }
+  if (!items[itemId].infinite) {
+    setRoomState('items', itemId, false);
+    trackRoomChange(itemId, 'item', false);
+  }
+
+  return null;
+}
+
 function takeSingle(alias) {
   gameState.partCommand = "take";
   displayText(`What would you like to ${alias}?`);
@@ -89,24 +111,10 @@ function take(things, all = false) {
         const itemId = aliasToItemId[thing];
 
         if (itemId && currentRoom.items.includes(itemId)) {
-          if (items[itemId].canTake) {
-            const denial = evaluateCanTake(items[itemId].canTake);
-            if (denial) {
-              feedback += `${denial}\n`;
-              continue;
-            }
-          }
-
-          // Item found in room
-          setGameState("inventory", itemId);
-          if (items[itemId].setFlag) {
-            setGameState("flags", items[itemId].setFlag);
-          }
-
-          // Remove item from room
-          if (!items[itemId].infinite) {
-            setRoomState("items", itemId, false);
-            trackRoomChange(itemId, "item", false);
+          const denial = takeItemFromRoom(itemId);
+          if (denial) {
+            feedback += `${denial}\n`;
+            continue;
           }
 
           taken.add(itemId);
@@ -128,23 +136,11 @@ function take(things, all = false) {
       const itemId = aliasToItemId[things[0]];
 
       if (itemId) {
-        if (items[itemId].canTake) {
-          const denial = evaluateCanTake(items[itemId].canTake);
-          if (denial) {
-            feedback += `${denial}\n`;
-            displayText(feedback);
-            return;
-          }
-        }
-        // Item found in room
-        setGameState("inventory", itemId);
-        if (items[itemId].setFlag) {
-          setGameState("flags", items[itemId].setFlag);
-        }
-        // Remove item from room
-        if (!items[itemId].infinite) {
-          setRoomState("items", itemId, false);
-          trackRoomChange(itemId, "item", false);
+        const denial = takeItemFromRoom(itemId);
+        if (denial) {
+          feedback += `${denial}\n`;
+          displayText(feedback);
+          return;
         }
 
         feedback += "Taken.";
@@ -233,6 +229,46 @@ function drop(things) {
   }
 }
 
+/**
+ * @param {string} thing
+ * @param {object} currentRoom
+ * @param {object} roomItemAliases
+ * @param {object} inventoryAliases
+ * @returns {string|null} examine text, or null if not found
+ */
+function resolveExamineText(thing, currentRoom, roomItemAliases, inventoryAliases) {
+  if (currentRoom.objects?.length) {
+    for (const objectId of currentRoom.objects) {
+      if (objects[objectId].names?.includes(thing) && objects[objectId].examine) {
+        if (objects[objectId].onExamine) applyEffects(objects[objectId].onExamine);
+        return resolveConditionalText(objects[objectId].examine);
+      }
+    }
+  }
+
+  if (roomItemAliases[thing]) {
+    const item = items[roomItemAliases[thing]];
+    if (item?.examine) return resolveConditionalText(item.examine);
+  }
+
+  if (inventoryAliases[thing]) {
+    const item = items[inventoryAliases[thing]];
+    if (item?.examine) return resolveConditionalText(item.examine);
+  }
+
+  if (currentRoom.scenery) {
+    for (const [key, data] of Object.entries(currentRoom.scenery)) {
+      if (typeof data === 'object' && data.names?.includes(thing) && data.examine) {
+        return resolveConditionalText(data.examine);
+      }
+    }
+  }
+
+  if (genericExamines[thing]) return genericExamines[thing];
+
+  return null;
+}
+
 function examineSingle(alias) {
   if (isDark()) {
     displayText("It's far too dark to examine anything...");
@@ -264,134 +300,16 @@ function examine(things) {
 
     let feedback = "";
     const currentRoom = rooms[gameState.currentRoom];
+    const roomItemAliases = currentRoom.items ? buildAliasMap(currentRoom.items) : {};
+    const inventoryAliases = buildAliasMap(gameState.inventory);
 
-    // I need to check what type of thing is being examined, item, object, or something else
     if (things.length === 1) {
-      let found = false;
-
-      // Check objects
-      if (currentRoom.objects && currentRoom.objects.length !== 0) {
-        for (const object of currentRoom.objects) {
-          if (objects[object].names && objects[object].names.includes(things[0])) {
-            if (objects[object].examine) {
-              if (objects[object].onExamine) applyEffects(objects[object].onExamine);
-              feedback += resolveConditionalText(objects[object].examine);
-              found = true;
-              break;
-            }
-          }
-        }
-      }
-
-      // Check room items
-      if (!found && currentRoom.items && currentRoom.items.length !== 0) {
-        const aliasToItemId = buildAliasMap(currentRoom.items);
-
-        if (aliasToItemId[things[0]]) {
-          const item = items[aliasToItemId[things[0]]];
-          if (item && item.examine) {
-            feedback += resolveConditionalText(item.examine);
-            found = true;
-          }
-        }
-      }
-
-      // Check inventory items
-      if (!found && gameState.inventory && gameState.inventory.length !== 0) {
-        const aliasToItemId = buildAliasMap(gameState.inventory);
-
-        if (aliasToItemId[things[0]]) {
-          const item = items[aliasToItemId[things[0]]];
-          if (item && item.examine) {
-            feedback += resolveConditionalText(item.examine);
-            found = true;
-          }
-        }
-      }
-
-      // Check scenery for examine text
-      if (!found && currentRoom.scenery) {
-        for (const [key, data] of Object.entries(currentRoom.scenery)) {
-          if (typeof data === "object" && data.names && data.names.includes(things[0]) && data.examine) {
-            feedback += resolveConditionalText(data.examine);
-            found = true;
-            break;
-          }
-        }
-      }
-
-      // Check generic examines
-      if (!found && genericExamines[things[0]]) {
-        feedback += genericExamines[things[0]];
-        found = true;
-      }
-
-      // Not found
-      if (!found) {
-        feedback += "I can't find that.";
-      }
+      const text = resolveExamineText(things[0], currentRoom, roomItemAliases, inventoryAliases);
+      feedback += text || "I can't find that.";
     } else {
-      // Build alias maps once, outside the loop
-      const roomItemAliases = currentRoom.items ? buildAliasMap(currentRoom.items) : {};
-      const inventoryAliases = buildAliasMap(gameState.inventory);
-
-      // Check each thing against all categories
       for (const thing of things) {
-        let found = false;
-
-        // Check objects
-        if (currentRoom.objects && currentRoom.objects.length !== 0) {
-          for (const object of currentRoom.objects) {
-            if (objects[object].names && objects[object].names.includes(thing)) {
-              if (objects[object].examine) {
-                if (objects[object].onExamine) applyEffects(objects[object].onExamine);
-                feedback += `${thing}: ${resolveConditionalText(objects[object].examine)}\n`;
-                found = true;
-                break;
-              }
-            }
-          }
-        }
-
-        // Check room items
-        if (!found && roomItemAliases[thing]) {
-          const item = items[roomItemAliases[thing]];
-          if (item && item.examine) {
-            feedback += `${thing}: ${resolveConditionalText(item.examine)}`;
-            found = true;
-          }
-        }
-
-        // Check inventory items
-        if (!found && inventoryAliases[thing]) {
-          const item = items[inventoryAliases[thing]];
-          if (item && item.examine) {
-            feedback += `${thing}: ${resolveConditionalText(item.examine)}`;
-            found = true;
-          }
-        }
-
-        // Check scenery for examine text
-        if (!found && currentRoom.scenery) {
-          for (const [key, data] of Object.entries(currentRoom.scenery)) {
-            if (typeof data === "object" && data.names && data.names.includes(thing) && data.examine) {
-              feedback += `${thing}: ${resolveConditionalText(data.examine)}\n`;
-              found = true;
-              break;
-            }
-          }
-        }
-
-        // Check generic examines
-        if (!found && genericExamines[thing]) {
-          feedback += `${thing}: ${genericExamines[thing]}\n`;
-          found = true;
-        }
-
-        // Not found
-        if (!found) {
-          feedback += `${thing}: I can't find that.\n`;
-        }
+        const text = resolveExamineText(thing, currentRoom, roomItemAliases, inventoryAliases);
+        feedback += `${thing}: ${text || "I can't find that."}\n`;
       }
     }
 

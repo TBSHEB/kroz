@@ -57,6 +57,8 @@ function help() {
       "  save <name> - Save to a specific slot\n" +
       "  load - Load your last save\n" +
       "  load <name> - Load a specific save\n" +
+      "  saves - List your saved games\n" +
+      "  delete <name> - Delete a saved game\n" +
       "  reset - Restart from the beginning\n" +
       "  help (h) (?) - Display this message\n\n" +
       "These are all required commands, but there are more commands. Try things out!"
@@ -215,7 +217,9 @@ function look() {
             desc = item.initialDescription;
           }
         } else if (item.description) {
-          desc = item.description;
+          if (itemTaken || !hideInitial) {
+            desc = item.description;
+          }
         }
 
         if (desc) {
@@ -242,6 +246,51 @@ function isInCombat() {
     const combat = gameState.combatState[objectId];
     return combat && combat.isEngaged && !combat.isDead;
   });
+}
+
+function saves(words) {
+  const saveList = getSaveList();
+
+  if (saveList.length === 0) {
+    displayText('No saved games found.');
+    return;
+  }
+
+  if (words.length > 0) {
+    const query = words.join(' ');
+    const filtered = saveList.filter((name) => name.toLowerCase().includes(query.toLowerCase()));
+
+    if (filtered.length === 0) {
+      displayText(`No saves found matching "${query}".`);
+      return;
+    }
+
+    displayText('Saved games:\n' + filtered.join('\n'));
+    return;
+  }
+
+  displayText('Saved games:\n' + saveList.join('\n'));
+}
+
+function deleteSaveCommand(words) {
+  if (words.length === 0) {
+    displayText('Which save would you like to delete?');
+    return;
+  }
+
+  const saveName = words.join(' ');
+  const saveList = getSaveList();
+
+  if (!saveList.includes(saveName)) {
+    displayText(`No save found with name "${saveName}".`);
+    return;
+  }
+
+  if (deleteSave(saveName)) {
+    displayText(`Deleted save "${saveName}".`);
+  } else {
+    displayText('Failed to delete save.');
+  }
 }
 
 function save(name) {
@@ -321,6 +370,8 @@ function reset() {
   gameState.sequences = {};
   gameState.commandCount = 0;
   gameState.lastCheckpoint = "start";
+  gameState.cheatCount = 0;
+  gameState.cheatText = "";
 
   reverseRoomChanges(gameState.roomChanges);
   gameState.roomChanges = {};

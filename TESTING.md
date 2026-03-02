@@ -85,6 +85,14 @@ webctl eval "document.querySelector('.room-title').textContent"
 - Crafting often requires specific item combinations - try systematic combinations when stuck
 - Some items contain hidden contents (e.g., skull) discoverable through crafting
 
+**Teleport for Fast Travel (testing shortcut):**
+- Commands: `teleport`, `tp`, `warp` - instantly travel to a previously visited room
+- Gated behind `teleportEnabled` flag (normally set by drinking mineral water)
+- Enable early for testing: `setGameState('flags', 'teleportEnabled', true)`
+- Add rooms to visited list: `setGameState('visitedRooms', 'roomId', true)`
+- Supports partial key matching (e.g., `tp fir` resolves to `fire` if only one match)
+- After teleporting, `back` command shows a custom message instead of returning
+
 ## Game State Manipulation
 
 **IMPORTANT:** Only use state manipulation when jumping to late-game content (round room and later). Early manipulation causes missing flags/items from natural progression.
@@ -135,7 +143,30 @@ webctl eval "setGameState('healthState', 4)"
 webctl eval "gameState.inventory"
 ```
 
-## Testing Modes
+## Testing Approach
+
+Testing is driven by the checklist in the `## Testing` section of `TODO.md`. Each item describes a specific mechanic or system to verify.
+
+### Workflow
+
+1. Read the TODO.md testing checklist
+2. For each unchecked item, verify it works correctly:
+   - Read the relevant source code to understand the expected behaviour
+   - Use webctl browser automation to interact with the game when runtime verification is needed
+   - For items requiring late-game state, use `teleport` (if `teleportEnabled` flag is set) or `setGameState` to reach the relevant room, and give yourself required items/flags
+3. If satisfied the mechanic works, mark the item as complete in TODO.md (`[x]`)
+4. If a problem is found, report:
+   - The problem description
+   - How to replicate it
+   - What you think the cause is
+
+### Principles
+
+- Prefer typing commands as a player would (via `webctl type "#input"`)
+- Avoid modifying game state unless testing something that requires specific setup
+- Use `teleport <room>` to reach distant rooms quickly (requires `teleportEnabled` flag)
+- Read source code to verify edge cases rather than exhaustively testing every permutation
+- Check `webctl console --type error` after interactions to catch silent JS errors
 
 ### Mode 1: General Testing / Game Flow
 
@@ -148,11 +179,11 @@ webctl eval "gameState.inventory"
 - Report issues as encountered
 
 **What to Look For:**
-- **Logic inconsistencies:** Actions that don't make sense or contradict earlier events
-- **Grammar/punctuation issues:** Typos, missing punctuation, awkward phrasing
-- **Outdated/missing text:** References to removed features, placeholder text, incomplete descriptions
-- **Functionality issues:** Commands not working, state not updating correctly
-- **Progression blockers:** Unable to continue due to bugs or design issues
+- Logic inconsistencies: Actions that don't make sense or contradict earlier events
+- Grammar/punctuation issues: Typos, missing punctuation, awkward phrasing
+- Outdated/missing text: References to removed features, placeholder text, incomplete descriptions
+- Functionality issues: Commands not working, state not updating correctly
+- Progression blockers: Unable to continue due to bugs or design issues
 
 **Reporting:**
 - Describe the issue clearly
@@ -532,5 +563,5 @@ webctl eval "JSON.stringify(before) === JSON.stringify(after)"
 
 ---
 
-**Last Updated:** 2026-02-04
+**Last Updated:** 2026-03-01
 **Testing Status:** Ready for test sessions
