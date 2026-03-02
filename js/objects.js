@@ -247,12 +247,12 @@ const objects = {
     names: [],
     hiddenUnlessHasFlag: "hidden",
     answer: {
-      answer: ["parachute", "backpack-parachute", "chute"],
+      answer: ["parachute", "backpack-parachute", "chute", "a paracute"],
       removeOnAnswer: true,
       setFlags: ["firstRiddleSolved"],
       message: "When uttering those words, the stone door to the east grinds open.",
       riddle:
-        "Two men are lying in the desert. They both have backpacks on. One of them is dead. What is in the backpack?"
+        "A man is lying dead in a grassy field. The grass around him is undisturbed. He is wearing a backpack. What is in the backpack?"
     }
   },
 

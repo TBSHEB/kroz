@@ -508,7 +508,7 @@ const rooms = {
         names: ["tablet", "stone tablet"],
         message: "Something's giving me the feeling I shouldn't move this...",
         examine:
-          'The stone tablet says: "Two men are lying in the desert. They both have backpacks on. One of them is dead. What is in the backpack?"'
+          'The stone tablet says: "A man is lying dead in a grassy field. The grass around him is undisturbed. He is wearing a backpack. What is in the backpack?"'
       }
     },
     items: [],
