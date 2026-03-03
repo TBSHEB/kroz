@@ -292,14 +292,16 @@ const items = {
     examine: "A solid, undamaged brick. Heavy and well-made.",
     initialDescription: "Buried within the rubble, seems to be a solid, non-chipped brick.",
     description: "A solid brick lies on the ground.",
-    setFlag: "brick1Taken"
+    setFlag: "brick1Taken",
+    stackId: "brick"
   },
   brick2: {
     names: ["brick", "stone"],
     examine: "A solid, undamaged brick. Heavy and well-made.",
     initialDescription: "Underneath the first brick lies a second, clean brick.",
     description: "A clean brick lies on the ground.",
-    setFlag: "brick2Taken"
+    setFlag: "brick2Taken",
+    stackId: "brick"
   },
   greenKey1: {
     names: ["glowing green key", "green key", "key"],

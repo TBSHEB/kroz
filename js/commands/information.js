@@ -123,7 +123,9 @@ function look() {
   // Add restricted passages marked as showAsNormal
   if (currentRoom.restrictedPassages) {
     for (const direction of Object.keys(currentRoom.restrictedPassages)) {
-      if (currentRoom.restrictedPassages[direction].showAsNormal === true) {
+      const passage = currentRoom.restrictedPassages[direction];
+      const removed = passage.removeRequirements?.every((f) => gameState.flags.includes(f));
+      if (passage.showAsNormal === true || removed) {
         allDirections.push(direction);
       }
     }
@@ -180,7 +182,8 @@ function look() {
       const passage = currentRoom.restrictedPassages[direction];
 
       // Skip passages shown as normal (already included in passage list above)
-      if (passage.showAsNormal === true) {
+      const removed = passage.removeRequirements?.every((f) => gameState.flags.includes(f));
+      if (passage.showAsNormal === true || removed) {
         continue;
       }
 

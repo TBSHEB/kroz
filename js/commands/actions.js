@@ -36,7 +36,7 @@ function take(things, all = false) {
     if (!all) {
       const interactables = getInteractablesList();
       for (const thing of things) {
-        const result = disambiguateItem(thing, interactables, "take");
+        const result = disambiguateItem(thing, interactables, "take", "room");
         if (result === "AMBIGUOUS") {
           return; // Wait for clarification
         }
@@ -44,6 +44,7 @@ function take(things, all = false) {
     }
 
     let feedback = "";
+    const originalCount = things.length;
     const currentRoom = rooms[gameState.currentRoom];
     const operableObjects = [];
 
@@ -75,7 +76,7 @@ function take(things, all = false) {
         if (object && object.names) {
           for (const thing of things) {
             if (object.names.includes(thing)) {
-              feedback += `${thing}: You can't take that.\n`;
+              feedback += originalCount === 1 && !all ? "You can't take that.\n" : `${thing}: You can't take that.\n`;
               things = things.filter((t) => t !== thing);
             }
           }
@@ -177,7 +178,7 @@ function drop(things) {
     // Check for ambiguous items first
     const interactables = getInteractablesList();
     for (const thing of things) {
-      const result = disambiguateItem(thing, interactables, "drop");
+      const result = disambiguateItem(thing, interactables, "drop", "inventory");
       if (result === "AMBIGUOUS") {
         return; // Wait for clarification
       }

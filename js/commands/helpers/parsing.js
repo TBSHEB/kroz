@@ -6,6 +6,7 @@ function buildAliasMap(itemIds) {
   for (const itemId of itemIds) {
     const item = items[itemId];
     if (item && item.names) {
+      aliasToItemId[itemId] = itemId;
       for (const alias of item.names) {
         aliasToItemId[alias.toLowerCase()] = itemId;
       }
@@ -128,7 +129,8 @@ function findInteractable(searchName, interactables) {
 
 // Disambiguate item selection - handles ambiguous matches
 // Returns: item object if found, "AMBIGUOUS" if ambiguous (sets state), null if not found
-function disambiguateItem(searchName, interactables, commandName) {
+// locationFilter: optional "room" or "inventory" to auto-resolve when only one candidate at that location
+function disambiguateItem(searchName, interactables, commandName, locationFilter = null) {
   // First: exact ID match
   const exactMatch = interactables.find((i) => i.id === searchName);
   if (exactMatch) return exactMatch;
@@ -162,7 +164,41 @@ function disambiguateItem(searchName, interactables, commandName) {
     return nameMatches[0]; // All interchangeable
   }
 
-  // Truly ambiguous - set state
+  // If location filter provided, try to resolve using only items at that location
+  if (locationFilter) {
+    const locationMatches = nameMatches.filter((m) => m.location === locationFilter);
+
+    if (locationMatches.length === 0) {
+      return null; // Nothing at this location
+    }
+
+    const locationUniqueIds = [...new Set(locationMatches.map((m) => m.id))];
+    if (locationUniqueIds.length === 1) {
+      return locationMatches[0]; // Only one candidate at this location
+    }
+
+    // Check stackIds within location
+    const locStackIds = locationMatches
+      .map((m) => {
+        const itemData = items[m.id] || objects[m.id];
+        return itemData?.stackId;
+      })
+      .filter((id) => id);
+
+    if (locStackIds.length === locationMatches.length && locStackIds.every((id) => id === locStackIds[0])) {
+      return locationMatches[0]; // All interchangeable at this location
+    }
+
+    // Still ambiguous - disambiguate among location-filtered matches only
+    gameState.disambiguationMatches = locationMatches;
+    gameState.disambiguationSearchName = searchName;
+    gameState.disambiguationOriginalCommand = commandName;
+
+    displayText(`Which ${searchName}?`);
+    return "AMBIGUOUS";
+  }
+
+  // No location filter - truly ambiguous among all matches
   gameState.disambiguationMatches = nameMatches;
   gameState.disambiguationSearchName = searchName;
   gameState.disambiguationOriginalCommand = commandName;
@@ -377,7 +413,11 @@ function handleDisambiguation(command, mainCommand) {
   });
 
   if (narrowedMatches.length === 0) {
-    displayText(`You don't have the ${command} ${previousSearch}.`);
+    if (originalCommand === "drop") {
+      displayText(`I don't have a ${command} ${previousSearch}.`);
+    } else {
+      displayText(`There is no ${command} ${previousSearch} here.`);
+    }
     clearDisambiguationState();
   } else if (narrowedMatches.length === 1) {
     const item = narrowedMatches[0];
@@ -394,9 +434,20 @@ function handleDisambiguation(command, mainCommand) {
       examine([item.id]);
     }
   } else {
-    gameState.disambiguationMatches = narrowedMatches;
-    gameState.disambiguationSearchName = `${command} ${previousSearch}`;
-    displayText(`Which ${gameState.disambiguationSearchName}?`);
+    const previousIds = new Set(matches.map((m) => m.id));
+    const narrowedIds = new Set(narrowedMatches.map((m) => m.id));
+
+    if (narrowedIds.size < previousIds.size) {
+      gameState.disambiguationMatches = narrowedMatches;
+      gameState.disambiguationSearchName = `${command} ${previousSearch}`;
+      displayText(`Which ${gameState.disambiguationSearchName}?`);
+    } else {
+      const options = [...new Set(narrowedMatches.map((m) => {
+        const data = items[m.id] || objects[m.id];
+        return data?.names?.[0] || m.id;
+      }))];
+      displayText(`Which ${previousSearch}? I can see: ${options.join(", ")}.`);
+    }
   }
 
   return true;

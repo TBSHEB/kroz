@@ -6,8 +6,11 @@
  * @returns {{ passed: boolean, type?: 'missing'|'restricted', failedFlag?: string }}
  */
 function checkFlagRequirements(action) {
-  if (action.requireFlags && !action.requireFlags.every((f) => gameState.flags.includes(f))) {
-    return { passed: false, type: 'missing' };
+  if (action.requireFlags) {
+    const missingFlag = action.requireFlags.find((f) => !gameState.flags.includes(f));
+    if (missingFlag) {
+      return { passed: false, type: 'missing', failedFlag: missingFlag };
+    }
   }
 
   if (action.requireNotFlags) {

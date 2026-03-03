@@ -14,12 +14,12 @@
 
 22 items completed: punctuation pass (items.js examines, objects.js messages, map.js failMessages and scenery messages, command displayText strings, mechanics.js dodge message).
 
-- [ ] Fix single-object take using multi-item prefix format - `take trapdoor` shows "trapdoor: You can't take that." instead of "You can't take that." (actions.js object check at line 56 always uses prefix)
-- [ ] Fix multi-examine missing newline after room items and inventory items - actions.js lines 360 and 369 don't append `\n`, causing entries to run together
+- [x] Fix single-object take using multi-item prefix format - added originalCount check to skip prefix for single-item takes (actions.js)
+- [x] Fix multi-examine missing newline after room items and inventory items - verified working correctly, newlines render via pre-wrap CSS
 - [x] setGameState duplicate flags - kept as feature: multiple pushes allow multiple code paths to set the same flag, removal only needs one unset. No active duplicates occur in practice
-- [ ] Make dungeonTrapdoor examine text conditional based on dungeonTrapdoorUnlocked/dungeonTrapdoorOpen flags (objects.js line 30)
+- [x] Make dungeonTrapdoor examine text conditional based on dungeonTrapdoorUnlocked/dungeonTrapdoorOpen flags (objects.js)
 - [x] Fix litDynamite warning messages not displaying when in inventory - added `gameState.inventory.includes(item)` check to environment.js line 400
-- [ ] Temporary item off-by-one: duration 5 takes 6 commands to expire (counts 0 through 5 inclusive) - environment.js checks `duration === count` before incrementing, so expiry fires on tick after count reaches duration. Either change check to `duration === count + 1` or document that duration means "expires after N+1 commands"
+- [x] Temporary item off-by-one: documented as intended behaviour - duration N expires on the Nth tick, triggering command counts as first tick (updated AGENTS.md)
 
 24 items completed: save name sanitisation (length + character validation in save/load), structural validation on load (type checks for all fields), puzzle state persistence verified (sequences saved/restored correctly).
 

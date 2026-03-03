@@ -73,6 +73,8 @@ exampleRoom: {
           unmetDescription: "A hole high in the wall is out of reach."
         }
       ],
+      removeRequirements: ["enemyDefeated"],       // If ALL these flags present, skip all requirements
+                                                  // Passage shows as normal (in direction list, no restricted description)
       room: "secretRoom",                       // Destination when all requirements met
       metDescription: "An open doorway leads east.",  // Shown in look when all requirements met
       hidden: true,                             // Don't show in look even when met (for secret passages)

@@ -57,7 +57,8 @@ function move(direction) {
     if (currentRoom.restrictedPassages && currentRoom.restrictedPassages[direction]) {
       const restrictedPassage = currentRoom.restrictedPassages[direction];
 
-      if (restrictedPassage.requirements) {
+      const removed = restrictedPassage.removeRequirements?.every((f) => gameState.flags.includes(f));
+      if (restrictedPassage.requirements && !removed) {
         const result = checkPassageRequirements(restrictedPassage.requirements, currentRoom);
         if (!result.met) {
           displayText(result.firstUnmet.failMessage);
@@ -120,7 +121,8 @@ function move(direction) {
               move(direction);
               return;
             }
-            if (currentRoom.restrictedPassages[direction].requirements) {
+            const removedBack = currentRoom.restrictedPassages[direction].removeRequirements?.every((f) => gameState.flags.includes(f));
+            if (currentRoom.restrictedPassages[direction].requirements && !removedBack) {
               const result = checkPassageRequirements(currentRoom.restrictedPassages[direction].requirements, currentRoom);
               if (!result.met) {
                 displayText(result.firstUnmet.backFailMessage || "You can't go back that way.");

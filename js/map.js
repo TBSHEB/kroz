@@ -422,8 +422,9 @@ const rooms = {
             unmetDescription: "Ominous grunting and heavy footsteps echo from the south."
           }
         ],
+        removeRequirements: ["ogreGone"],
         room: "ogre",
-        metDescription: "A passage to the south leads toward the ogre."
+        metDescription: "I should be safe enough now to take the southern passage."
       }
     },
     items: ["sword"],
@@ -1626,11 +1627,32 @@ const rooms = {
     },
     items: [],
     scenery: {
-      grain: "There's no grain left here, just the smell.",
-      mill: "The mill is far too large and heavy.",
-      stones: "The grinding stones are enormous and immovable.",
-      wheel: "The grinding wheel is massive and stuck in place.",
-      wheat: "Any wheat that was here turned to dust centuries ago."
+      grain: {
+        names: ["grain"],
+        message: "There's no grain left here, just the smell.",
+        examine: "Long gone. Only the faintest aroma remains."
+      },
+      stones: {
+        names: ["stones", "grinding stones"],
+        message: "The grinding stones are enormous and immovable.",
+        examine: "Massive circular stones, worn smooth from years of grinding."
+      },
+      wheel: {
+        names: ["wheel", "grinding wheel"],
+        message: "It's secured to the rest of the mill.",
+        examine: "A heavy stone wheel, used to grind grain into flour."
+      },
+      air: {
+        names: ["air", "smell", "scent", "aroma"],
+        message: "You take a deep inhalation. You choke on the thickness of it.",
+        examine: "The air seems to have retained the scent of old grain.",
+        allIgnore: true
+      },
+      dust: {
+        names: ["dust"],
+        message: "I'm not picking up dust.",
+        examine: "Fine powder settled over everything. Probably all that remains of the grain."
+      }
     },
     objects: ["grinder"]
   },
@@ -1640,7 +1662,22 @@ const rooms = {
     passages: { north: "grinder" },
     items: ["cup"],
     scenery: {
-      table: "It's bolted to the floor."
+      table: {
+        names: ["table"],
+        message: "It's bolted to the floor.",
+        examine: "It's a solid stone table, bolted firmly onto a solid stone floor."
+      },
+      dust: {
+        names: ["dust", "ring"],
+        message: "I'm getting the feeling that I shouldn't be touching stuff in here.",
+        examine: "The area inside the ring is completely free of dust, with a thin layer covering the rest of the table. Whatever is strange about that water, the dust doesn't seem to like it."
+      },
+      bolts: {
+        names: ["bolts", "bolt"],
+        message: "There isn't room to fit a wrench over the bolts. I have no idea how they were screwed in. Either way, they're not coming out.",
+        examine: "It looks to me like the table needed to be bolted down for some reason. Should I be scared of this water?",
+        allIgnore: true
+      }
     },
     light: true
   },
@@ -1666,8 +1703,45 @@ const rooms = {
     },
     items: [],
     scenery: {
-      pipes: "They're stuck fast to the wall.",
-      steam: "What steam?"
+      pipes: {
+        names: ["pipes"],
+        message: "They're stuck fast to the wall.",
+        examine: "A tangle of copper and iron pipes, running along the walls and ceiling."
+      },
+      steam: {
+        names: ["steam"],
+        message: "What steam?",
+        examine: "There's no steam here. The pipes don't have any apparent holes, so this is expected.",
+        allIgnore: true
+      },
+      door: {
+        names: ["door", "doorway", "iron door"],
+        message: "It's part of the wall.",
+        examine: {
+          parts: [
+            { text: "A heavy iron door with no visible keyhole. I have no idea how to open it.", unless: ["machineOn"] },
+            { text: "The heavy iron door stands open, revealing a passage to the southwest.", if: ["machineOn"] }
+          ]
+        }
+      },
+      iron: {
+        names: ["iron"],
+        message: "There's nothing here made of iron that I can carry.",
+        examine: "Iron and copper are everywhere here. The pipes, the door, the machines.",
+        allIgnore: true
+      },
+      copper: {
+        names: ["copper"],
+        message: "There's nothing here made of copper that I can carry.",
+        examine: "Copper piping runs throughout the room, tarnished green with age.",
+        allIgnore: true
+      },
+      steampunk: {
+        names: ["steampunk"],
+        message: "As much as I like the style, it's just for this one room.",
+        examine: "Pretty typical steampunk machines, gadgets, pipes. It looks nice.",
+        allIgnore: true
+      }
     },
     objects: ["machine"]
   },
@@ -1677,9 +1751,18 @@ const rooms = {
     passages: { north: "machine" },
     items: [],
     scenery: {
-      skylight: "It's far too high.",
-      light: "As much as I'd love for there to be this much light everywhere, I'm not a wizard.",
-      glass: "It's too high to reach."
+      light: {
+        names: ["light", "sunlight", "daylight"],
+        message: "The closest I'm going to get to taking that with me is the old lantern.",
+        examine: "It's bright, clean light. Quite refreshing.",
+        allIgnore: true
+      },
+      sun: {
+        names: ["sun", "sky"],
+        message: "You now have the sun. It sets your pants on fire, and then you are completely engulfed in flames — is what I would say if I could take the sun.",
+        examine: "I'm not looking at the sun.",
+        allIgnore: true
+      }
     },
     objects: ["code"]
   },
@@ -1692,9 +1775,24 @@ const rooms = {
     },
     items: [],
     scenery: {
-      time: "Not even here does time stay still long enough for me to grasp it.",
-      slowness: "The effect isn't something I can bring with me.",
-      effect: "Whatever causes this is beyond my understanding of physics."
+      time: {
+        names: ["time"],
+        message: "Not even here does time stay still long enough for me to grasp it.",
+        examine: "Time. Quite an interesting concept. Doesn't stop for anyone, the only constant in this universe. I like thinking about it.",
+        allIgnore: true
+      },
+      slowness: {
+        names: ["slowness", "stillness", "still"],
+        message: "The effect isn't something I can bring with me.",
+        examine: "It's hard to describe. Movement feels heavy, like the air is thick.",
+        allIgnore: true
+      },
+      effect: {
+        names: ["effect"],
+        message: "Whatever causes this is beyond my understanding of physics.",
+        examine: "I have no idea what's causing this. It doesn't seem natural.",
+        allIgnore: true
+      }
     }
   },
   boring: {
@@ -1713,7 +1811,15 @@ const rooms = {
       north: "still",
       east: "round"
     },
-    items: []
+    items: [],
+    scenery: {
+      boredom: {
+        names: ["boredom"],
+        message: "Even if I could take boredom with me, I see no reason why I'd want to.",
+        examine: "It's just... boring. There's nothing interesting about this room at all.",
+        allIgnore: true
+      }
+    }
   },
   round: {
     name: "The Round room",

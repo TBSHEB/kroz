@@ -174,6 +174,7 @@ const rooms = {
         requirements: [
           {flag: "doorOpen", failMessage: "The door is locked."}
         ],
+        removeRequirements: ["enemyGone"],  // If all flags present, skip requirements and show as normal passage
         room: "secretRoom",
         metDescription: "An open door to the east."
       }
@@ -235,7 +236,7 @@ const items = {
     },
     temporary: {                 // Countdown config (optional)
       requireFlags: ["flagName"],  // Only counts when all flags present
-      duration: 800,
+      duration: 800,               // Expires on the Nth tick (triggering command counts as first tick)
       // ...
     },
     operate: {                   // Operating the item
@@ -267,7 +268,7 @@ Items with `temporary` property count down while in inventory:
 ```javascript
 temporary: {
   requireFlags: ["lanternLit"],   // Only counts when all flags present
-  duration: 800,                  // Commands until expiration
+  duration: 800,                  // Expires on the Nth tick (triggering command counts as first tick)
   messages: {                     // Warning messages at specific counts
     100: "Getting low...",
     750: "Almost done!"
@@ -623,7 +624,7 @@ Items with countdown timers (lantern, litDynamite):
 
 - `temporary` property is a plain object with countdown config
 - `requireFlags` array: countdown only ticks when all flags are present
-- Counts up each command until reaching `duration`
+- Counts up each command until reaching `duration`; the triggering command counts as the first tick, so `duration: 5` gives 4 usable commands after activation
 - Shows warning messages at specific counts
 - On expiration: "extinguish" (turn off) or "destroy" (explode)
 - Can set/unset flags on expiration

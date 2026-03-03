@@ -6,7 +6,14 @@ const DEV_MODE = true;
 let _gameIsProcessing = false;
 const MAX_CHEAT_WARNINGS = 3;
 
+function buildCheatText(count) {
+  if (count === 0) return '';
+  return `\n...and you edited the game data ${count === 1 ? '1 time' : `${count} times`}.`;
+}
+
 function createGameStateProxy(target) {
+  const proxyCache = new WeakMap();
+
   const handler = {
     set(obj, prop, value) {
       if (!_gameIsProcessing) {
@@ -16,8 +23,7 @@ function createGameStateProxy(target) {
           );
         }
         _rawGameState.cheatCount++;
-        const count = _rawGameState.cheatCount;
-        _rawGameState.cheatText = `\n...and you edited the game data ${count === 1 ? '1 time' : `${count} times`}.`;
+        _rawGameState.cheatText = buildCheatText(_rawGameState.cheatCount);
       }
       obj[prop] = value;
       return true;
@@ -25,7 +31,10 @@ function createGameStateProxy(target) {
     get(obj, prop) {
       const value = obj[prop];
       if (typeof value === 'object' && value !== null) {
-        return new Proxy(value, handler);
+        if (!proxyCache.has(value)) {
+          proxyCache.set(value, new Proxy(value, handler));
+        }
+        return proxyCache.get(value);
       }
       return value;
     }
@@ -121,8 +130,7 @@ function resetGameState(saveData) {
   gameState.commandCount = saveData.commandCount || 0;
   gameState.lastCheckpoint = saveData.lastCheckpoint;
   gameState.cheatCount = saveData.cheatCount || 0;
-  const count = gameState.cheatCount;
-  gameState.cheatText = count === 0 ? '' : `\n...and you edited the game data ${count === 1 ? '1 time' : `${count} times`}.`;
+  gameState.cheatText = buildCheatText(gameState.cheatCount);
   clearUseState();
   _gameIsProcessing = false;
 }

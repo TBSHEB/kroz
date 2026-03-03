@@ -89,20 +89,13 @@ function handleUseCommand(alias, things) {
     const namesToCheck = actionType === "attack"
       ? [...parsed.target, ...parsed.items]
       : [...parsed.items, ...parsed.target];
-    const disambigThings = [...things];
 
     for (const name of namesToCheck) {
       const result = disambiguateItem(name, interactables, alias);
       if (result === "AMBIGUOUS") {
-        gameState.disambiguationUseThings = disambigThings;
-        gameState.disambiguationUseIndex = disambigThings.indexOf(name);
+        gameState.disambiguationUseThings = [...things];
+        gameState.disambiguationUseIndex = things.indexOf(name);
         return;
-      }
-      if (result) {
-        const idx = disambigThings.indexOf(name);
-        if (idx > -1) {
-          disambigThings[idx] = result.id;
-        }
       }
     }
   }

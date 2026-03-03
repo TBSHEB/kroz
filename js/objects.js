@@ -27,15 +27,25 @@ const objects = {
 
   dungeonTrapdoor: {
     names: ["trapdoor", "trap door", "trap-door", "door", "hatch", "floor door", "floor-door"],
-    examine: "It's locked, however there is a keyhole.",
+    examine: {
+      parts: [
+        { text: "It's locked, however there is a keyhole.", unless: ["dungeonTrapdoorUnlocked"] },
+        { text: "It's closed.", if: ["dungeonTrapdoorUnlocked"], unless: ["dungeonTrapdoorOpen"] },
+        { text: "It's open. I can fit through.", if: ["dungeonTrapdoorOpen"] }
+      ]
+    },
     togglable: true,
     hiddenUnlessHasFlag: "dungeonWoodTaken",
     operate: {
       open: {
         allowedVerbs: ["open", "lift"],
         message: "You open the trapdoor.",
+        requireFlags: ["dungeonTrapdoorUnlocked"],
         requireNotFlags: ["dungeonTrapdoorOpen"],
-        failMessage: "The trapdoor is already open.",
+        failMessages: {
+          dungeonTrapdoorUnlocked: "It's locked.",
+          dungeonTrapdoorOpen: "The trapdoor is already open."
+        },
         effects: {
           setFlags: ["dungeonTrapdoorOpen"]
         }
@@ -43,8 +53,11 @@ const objects = {
       close: {
         allowedVerbs: ["close", "shut"],
         message: "You shut the trapdoor.",
-        requireFlags: ["dungeonTrapdoorOpen"],
-        failMessage: "The trapdoor is already closed.",
+        requireFlags: ["dungeonTrapdoorUnlocked", "dungeonTrapdoorOpen"],
+        failMessages: {
+          dungeonTrapdoorUnlocked: "It's locked.",
+          dungeonTrapdoorOpen: "The trapdoor is already closed."
+        },
         effects: {
           unsetFlags: ["dungeonTrapdoorOpen"]
         }
