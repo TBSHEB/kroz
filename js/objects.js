@@ -149,7 +149,7 @@ const objects = {
   },
 
   cavein: {
-    names: ["cavein", "cave-in", "blockage", "rubble", "rocks", "debris", "stones", "collapse"],
+    names: ["cavein", "cave-in", "cave in", "blockage", "rubble", "rocks", "debris", "stones", "collapse"],
     examine:
       "A pile of rubble and broken rock blocks the passage. It looks like it could be cleared with the right tool.",
     applyWith: {
@@ -162,7 +162,7 @@ const objects = {
           removeObjectsIfAllFlags: {
             required: ["pick1UsedOnCavein", "pick2UsedOnCavein"],
             objects: ["cavein"],
-            message: "\nHowever, the cavein is passable now."
+            message: "\nHowever, the cave-in is passable now."
           },
           setFlagsIfAllFlags: { set: ["caveinRemoved"], required: ["pick1UsedOnCavein", "pick2UsedOnCavein"] }
         }
@@ -176,7 +176,7 @@ const objects = {
           removeObjectsIfAllFlags: {
             required: ["pick1UsedOnCavein", "pick2UsedOnCavein"],
             objects: ["cavein"],
-            message: "\nHowever, the cavein is passable now."
+            message: "\nHowever, the cave-in is passable now."
           },
           setFlagsIfAllFlags: { set: ["caveinRemoved"], required: ["pick1UsedOnCavein", "pick2UsedOnCavein"] }
         }
@@ -193,7 +193,7 @@ const objects = {
         }
       ],
       _default: {
-        message: "That won't clear the cavein."
+        message: "That won't clear the cave-in."
       }
     }
   },

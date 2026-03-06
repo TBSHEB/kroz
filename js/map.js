@@ -53,7 +53,7 @@ const rooms = {
       }
     },
     items: ["dungeonWood"],
-    objects: ["dungeonLamp", "dungeonTrapdoor"],
+    objects: ["dungeonLamp", "dungeonTrapdoor", "wall"],
     scenery: {
       chains: {
         names: ["chains", "chain", "chandelier chains"],
@@ -184,7 +184,7 @@ const rooms = {
       bench: {
         names: ["bench", "workbench", "work bench", "work-bench"],
         message: "It's too heavy.",
-        examine: "A small, sturdy work bench."
+        examine: "A small, sturdy workbench."
       }
     }
   },
@@ -1764,7 +1764,8 @@ const rooms = {
         allIgnore: true
       }
     },
-    objects: ["code"]
+    objects: ["code"],
+    light: true
   },
   still: {
     name: "The Still room",
@@ -2011,7 +2012,7 @@ const rooms = {
   ball: {
     name: "The Ball room",
     look: {
-      base: "A domed, high-tech room.",
+      base: "A domed, high-tech room. There's a panel on the wall, with four buttons on it.",
       parts: [
         {
           text: "There's a floating ball in the middle of the room. It's reflective, and refractive at the same time. You can see a green light originating from inside.",
@@ -2025,6 +2026,7 @@ const rooms = {
       ball: "Upon touching the ball, your hand is thrown back with great velocity.",
       energy: "You stick your hand into the energy. You recieve a sharp zap. You pull your hand away.",
       forcefield: "You touch the force field. It pulses, throwing you back.",
+      panel: "It has four buttons. A red, a blue, a yellow, and a green. They are identical, save for the colour.",
       "force-field": "You touch the force field. It pulses, throwing you back.",
       "force field": "You touch the force field. It pulses, throwing you back."
     },
@@ -2430,7 +2432,7 @@ const rooms = {
           { flag: "hatboxOpened", failMessage: "I'm not sure how you want me to go down.", unmetDescription: "" }
         ],
         room: "bell",
-        metDescription: "There's a false bottom in the hat box in the middle of the room, hiding a secret tunnel."
+        metDescription: "There's a false bottom in the hatbox in the middle of the room, hiding a secret tunnel."
       }
     },
     items: [],
